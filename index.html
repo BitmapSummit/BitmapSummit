@@ -20,7 +20,66 @@
     --accent: #FF6B00;
     --green: #39FF14;
     --pixel: 2px;
+    --nav-bg: rgba(10,10,10,0.92);
+    --terminal-bg: #0D0D0D;
   }
+
+  /* ── LIGHT MODE ── */
+  body.light {
+    --bg: #F5F0E8;
+    --bg2: #FFFDF8;
+    --bg3: #EDE8DE;
+    --border: rgba(194, 110, 0, 0.3);
+    --text: #1A1208;
+    --muted: #6B5B3A;
+    --orange-glow: rgba(247, 147, 26, 0.12);
+    --green: #1A8A00;
+    --nav-bg: rgba(245,240,232,0.96);
+    --terminal-bg: #EDE8DE;
+  }
+
+  body.light::before {
+    background-image:
+      linear-gradient(rgba(194,110,0,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(194,110,0,0.06) 1px, transparent 1px);
+  }
+
+  body.light::after { opacity: 0.3; }
+
+  body.light .terminal { background: var(--terminal-bg); color: var(--text); }
+  body.light .terminal .cmt { color: #9B8A6A; }
+  body.light .terminal .str { color: #5A7A2A; }
+  body.light .terminal .num { color: #2A6A9A; }
+  body.light .price-tracker { background: var(--bg3); border-bottom-color: var(--border); }
+  body.light .marquee-wrap { background: var(--bg2); border-color: var(--border); }
+  body.light .nav-buy-dropdown { background: var(--bg2); border-color: var(--border); }
+  body.light .highlight-box { background: rgba(247,147,26,0.06); }
+
+  /* ── THEME TOGGLE ── */
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.3rem 0.75rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+  }
+  .theme-toggle:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+    background: var(--orange-glow);
+  }
+  .theme-toggle .toggle-icon { font-size: 0.85rem; line-height: 1; }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -68,7 +127,7 @@
     position: fixed;
     top: 0; left: 0; right: 0;
     z-index: 1000;
-    background: rgba(10,10,10,0.92);
+    background: var(--nav-bg);
     border-bottom: 1px solid var(--border);
     backdrop-filter: blur(12px);
     padding: 0 2rem;
@@ -474,7 +533,7 @@
 
   /* ── TERMINAL BLOCK ── */
   .terminal {
-    background: #0D0D0D;
+    background: var(--terminal-bg);
     border: 1px solid var(--border);
     border-left: 3px solid var(--orange);
     padding: 1.5rem;
@@ -748,6 +807,167 @@
   .reveal.visible {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  /* ── LIVE PRICE TRACKER ── */
+  .price-tracker {
+    position: relative;
+    z-index: 2;
+    background: var(--terminal-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+  }
+
+  .price-tracker-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0;
+    align-items: stretch;
+  }
+
+  .price-tracker-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 1.5rem 0 0;
+    border-right: 1px solid var(--border);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--orange);
+    letter-spacing: 2px;
+    white-space: nowrap;
+  }
+
+  .live-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: livepulse 1.2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes livepulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .price-cards {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .price-cards::-webkit-scrollbar { display: none; }
+
+  .price-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0.9rem 1.5rem;
+    border-right: 1px solid var(--border);
+    min-width: 160px;
+    position: relative;
+    transition: background 0.2s;
+    cursor: default;
+  }
+
+  .price-card:hover { background: rgba(247,147,26,0.04); }
+
+  .price-card.btc-card {
+    border-left: 1px solid var(--border);
+    background: rgba(247,147,26,0.03);
+  }
+
+  .price-card-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .price-card-label .tier-badge {
+    font-size: 0.5rem;
+    padding: 0.05rem 0.3rem;
+    background: var(--orange-glow);
+    color: var(--orange);
+    border: 1px solid var(--border);
+    letter-spacing: 1px;
+  }
+
+  .price-card-btc {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+  }
+
+  .price-card-usd {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-top: 0.15rem;
+  }
+
+  .price-card-change {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    margin-top: 0.15rem;
+  }
+
+  .price-card-change.up { color: var(--green); }
+  .price-card-change.down { color: #FF5050; }
+  .price-card-change.neutral { color: var(--muted); }
+
+  .price-loading {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    animation: blink 1s infinite;
+  }
+
+  .price-source {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--orange-dim);
+    letter-spacing: 1px;
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    margin-left: auto;
+  }
+
+  .price-source a {
+    color: var(--orange-dim);
+    text-decoration: none;
+  }
+  .price-source a:hover { color: var(--orange); }
+
+  .price-updated {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55rem;
+    color: #444;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 768px) {
+    .price-tracker-inner { grid-template-columns: 1fr; padding: 0 1rem; }
+    .price-tracker-label { border-right: none; border-bottom: 1px solid var(--border); padding: 0.6rem 0; }
+    .price-card { min-width: 130px; padding: 0.7rem 1rem; }
+    .price-source, .price-updated { display: none; }
   }
 
   /* ── SCROLLBAR ── */
@@ -1052,6 +1272,25 @@
     <li><a href="projects.html">PROJECTS</a></li>
     <li><a href="future.html">FUTURE</a></li>
     <li><a href="founders.html">FOUNDERS</a></li>
+    <li class="nav-buy">
+      <button class="nav-buy-btn">🛒 BUY <span class="arrow">▼</span></button>
+      <div class="nav-buy-dropdown">
+        <a href="https://www.satflow.com/ordinals/bitmap" target="_blank" rel="noopener">
+          <div class="market-icon">💧</div>
+          <div class="market-name"><span>Satflow</span><span>satflow.com</span></div>
+        </a>
+        <a href="https://ordinalswallet.com/collection/bitmap" target="_blank" rel="noopener">
+          <div class="market-icon">📝</div>
+          <div class="market-name"><span>Ordinals Wallet</span><span>ordinalswallet.com</span></div>
+        </a>
+      </div>
+    </li>
+    <li style="display:flex;align-items:center;">
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+        <span class="toggle-icon" id="toggleIcon">☀️</span>
+        <span id="toggleLabel">LIGHT</span>
+      </button>
+    </li>
   </ul>
 </nav>
 
@@ -1072,6 +1311,63 @@
     <span class="marquee-item"><span class="dot">▮</span> OPEN-SOURCE PROTOCOL</span>
     <span class="marquee-item"><span class="dot">▮</span> BRC-420 ECOSYSTEM</span>
     <span class="marquee-item"><span class="dot">▮</span> ATLAS OS — INSCRIPTION-BASED OS</span>
+  </div>
+</div>
+
+<!-- ── LIVE PRICE TRACKER ── -->
+<div class="price-tracker">
+  <div class="price-tracker-inner">
+    <div class="price-tracker-label">
+      <span class="live-dot"></span>
+      LIVE PRICES
+    </div>
+    <div class="price-cards">
+
+      <!-- BTC Price -->
+      <div class="price-card btc-card">
+        <div class="price-card-label">₿ BITCOIN</div>
+        <div class="price-card-btc" id="btc-price"><span class="price-loading">LOADING...</span></div>
+        <div class="price-card-change neutral" id="btc-change">—</div>
+      </div>
+
+      <!-- Bitmap Floor -->
+      <div class="price-card">
+        <div class="price-card-label">
+          🟧 BITMAP FLOOR
+          <span class="tier-badge">ALL</span>
+        </div>
+        <div class="price-card-btc" id="floor-btc"><span class="price-loading">LOADING...</span></div>
+        <div class="price-card-usd" id="floor-usd">—</div>
+        <div class="price-card-change neutral" id="floor-change">—</div>
+      </div>
+
+      <!-- Sub-10K -->
+      <div class="price-card">
+        <div class="price-card-label">
+          🏅 SUB-10K
+          <span class="tier-badge">RARE</span>
+        </div>
+        <div class="price-card-btc" id="sub10k-btc"><span class="price-loading">LOADING...</span></div>
+        <div class="price-card-usd" id="sub10k-usd">—</div>
+        <div class="price-card-change neutral" id="sub10k-change">—</div>
+      </div>
+
+      <!-- Sub-1K -->
+      <div class="price-card">
+        <div class="price-card-label">
+          💎 SUB-1K
+          <span class="tier-badge">ULTRA RARE</span>
+        </div>
+        <div class="price-card-btc" id="sub1k-btc"><span class="price-loading">LOADING...</span></div>
+        <div class="price-card-usd" id="sub1k-usd">—</div>
+        <div class="price-card-change neutral" id="sub1k-change">—</div>
+      </div>
+
+      <div class="price-updated" id="last-updated">UPDATING...</div>
+      <div class="price-source">
+        DATA: <a href="https://www.satflow.com/ordinals/bitmap" target="_blank" rel="noopener">&nbsp;SATFLOW</a>&nbsp;·&nbsp;<a href="https://magiceden.io/ordinals/marketplace/bitmap" target="_blank" rel="noopener">MAGIC EDEN</a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1246,7 +1542,201 @@
 </footer>
 
 <script>
-// Hero pixel BG
+// ── LIVE PRICE TRACKER ──
+// BTC price via Coinbase public API (no key needed)
+// Bitmap prices via Magic Eden public API
+
+let btcUsd = 0;
+
+function fmt(n, dec=4) {
+  if(!n || isNaN(n)) return '—';
+  return n.toFixed(dec).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+}
+
+function fmtUsd(n) {
+  if(!n || isNaN(n)) return '—';
+  if(n >= 1000) return '$' + n.toLocaleString('en-US', {maximumFractionDigits:0});
+  return '$' + n.toFixed(2);
+}
+
+function fmtChange(pct) {
+  if(pct === null || pct === undefined || isNaN(pct)) return {text:'—', cls:'neutral'};
+  const sign = pct >= 0 ? '▲ +' : '▼ ';
+  const cls = pct >= 0 ? 'up' : 'down';
+  return {text: sign + Math.abs(pct).toFixed(2) + '%', cls};
+}
+
+function setEl(id, html) {
+  const el = document.getElementById(id);
+  if(el) el.innerHTML = html;
+}
+
+function setChange(id, pct) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  const {text, cls} = fmtChange(pct);
+  el.textContent = text;
+  el.className = 'price-card-change ' + cls;
+}
+
+// ── FETCH BTC PRICE (Coinbase) ──
+async function fetchBTC() {
+  try {
+    const r = await fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot');
+    const d = await r.json();
+    btcUsd = parseFloat(d.data.amount);
+    setEl('btc-price', '$' + btcUsd.toLocaleString('en-US', {maximumFractionDigits:0}));
+
+    // Get 24h change from Coinbase
+    const r2 = await fetch('https://api.coinbase.com/v2/prices/BTC-USD/historic?period=day');
+    const d2 = await r2.json();
+    if(d2.data && d2.data.prices && d2.data.prices.length > 1) {
+      const prices = d2.data.prices;
+      const oldest = parseFloat(prices[0].price);
+      const newest = btcUsd;
+      const pct = ((newest - oldest) / oldest) * 100;
+      setChange('btc-change', pct);
+    }
+    return btcUsd;
+  } catch(e) {
+    // Fallback: try alternative
+    try {
+      const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true');
+      const d = await r.json();
+      btcUsd = d.bitcoin.usd;
+      setEl('btc-price', '$' + btcUsd.toLocaleString('en-US', {maximumFractionDigits:0}));
+      setChange('btc-change', d.bitcoin.usd_24h_change);
+      return btcUsd;
+    } catch(e2) {
+      setEl('btc-price', '<span style="color:var(--muted);font-size:0.7rem">UNAVAILABLE</span>');
+    }
+  }
+  return 0;
+}
+
+// ── FETCH BITMAP PRICES (Magic Eden public API) ──
+async function fetchBitmapPrices() {
+  // Magic Eden public API — no key needed for basic stats
+  const ME_BASE = 'https://api-mainnet.magiceden.dev/v2/ord/btc/collections';
+  const headers = { 'Accept': 'application/json' };
+
+  // Floor price — general bitmap collection
+  try {
+    const r = await fetch(`${ME_BASE}/bitmap/stats`, { headers });
+    const d = await r.json();
+    const floorSats = d.floorPrice; // in sats
+    if(floorSats && btcUsd) {
+      const floorBtc = floorSats / 1e8;
+      const floorUsd = floorBtc * btcUsd;
+      setEl('floor-btc', fmt(floorBtc) + ' <span style="font-size:0.6rem;color:var(--orange)">BTC</span>');
+      setEl('floor-usd', fmtUsd(floorUsd));
+      if(d.floorPriceChange !== undefined) setChange('floor-change', d.floorPriceChange * 100);
+    } else {
+      throw new Error('no floor');
+    }
+  } catch(e) {
+    // Fallback to Satflow scraping via allorigins proxy
+    try {
+      const r = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.satflow.com/v1/collections/bitmap'));
+      const d = await r.json();
+      if(d.floorPrice && btcUsd) {
+        const floorBtc = d.floorPrice / 1e8;
+        setEl('floor-btc', fmt(floorBtc) + ' <span style="font-size:0.6rem;color:var(--orange)">BTC</span>');
+        setEl('floor-usd', fmtUsd(floorBtc * btcUsd));
+      }
+    } catch(e2) {
+      setEl('floor-btc', '<span style="font-size:0.72rem;color:var(--muted)">VIEW ON SATFLOW →</span>');
+      setEl('floor-usd', '');
+      document.getElementById('floor-btc').style.cursor = 'pointer';
+      document.getElementById('floor-btc').onclick = () => window.open('https://www.satflow.com/ordinals/bitmap','_blank');
+    }
+  }
+
+  // Sub-10K — use Magic Eden collection with sub10k slug or traits filter
+  try {
+    const r = await fetch(`${ME_BASE}/bitmap-sub10k/stats`, { headers });
+    const d = await r.json();
+    if(d.floorPrice && btcUsd) {
+      const btcVal = d.floorPrice / 1e8;
+      setEl('sub10k-btc', fmt(btcVal) + ' <span style="font-size:0.6rem;color:var(--orange)">BTC</span>');
+      setEl('sub10k-usd', fmtUsd(btcVal * btcUsd));
+      if(d.floorPriceChange !== undefined) setChange('sub10k-change', d.floorPriceChange * 100);
+    } else throw new Error('no sub10k');
+  } catch(e) {
+    // Fallback: fetch listings and filter by block < 10000
+    try {
+      const r = await fetch(`${ME_BASE}/bitmap/listings?limit=20&sortBy=priceAsc`, { headers });
+      const d = await r.json();
+      const sub10k = (d || []).filter(item => {
+        const num = parseInt((item.meta?.name || item.id || '').replace('.bitmap',''));
+        return !isNaN(num) && num < 10000;
+      });
+      if(sub10k.length > 0 && btcUsd) {
+        const btcVal = sub10k[0].price / 1e8;
+        setEl('sub10k-btc', fmt(btcVal) + ' <span style="font-size:0.6rem;color:var(--orange)">BTC</span>');
+        setEl('sub10k-usd', fmtUsd(btcVal * btcUsd));
+        setChange('sub10k-change', null);
+      } else throw new Error('none found');
+    } catch(e2) {
+      setEl('sub10k-btc', '<span style="font-size:0.65rem;color:var(--muted)">CHECK MARKET →</span>');
+      setEl('sub10k-usd', '');
+      document.getElementById('sub10k-btc').style.cursor = 'pointer';
+      document.getElementById('sub10k-btc').onclick = () => window.open('https://www.satflow.com/ordinals/bitmap?maxBlock=9999','_blank');
+    }
+  }
+
+  // Sub-1K
+  try {
+    const r = await fetch(`${ME_BASE}/bitmap-sub1k/stats`, { headers });
+    const d = await r.json();
+    if(d.floorPrice && btcUsd) {
+      const btcVal = d.floorPrice / 1e8;
+      setEl('sub1k-btc', fmt(btcVal) + ' <span style="font-size:0.6rem;color:var(--orange)">BTC</span>');
+      setEl('sub1k-usd', fmtUsd(btcVal * btcUsd));
+      if(d.floorPriceChange !== undefined) setChange('sub1k-change', d.floorPriceChange * 100);
+    } else throw new Error('no sub1k');
+  } catch(e) {
+    try {
+      const r = await fetch(`${ME_BASE}/bitmap/listings?limit=20&sortBy=priceAsc`, { headers });
+      const d = await r.json();
+      const sub1k = (d || []).filter(item => {
+        const num = parseInt((item.meta?.name || item.id || '').replace('.bitmap',''));
+        return !isNaN(num) && num < 1000;
+      });
+      if(sub1k.length > 0 && btcUsd) {
+        const btcVal = sub1k[0].price / 1e8;
+        setEl('sub1k-btc', fmt(btcVal) + ' <span style="font-size:0.6rem;color:var(--orange)">BTC</span>');
+        setEl('sub1k-usd', fmtUsd(btcVal * btcUsd));
+        setChange('sub1k-change', null);
+      } else throw new Error('none found');
+    } catch(e2) {
+      setEl('sub1k-btc', '<span style="font-size:0.65rem;color:var(--muted)">CHECK MARKET →</span>');
+      setEl('sub1k-usd', '');
+      document.getElementById('sub1k-btc').style.cursor = 'pointer';
+      document.getElementById('sub1k-btc').onclick = () => window.open('https://www.satflow.com/ordinals/bitmap?maxBlock=999','_blank');
+    }
+  }
+}
+
+function updateTimestamp() {
+  const el = document.getElementById('last-updated');
+  if(el) {
+    const now = new Date();
+    el.textContent = 'UPDATED ' + now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  }
+}
+
+async function refreshAll() {
+  await fetchBTC();
+  await fetchBitmapPrices();
+  updateTimestamp();
+}
+
+// Initial load + refresh every 60 seconds
+refreshAll();
+setInterval(refreshAll, 60000);
+
+// ── HERO PIXEL BG ──
 const bg = document.getElementById('heroBg');
 for(let i = 0; i < 400; i++) {
   const s = document.createElement('span');
