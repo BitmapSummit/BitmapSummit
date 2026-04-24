@@ -8,32 +8,32 @@
 </head>
 <body>
 <nav>
-  <a href="index.html" class="nav-logo"><div class="pixel-icon"><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span></div>BITMAP HUB</a>
+  <a href="index.html" class="nav-logo">
+    <div class="pixel-icon">
+      <span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span>
+    </div>
+    BITMAP HUB
+  </a>
   <ul class="nav-links">
-    <li><a href="introduction.html">INTRO</a></li><li><a href="history.html">HISTORY</a></li><li><a href="metaverse.html">METAVERSE</a></li>
-    <li><a href="rarity.html">RARITY</a></li><li><a href="data.html">DATA</a></li><li><a href="tools.html" style="color:var(--orange)">TOOLS</a></li>
-    <li><a href="marketplaces.html">MARKETS</a></li><li><a href="projects.html">PROJECTS</a></li><li><a href="future.html">FUTURE</a></li><li><a href="founders.html">FOUNDERS</a></li>
+    <li><a href="introduction.html">INTRO</a></li>
+    <li><a href="history.html">HISTORY</a></li>
+    <li><a href="metaverse.html">METAVERSE</a></li>
+    <li><a href="rarity.html">RARITY</a></li>
+    <li><a href="data.html">DATA</a></li>
+    <li><a href="tools.html" style="color:var(--orange);">TOOLS</a></li>
+    <li><a href="marketplaces.html">MARKETS</a></li>
+    <li><a href="projects.html">PROJECTS</a></li>
+    <li><a href="future.html">FUTURE</a></li>
+    <li><a href="founders.html">FOUNDERS</a></li>
     <li><a href="dashboard.html">MY BITMAP</a></li>
-    <li class="nav-buy">
-      <button class="nav-buy-btn">🛒 BUY <span class="arrow">▼</span></button>
-      <div class="nav-buy-dropdown">
-        <a href="https://www.satflow.com/ordinals/bitmap" target="_blank" rel="noopener">
-          <div class="market-icon">💧</div>
-          <div class="market-name"><span>Satflow</span><span>satflow.com</span></div>
-        </a>
-        <a href="https://ordinalswallet.com/collection/bitmap" target="_blank" rel="noopener">
-          <div class="market-icon">📝</div>
-          <div class="market-name"><span>Ordinals Wallet</span><span>ordinalswallet.com</span></div>
-        </a>
-      </div>
-    </li>
-    <li style="display:flex;align-items:center;">
-      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">
-        <span class="toggle-icon" id="toggleIcon">☀️</span>
-        <span id="toggleLabel">LIGHT</span>
-      </button>
-    </li>
   </ul>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+    <span class="toggle-icon" id="toggleIcon">☀️</span>
+    <span id="toggleLabel">LIGHT</span>
+  </button>
 </nav>
 
 <div class="page-header">
@@ -229,5 +229,25 @@
   <a href="marketplaces.html" class="btn btn-primary">BITMAP MARKETPLACES →</a>
 </section>
 <footer><div class="footer-logo">▮ BITMAP HUB</div><p class="footer-text">Community reference site. Not financial advice.</p></footer>
+<script>
+// ── THEME TOGGLE ──
+function applyTheme(mode) {
+  document.body.classList.toggle('light', mode === 'light');
+  const icon = document.getElementById('toggleIcon');
+  const label = document.getElementById('toggleLabel');
+  if (icon) icon.textContent = mode === 'light' ? '🌑' : '☀️';
+  if (label) label.textContent = mode === 'light' ? 'DARK' : 'LIGHT';
+}
+function toggleTheme() {
+  const isLight = document.body.classList.contains('light');
+  const next = isLight ? 'dark' : 'light';
+  localStorage.setItem('bitmapTheme', next);
+  applyTheme(next);
+}
+(function() {
+  const saved = localStorage.getItem('bitmapTheme') || 'dark';
+  applyTheme(saved);
+})();
+</script>
 </body>
 </html>

@@ -202,8 +202,8 @@ body.light .wallet-btc-bal { color: var(--text); }
 }
 
 .wallet-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  padding: 0.6rem 0.4rem;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 0.75rem 0.4rem;
   background: var(--bg3); border: 1px solid var(--border);
   color: var(--text); cursor: pointer;
   font-family: 'Share Tech Mono', monospace;
@@ -212,8 +212,11 @@ body.light .wallet-btc-bal { color: var(--text); }
 }
 .wallet-btn:hover { border-color: var(--orange); background: var(--orange-glow); color: var(--orange); }
 .wallet-btn.connected { border-color: var(--green); background: rgba(57,255,20,0.05); color: var(--green); }
-.wallet-btn .w-icon { font-size: 1.2rem; }
-.wallet-btn .w-name { font-size: 0.55rem; }
+.wallet-btn .w-icon {
+  width: 36px; height: 36px; object-fit: contain;
+  border-radius: 6px; display: block;
+}
+.wallet-btn .w-name { font-size: 0.52rem; margin-top: 2px; }
 
 .disconnect-btn {
   width: 100%; padding: 0.5rem;
@@ -386,8 +389,8 @@ body.light .not-connected h2 { color: var(--text); }
 }
 
 .connect-wallet-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 0.75rem; max-width: 600px; width: 100%;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 0.75rem; max-width: 500px; width: 100%;
 }
 
 .connect-wallet-card {
@@ -402,7 +405,9 @@ body.light .not-connected h2 { color: var(--text); }
   border-color: var(--orange); color: var(--orange);
   background: var(--orange-glow); transform: translateY(-2px);
 }
-.connect-wallet-card .cw-icon { font-size: 2rem; }
+.connect-wallet-card .cw-icon {
+  width: 52px; height: 52px; object-fit: contain; border-radius: 10px;
+}
 .connect-wallet-card .cw-name { font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase; }
 .connect-wallet-card .cw-status {
   font-size: 0.55rem; color: var(--green);
@@ -698,13 +703,6 @@ body.light .bitmap-card-actions { background: rgba(245,240,232,0.9); }
     <li><a href="future.html">FUTURE</a></li>
     <li><a href="founders.html">FOUNDERS</a></li>
     <li><a href="dashboard.html" class="active">MY BITMAP</a></li>
-    <li class="nav-buy">
-      <button class="nav-buy-btn">🛒 BUY <span>▼</span></button>
-      <div class="nav-buy-dropdown">
-        <a href="https://www.satflow.com/ordinals/bitmap" target="_blank" rel="noopener"><div class="market-icon">💧</div><div class="market-name"><span>Satflow</span><span>satflow.com</span></div></a>
-        <a href="https://ordinalswallet.com/collection/bitmap" target="_blank" rel="noopener"><div class="market-icon">📝</div><div class="market-name"><span>Ordinals Wallet</span><span>ordinalswallet.com</span></div></a>
-      </div>
-    </li>
   </ul>
   <div class="nav-right">
     <button class="theme-toggle" onclick="toggleTheme()">
@@ -727,28 +725,24 @@ body.light .bitmap-card-actions { background: rgba(245,240,232,0.9); }
         <p style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.6;">Connect your Bitcoin wallet to view your Bitmaps and digital assets.</p>
         <div class="wallet-grid">
           <button class="wallet-btn" onclick="connectWallet('xverse')">
-            <span class="w-icon">🟣</span>
-            <span class="w-name">Xverse</span>
+            <img class="w-icon" src="Xverse.png" alt="Xverse">
+            <span class="w-name">XVERSE</span>
           </button>
           <button class="wallet-btn" onclick="connectWallet('unisat')">
-            <span class="w-icon">🟠</span>
-            <span class="w-name">Unisat</span>
+            <img class="w-icon" src="Unisat.png" alt="Unisat">
+            <span class="w-name">UNISAT</span>
           </button>
           <button class="wallet-btn" onclick="connectWallet('okx')">
-            <span class="w-icon">⭕</span>
+            <img class="w-icon" src="OKX.png" alt="OKX">
             <span class="w-name">OKX</span>
           </button>
           <button class="wallet-btn" onclick="connectWallet('leather')">
-            <span class="w-icon">🔶</span>
-            <span class="w-name">Leather</span>
+            <img class="w-icon" src="Leather.png" alt="Leather">
+            <span class="w-name">LEATHER</span>
           </button>
-          <button class="wallet-btn" onclick="connectWallet('tap')">
-            <span class="w-icon">🔷</span>
-            <span class="w-name">TAP</span>
-          </button>
-          <button class="wallet-btn" onclick="openDemoMode()" style="border-color:var(--orange);color:var(--orange);">
-            <span class="w-icon">👁️</span>
-            <span class="w-name">DEMO</span>
+          <button class="wallet-btn" onclick="connectWallet('tap')" style="grid-column:1/-1;">
+            <img class="w-icon" src="TAP_Wallet.png" alt="TAP">
+            <span class="w-name">TAP WALLET</span>
           </button>
         </div>
       </div>
@@ -884,34 +878,29 @@ body.light .bitmap-card-actions { background: rgba(245,240,232,0.9); }
       <p>Connect your Bitcoin wallet to view your Bitmap districts, filter by rarity, and see all your on-chain digital assets in one place.</p>
       <div class="connect-wallet-grid">
         <div class="connect-wallet-card" onclick="connectWallet('xverse')">
-          <div class="cw-icon">🟣</div>
+          <img class="cw-icon" src="Xverse.png" alt="Xverse">
           <div class="cw-name">Xverse</div>
           <div class="cw-status">SUPPORTED</div>
         </div>
         <div class="connect-wallet-card" onclick="connectWallet('unisat')">
-          <div class="cw-icon">🟠</div>
+          <img class="cw-icon" src="Unisat.png" alt="Unisat">
           <div class="cw-name">Unisat</div>
           <div class="cw-status">SUPPORTED</div>
         </div>
         <div class="connect-wallet-card" onclick="connectWallet('okx')">
-          <div class="cw-icon">⭕</div>
+          <img class="cw-icon" src="OKX.png" alt="OKX">
           <div class="cw-name">OKX Wallet</div>
           <div class="cw-status">SUPPORTED</div>
         </div>
         <div class="connect-wallet-card" onclick="connectWallet('leather')">
-          <div class="cw-icon">🔶</div>
+          <img class="cw-icon" src="Leather.png" alt="Leather">
           <div class="cw-name">Leather</div>
           <div class="cw-status">SUPPORTED</div>
         </div>
         <div class="connect-wallet-card" onclick="connectWallet('tap')">
-          <div class="cw-icon">🔷</div>
+          <img class="cw-icon" src="TAP_Wallet.png" alt="TAP Wallet">
           <div class="cw-name">TAP Wallet</div>
           <div class="cw-status">SUPPORTED</div>
-        </div>
-        <div class="connect-wallet-card" onclick="openDemoMode()" style="border-color:var(--orange);">
-          <div class="cw-icon">👁️</div>
-          <div class="cw-name">Demo Mode</div>
-          <div class="cw-status" style="color:var(--orange);border-color:rgba(247,147,26,0.4);">TRY NOW</div>
         </div>
       </div>
       <p style="font-size:0.62rem;margin-top:0.5rem;">🔒 We never store your private keys. Read-only wallet access.</p>
@@ -1142,7 +1131,7 @@ async function connectWallet(type) {
   }
 
   if (!address) {
-    // Wallet not installed — open install page or show demo
+    // Wallet not installed — open install page
     const installUrls = {
       xverse: 'https://www.xverse.app',
       unisat: 'https://unisat.io',
@@ -1150,14 +1139,8 @@ async function connectWallet(type) {
       leather: 'https://leather.io',
       tap: 'https://tapwallet.io'
     };
-    const confirmDemo = confirm(
-      `${WALLET_LABELS[type]} wallet not detected.\n\nWould you like to:\n• Click OK to open Demo Mode\n• Click Cancel to install the wallet`
-    );
-    if (confirmDemo) {
-      openDemoMode();
-    } else {
-      window.open(installUrls[type], '_blank');
-    }
+    alert(`${WALLET_LABELS[type]} wallet not detected.\n\nPlease install the wallet extension and try again.`);
+    window.open(installUrls[type], '_blank');
     return;
   }
 

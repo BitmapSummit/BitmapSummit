@@ -52,7 +52,7 @@
   body.light .terminal .num { color: #2A6A9A; }
   body.light .price-tracker { background: var(--bg3); border-bottom-color: var(--border); }
   body.light .marquee-wrap { background: var(--bg2); border-color: var(--border); }
-  body.light .nav-buy-dropdown { background: var(--bg2); border-color: var(--border); }
+
   body.light .highlight-box { background: rgba(247,147,26,0.06); }
 
   /* ── THEME TOGGLE ── */
@@ -354,6 +354,103 @@
 
   .btn-ghost:hover {
     background: var(--orange-glow);
+  }
+
+  /* ── HERO BUY BUTTON ── */
+  .hero-buy-wrap {
+    position: relative;
+    display: inline-block;
+  }
+
+  .btn-buy {
+    background: transparent;
+    color: var(--orange);
+    border: 2px solid var(--orange);
+    clip-path: none;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0.8rem 1.8rem;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-buy:hover {
+    background: var(--orange-glow);
+    box-shadow: 0 0 30px var(--orange-glow);
+  }
+
+  .hero-buy-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 240px;
+    background: #111;
+    border: 1px solid var(--orange);
+    border-top: 2px solid var(--orange);
+    display: none;
+    flex-direction: column;
+    z-index: 500;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  }
+
+  body.light .hero-buy-dropdown { background: var(--bg2); }
+
+  .hero-buy-dropdown.open { display: flex; }
+
+  .hero-buy-dropdown a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.9rem 1.2rem;
+    text-decoration: none;
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    border-bottom: 1px solid rgba(247,147,26,0.12);
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .hero-buy-dropdown a:last-child { border-bottom: none; }
+
+  .hero-buy-dropdown a:hover {
+    background: var(--orange-glow);
+    color: var(--orange);
+  }
+
+  .hbd-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+  .hbd-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+  }
+
+  .hbd-info strong {
+    font-size: 0.72rem;
+    color: #fff;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  body.light .hbd-info strong { color: var(--text); }
+
+  .hbd-info small {
+    font-size: 0.58rem;
+    color: var(--orange-dim);
+    letter-spacing: 1px;
+  }
+
+  .hbd-arrow {
+    color: var(--orange);
+    font-size: 0.8rem;
+    flex-shrink: 0;
   }
 
   /* ── SECTION BASE ── */
@@ -1273,26 +1370,11 @@
     <li><a href="future.html">FUTURE</a></li>
     <li><a href="founders.html">FOUNDERS</a></li>
     <li><a href="dashboard.html">MY BITMAP</a></li>
-    <li class="nav-buy">
-      <button class="nav-buy-btn">🛒 BUY <span class="arrow">▼</span></button>
-      <div class="nav-buy-dropdown">
-        <a href="https://www.satflow.com/ordinals/bitmap" target="_blank" rel="noopener">
-          <div class="market-icon">💧</div>
-          <div class="market-name"><span>Satflow</span><span>satflow.com</span></div>
-        </a>
-        <a href="https://ordinalswallet.com/collection/bitmap" target="_blank" rel="noopener">
-          <div class="market-icon">📝</div>
-          <div class="market-name"><span>Ordinals Wallet</span><span>ordinalswallet.com</span></div>
-        </a>
-      </div>
-    </li>
-    <li style="display:flex;align-items:center;">
-      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">
-        <span class="toggle-icon" id="toggleIcon">☀️</span>
-        <span id="toggleLabel">LIGHT</span>
-      </button>
-    </li>
   </ul>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+    <span class="toggle-icon" id="toggleIcon">☀️</span>
+    <span id="toggleLabel">LIGHT</span>
+  </button>
 </nav>
 
 <!-- ── MARQUEE ── -->
@@ -1401,6 +1483,21 @@
   <div class="hero-cta">
     <a href="introduction.html" class="btn btn-primary">EXPLORE THE ECOSYSTEM →</a>
     <a href="metaverse.html" class="btn btn-ghost">METAVERSE THEORY</a>
+    <div class="hero-buy-wrap">
+      <button class="btn btn-buy" onclick="toggleHeroBuy(event)">🛒 BUY BITMAP ▼</button>
+      <div class="hero-buy-dropdown" id="heroBuyDropdown">
+        <a href="https://www.satflow.com/ordinals/bitmap" target="_blank" rel="noopener">
+          <span class="hbd-icon">💧</span>
+          <span class="hbd-info"><strong>Satflow</strong><small>satflow.com</small></span>
+          <span class="hbd-arrow">→</span>
+        </a>
+        <a href="https://ordinalswallet.com/collection/bitmap" target="_blank" rel="noopener">
+          <span class="hbd-icon">📝</span>
+          <span class="hbd-info"><strong>Ordinals Wallet</strong><small>ordinalswallet.com</small></span>
+          <span class="hbd-arrow">→</span>
+        </a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1737,6 +1834,18 @@ async function refreshAll() {
 refreshAll();
 setInterval(refreshAll, 60000);
 
+// ── HERO BUY DROPDOWN ──
+function toggleHeroBuy(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('heroBuyDropdown');
+  dd.classList.toggle('open');
+}
+// Close when clicking outside
+document.addEventListener('click', function() {
+  const dd = document.getElementById('heroBuyDropdown');
+  if(dd) dd.classList.remove('open');
+});
+
 // ── HERO PIXEL BG ──
 const bg = document.getElementById('heroBg');
 for(let i = 0; i < 400; i++) {
@@ -1753,6 +1862,26 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.1 });
 
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+<script>
+// ── THEME TOGGLE ──
+function applyTheme(mode) {
+  document.body.classList.toggle('light', mode === 'light');
+  const icon = document.getElementById('toggleIcon');
+  const label = document.getElementById('toggleLabel');
+  if (icon) icon.textContent = mode === 'light' ? '🌑' : '☀️';
+  if (label) label.textContent = mode === 'light' ? 'DARK' : 'LIGHT';
+}
+function toggleTheme() {
+  const isLight = document.body.classList.contains('light');
+  const next = isLight ? 'dark' : 'light';
+  localStorage.setItem('bitmapTheme', next);
+  applyTheme(next);
+}
+(function() {
+  const saved = localStorage.getItem('bitmapTheme') || 'dark';
+  applyTheme(saved);
+})();
 </script>
 </body>
 </html>
