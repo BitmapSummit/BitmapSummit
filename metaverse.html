@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitmap Metaverse — Bitmap Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo"><div class="pixel-icon"><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span></div>BITMAP HUB</a>
+  <ul class="nav-links">
+    <li><a href="introduction.html">INTRO</a></li>
+    <li><a href="history.html">HISTORY</a></li>
+    <li><a href="metaverse.html" style="color:var(--orange)">METAVERSE</a></li>
+    <li><a href="rarity.html">RARITY</a></li>
+    <li><a href="data.html">DATA</a></li>
+    <li><a href="tools.html">TOOLS</a></li>
+    <li><a href="marketplaces.html">MARKETS</a></li>
+    <li><a href="projects.html">PROJECTS</a></li>
+    <li><a href="future.html">FUTURE</a></li>
+    <li><a href="founders.html">FOUNDERS</a></li>
+  </ul>
+</nav>
+
+<div class="page-header">
+  <div class="section-label">03 / 10 — METAVERSE</div>
+  <h1 class="section-title" style="font-size:clamp(2rem,5vw,3.5rem);">Bitmap<br><span style="color:var(--orange)">Metaverse</span></h1>
+  <p class="section-desc">How Bitcoin block data becomes digital land. The mechanics, concept, logic, purpose, vision, mission, and goals of the Bitmap Metaverse.</p>
+</div>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section>
+  <div class="section-label">MECHANICS</div>
+  <h2 class="section-title">How It Works</h2>
+
+  <div class="two-col" style="margin-bottom:3rem;">
+    <div>
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;margin-bottom:1.2rem;">
+        The Bitmap Metaverse is built on a simple but profound idea: <strong style="color:#fff">Bitcoin block data can be mapped to spatial analogues</strong>. Every piece of information inside a Bitcoin block — transactions, values, sizes, timestamps — can be interpreted as properties of virtual land.
+      </p>
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;margin-bottom:1.2rem;">
+        To claim a District, you must be the <strong style="color:var(--orange)">first person</strong> to inscribe <code style="color:var(--orange);font-family:'Share Tech Mono';">{block_height}.bitmap</code> onto a satoshi. This inscription is verified by indexers which scan the Bitcoin blockchain for valid Bitmap claims.
+      </p>
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;">
+        Once claimed, the block's data is parsed by indexers and rendered into a 3D or 2D spatial visualization — creating a unique piece of land that no one else can replicate, because no two Bitcoin blocks contain identical data.
+      </p>
+    </div>
+    <div class="terminal">
+      <div><span class="cmt">// Data Mapping Logic</span></div>
+      <br>
+      <div><span class="kw">block.value</span> → <span class="str">Land Area</span></div>
+      <div><span class="cmt">// Higher value = larger district</span></div>
+      <br>
+      <div><span class="kw">block.vbytes</span> → <span class="str">Land Depth</span></div>
+      <div><span class="cmt">// More data = deeper land in 3D</span></div>
+      <br>
+      <div><span class="kw">block.tx_count</span> → <span class="str">Parcel Count</span></div>
+      <div><span class="cmt">// More transactions = more parcels</span></div>
+      <br>
+      <div><span class="kw">tx.input_size</span> → <span class="str">Parcel Size</span></div>
+      <div><span class="cmt">// Larger inputs = larger parcels</span></div>
+      <br>
+      <div><span class="kw">block.timestamp</span> → <span class="str">Historical Context</span></div>
+      <div><span class="cmt">// When the block was mined</span></div>
+      <br>
+      <div style="color:var(--green)">✓ Fully deterministic</div>
+      <div style="color:var(--green)">✓ Verifiable on-chain</div>
+      <div style="color:var(--green)">✓ No central authority</div>
+    </div>
+  </div>
+
+  <h3 style="font-family:'Orbitron',monospace;font-size:1rem;color:#fff;margin-bottom:1.5rem;">The District-Parcel System</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">🏙️</div>
+      <div class="card-title">District (Bitcoin Block)</div>
+      <div class="card-text">A District is one entire Bitcoin block. It is the primary unit of ownership in the Bitmap metaverse. The block height number (e.g. 431897) is the District ID. Owning the District means owning all Parcels within it.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🏘️</div>
+      <div class="card-title">Parcel (Transaction)</div>
+      <div class="card-text">Each transaction in the block is a Parcel — a subdivision of land. Parcels inherit from their parent District. When the District is sold, all Parcels move with it. Each block can have hundreds or even thousands of Parcels.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎨</div>
+      <div class="card-title">Blocktribute (Build)</div>
+      <div class="card-text">Only verified District owners can add Blocktributes — custom attributes, art, or metadata inscribed to their land. Verified using Bitcoin's UTXO set: the inscription must be sent to the same address as the District.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🗺️</div>
+      <div class="card-title">Canvas (Visualization)</div>
+      <div class="card-text">The District canvas is a 2D or 3D rendering of the block's transaction data. Each Parcel appears as a colored region. The visual is generated algorithmically from real block data — unique to each block forever.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- THE CONCEPT -->
+<section>
+  <div class="section-label">THE CONCEPT</div>
+  <h2 class="section-title">Digital Matter Theory</h2>
+  <div class="two-col">
+    <div>
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;margin-bottom:1.2rem;">
+        Bitmap is grounded in <strong style="color:#fff">Digital Matter Theory (DMT)</strong> — a philosophical framework that treats on-chain data as having intrinsic, matter-like properties. Just as physical matter has shape, mass, and structure, digital data has size, value, and sequence.
+      </p>
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;margin-bottom:1.2rem;">
+        Under DMT, a Bitcoin block is not just a database entry — it's a distinct <strong style="color:#fff">digital substance</strong>. Its properties are fixed, observable, and real. Bitmap maps these properties to the spatial metaphor humans use for land: area, depth, and location.
+      </p>
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;">
+        This is why Bitmaps are called "non-arbitrary" — their nature is determined by the physical reality of Bitcoin computation, not the whims of a designer.
+      </p>
+    </div>
+    <div>
+      <div class="highlight-box" data-label="BITMAP THEORY PRINCIPLE">
+        "Bitmap Theory represents the mapping of Bitcoin's data landscape to spatial analogues, bringing to light the base substrate of a persistent Metaverse."
+        <span class="quote-attr">— Bitmap Gitbook</span>
+      </div>
+      <div style="margin-top:1.5rem;" class="highlight-box" data-label="NON-ARBITRARY ASSET">
+        Unlike NFTs with randomized traits or arbitrary art, every property of a Bitmap is derived from real, immutable, verifiable Bitcoin blockchain data. The blockchain is the artist.
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PURPOSE, VISION, MISSION, GOAL -->
+<section>
+  <div class="section-label">FOUNDATION</div>
+  <h2 class="section-title">Purpose, Vision, Mission & Goal</h2>
+  <div class="analysis-grid">
+
+    <div class="analysis-card">
+      <div class="analysis-card-header">
+        <div class="analysis-card-icon">🎯</div>
+        <div class="analysis-card-title">PURPOSE</div>
+      </div>
+      <p class="card-text">To establish a decentralized, fair, and permanent consensus layer for metaverse land ownership on the Bitcoin blockchain — where the only cost is energy and the rules are enforced by Bitcoin's proof-of-work, not corporations.</p>
+    </div>
+
+    <div class="analysis-card">
+      <div class="analysis-card-header">
+        <div class="analysis-card-icon">🌐</div>
+        <div class="analysis-card-title">VISION</div>
+      </div>
+      <p class="card-text">A persistent, open metaverse where every layer of reality is anchored to Bitcoin. Not one metaverse — but an infinite foundation for many metaverses. Bitcoin as the immutable substrate of the digital world. Any team can build a client. Any indexer can render Bitmaps. No single company owns the standard.</p>
+    </div>
+
+    <div class="analysis-card">
+      <div class="analysis-card-header">
+        <div class="analysis-card-icon">⚙️</div>
+        <div class="analysis-card-title">MISSION</div>
+      </div>
+      <p class="card-text">To provide an equitable and decentralized process for transmuting Bitcoin blocks into metaverse districts — accessible to anyone, controlled by no one, permanent forever. To prove that Bitcoin can be the base layer for human digital experience, not just digital money.</p>
+    </div>
+
+    <div class="analysis-card">
+      <div class="analysis-card-header">
+        <div class="analysis-card-icon">🏆</div>
+        <div class="analysis-card-title">GOAL</div>
+      </div>
+      <p class="card-text">To become the universal land standard on Bitcoin that supports: 3D metaverse environments, gaming, social spaces, creator economies, DeFi integration, and cross-chain interoperability — all rooted in the immutability of the Bitcoin blockchain.</p>
+    </div>
+
+    <div class="analysis-card">
+      <div class="analysis-card-header">
+        <div class="analysis-card-icon">🔬</div>
+        <div class="analysis-card-title">LOGIC</div>
+      </div>
+      <p class="card-text">Bitcoin blocks are produced forever. Each is unique. Their data is permanent. Mapping this data to spatial ownership creates an asset class that is inherently scarce per block, infinitely expandable, and backed by the world's most secure database. The logic is elegant and irrefutable.</p>
+    </div>
+
+    <div class="analysis-card">
+      <div class="analysis-card-header">
+        <div class="analysis-card-icon">💡</div>
+        <div class="analysis-card-title">CONCEPT SUMMARY</div>
+      </div>
+      <p class="card-text">Bitcoin is the world's most immutable ledger. Every block is a permanent record. Bitmap proposes that these records are not just financial entries — they are pieces of digital territory. Own a block. Own the land. Build on it. Forever.</p>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- BRC-420 LAYER -->
+<section>
+  <div class="section-label">ECOSYSTEM PROTOCOL</div>
+  <h2 class="section-title">BRC-420 — The Asset Layer</h2>
+  <p class="section-desc">Built on top of Bitmap by the RCSV/Recursiverse team, BRC-420 is the asset management protocol that brings the metaverse to life.</p>
+
+  <div class="two-col">
+    <div>
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;margin-bottom:1.2rem;">
+        BRC-420 allows multiple Ordinals inscriptions to be <strong style="color:#fff">recursively combined</strong> into complex inscriptions — enabling game characters, animations, scripts, music, and even AI models to be inscribed entirely on-chain.
+      </p>
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;margin-bottom:1.2rem;">
+        These composable modules become <strong style="color:var(--orange)">playable in the Bitmap metaverse</strong>. Bitmap is the land; BRC-420 is everything built on it — furniture, avatars, games, and economies.
+      </p>
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;">
+        Over 100 teams have issued assets on BRC-420, generating $10M+ in cumulative royalties. The protocol powers Bitmap Game, Bitmap War, Mineral, and dozens of other projects.
+      </p>
+    </div>
+    <div class="terminal">
+      <div><span class="cmt">// BRC-420 Protocol Architecture</span></div>
+      <br>
+      <div><span class="kw">BASE LAYER</span>: Bitcoin blockchain</div>
+      <div><span class="kw">LAYER 1</span>: Ordinals (inscription standard)</div>
+      <div><span class="kw">LAYER 2</span>: Bitmap (land/district standard)</div>
+      <div><span class="kw">LAYER 3</span>: BRC-420 (asset protocol)</div>
+      <br>
+      <div><span class="cmt">// Supported asset types:</span></div>
+      <div><span class="str">"game_characters"</span>, <span class="str">"dlc_items"</span>,</div>
+      <div><span class="str">"html_scripts"</span>, <span class="str">"music"</span>,</div>
+      <div><span class="str">"videos"</span>, <span class="str">"ai_models"</span></div>
+      <br>
+      <div><span class="cmt">// Royalties generated: $10M+</span></div>
+      <div><span class="cmt">// Market cap: $260M+ peak</span></div>
+      <div><span class="cmt">// Teams building: 100+</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+<section style="padding-top:2rem;padding-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+  <a href="history.html" class="btn btn-ghost">← HISTORY</a>
+  <a href="rarity.html" class="btn btn-primary">BITMAP RARITY →</a>
+</section>
+
+<footer>
+  <div class="footer-logo">▮ BITMAP HUB</div>
+  <p class="footer-text">Community reference site. Not financial advice.</p>
+</footer>
+</body>
+</html>

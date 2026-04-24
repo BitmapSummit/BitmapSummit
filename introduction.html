@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ordinals & Bitmap Introduction — Bitmap Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="pixel-icon">
+      <span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span>
+    </div>
+    BITMAP HUB
+  </a>
+  <ul class="nav-links">
+    <li><a href="introduction.html" style="color:var(--orange)">INTRO</a></li>
+    <li><a href="history.html">HISTORY</a></li>
+    <li><a href="metaverse.html">METAVERSE</a></li>
+    <li><a href="rarity.html">RARITY</a></li>
+    <li><a href="data.html">DATA</a></li>
+    <li><a href="tools.html">TOOLS</a></li>
+    <li><a href="marketplaces.html">MARKETS</a></li>
+    <li><a href="projects.html">PROJECTS</a></li>
+    <li><a href="future.html">FUTURE</a></li>
+    <li><a href="founders.html">FOUNDERS</a></li>
+  </ul>
+</nav>
+
+<div class="page-header">
+  <div class="section-label">01 / 10 — INTRODUCTION</div>
+  <h1 class="section-title" style="font-size:clamp(2rem,5vw,3.5rem);">Ordinals &<br><span style="color:var(--orange)">Bitmap</span></h1>
+  <p class="section-desc">The foundational concepts behind Bitcoin's NFT revolution and the emergence of digital real estate on the oldest blockchain.</p>
+</div>
+
+<div class="divider"></div>
+
+<!-- ORDINALS SECTION -->
+<section>
+  <div class="section-label">PART ONE</div>
+  <h2 class="section-title">What Are Bitcoin Ordinals?</h2>
+
+  <div class="two-col">
+    <div>
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;margin-bottom:1.2rem;">
+        Bitcoin Ordinals represent a groundbreaking innovation launched on Bitcoin mainnet by developer <strong style="color:#fff">Casey Rodarmor</strong> in <strong style="color:var(--orange)">January 2023</strong>. The protocol transformed the Bitcoin blockchain by enabling the storage of diverse data types directly onto individual satoshis.
+      </p>
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;margin-bottom:1.2rem;">
+        A <strong style="color:#fff">satoshi</strong> (sat) is the smallest unit of Bitcoin — 1 BTC = 100,000,000 satoshis. The Ordinals protocol assigns a sequential number to each sat based on the order it was mined, creating a permanent identifier. Any data inscribed on that sat becomes a permanent, immutable record on the world's most secure blockchain.
+      </p>
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;">
+        This allows texts, images, videos, audio, and any other digital content to be immortalized on Bitcoin — expanding its utility far beyond financial transactions into digital collectibles and data preservation.
+      </p>
+    </div>
+    <div class="terminal">
+      <div><span class="cmt">// Ordinals Theory — Casey Rodarmor, 2023</span></div>
+      <br>
+      <div><span class="kw">SATOSHI</span> = smallest BTC unit</div>
+      <div><span class="cmt">// 1 BTC = 100,000,000 sats</span></div>
+      <br>
+      <div><span class="kw">ORDINAL NUMBER</span> = sequential sat ID</div>
+      <div><span class="cmt">// assigned by mining order</span></div>
+      <br>
+      <div><span class="kw">INSCRIPTION</span> = data attached to sat</div>
+      <div><span class="cmt">// images, text, video, code...</span></div>
+      <br>
+      <div><span class="kw">RESULT</span>: Bitcoin-native NFT</div>
+      <div><span class="cmt">// permanent, immutable, on-chain</span></div>
+      <br>
+      <div style="color:var(--green);">✓ No smart contracts needed</div>
+      <div style="color:var(--green);">✓ Secured by Bitcoin's hashrate</div>
+      <div style="color:var(--green);">✓ Truly on-chain, no IPFS</div>
+    </div>
+  </div>
+
+  <div style="margin-top:3rem;">
+    <h3 style="font-family:'Orbitron',monospace;font-size:1rem;color:#fff;margin-bottom:1.5rem;">How Ordinals Work</h3>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">⛏️</div>
+        <div class="card-title">1. Mining Order</div>
+        <div class="card-text">Each satoshi is numbered in the order it is mined. The first sat of the genesis block is ordinal 0, and numbers increment with every sat ever created.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📝</div>
+        <div class="card-title">2. Inscription</div>
+        <div class="card-text">Data is "inscribed" onto a specific sat using a Bitcoin transaction. This embeds the content directly in the blockchain — not on external storage like IPFS.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔒</div>
+        <div class="card-title">3. Immutability</div>
+        <div class="card-text">Once inscribed, the data is secured by Bitcoin's proof-of-work. It cannot be changed, deleted, or censored — as permanent as Bitcoin itself.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">💱</div>
+        <div class="card-title">4. Transferability</div>
+        <div class="card-text">Inscribed sats can be sent like regular Bitcoin, meaning ownership of the inscription transfers with the sat. No bridge, no wrapped token — pure Bitcoin.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- BITMAP SECTION -->
+<section>
+  <div class="section-label">PART TWO</div>
+  <h2 class="section-title">What Is <span style="color:var(--orange)">Bitmap</span>?</h2>
+
+  <div class="highlight-box" data-label="DEFINITION" style="margin-bottom:2.5rem;">
+    Bitmap is a consensus standard that allows anybody to claim the geospatial digital real estate of a Bitcoin Block. This process is achieved by being the first to inscribe <code style="color:var(--orange)">{block-height}.bitmap</code> unto a Satoshi using the Ordinals Inscription standard. This process is equitable and decentralized, transmuting any Bitcoin Block into a part of the Metaverse at the cost of energy.
+    <span class="quote-attr" style="display:block;margin-top:0.5rem;">— Bitmap Gitbook, Bitoshi Blockamoto</span>
+  </div>
+
+  <div class="two-col" style="margin-bottom:3rem;">
+    <div>
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;margin-bottom:1.2rem;">
+        Where Ordinals allow inscribing data onto a single satoshi, <strong style="color:#fff">Bitmap takes the concept further</strong> — allowing users to claim ownership of an entire Bitcoin block. By inscribing a specific format (<code style="color:var(--orange);font-family:'Share Tech Mono';">blockheight.bitmap</code>), the first person to do so claims that block as their district.
+      </p>
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;margin-bottom:1.2rem;">
+        Each Bitcoin block contains a specific set of transactions, block data, timestamps, and value information. Bitmap Theory maps all of this data into <strong style="color:#fff">spatial analogues</strong> — turning abstract blockchain data into conceptual land, area, and depth in a virtual metaverse.
+      </p>
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;">
+        This makes every Bitmap <strong style="color:#fff">non-arbitrary</strong> — unlike most NFTs generated from randomized traits, Bitmaps are determined entirely by real, on-chain Bitcoin data.
+      </p>
+    </div>
+    <div>
+      <h4 style="font-family:'Orbitron',monospace;font-size:0.8rem;color:var(--orange);margin-bottom:1rem;letter-spacing:1px;">KEY DIFFERENCES: ORDINALS vs BITMAP</h4>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Ordinals</th>
+            <th>Bitmap</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Scope</td><td>Single satoshi</td><td>Entire block</td></tr>
+          <tr><td>Data type</td><td>Any inscribed data</td><td>Block metadata</td></tr>
+          <tr><td>Uniqueness</td><td>Content-based</td><td>Block-data-based</td></tr>
+          <tr><td>Metaverse</td><td>No</td><td>Yes (District)</td></tr>
+          <tr><td>Supply</td><td>Unlimited</td><td>Infinite (1 per block)</td></tr>
+          <tr><td>Standard</td><td>Casey Rodarmor</td><td>Bitoshi Blockamoto</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h3 style="font-family:'Orbitron',monospace;font-size:1rem;color:#fff;margin-bottom:1.5rem;">Core Bitmap Concepts</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">🏙️</div>
+      <div class="card-title">District</div>
+      <div class="card-text">A District is an entire Bitcoin block claimed via inscription. The block height number is the district ID. Block 0 = the rarest district — Satoshi's genesis block.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🏡</div>
+      <div class="card-title">Parcel</div>
+      <div class="card-text">Each transaction within a block becomes a Parcel of land. Parcels are children of their District — they transfer when the District is sold. Size is determined by transaction value.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎨</div>
+      <div class="card-title">Blocktribute</div>
+      <div class="card-text">Owners can add attributes to their block — art, metadata, creative content. This can increase value and create unique experiences on the block. Only verified owners can do this.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚡</div>
+      <div class="card-title">Non-Arbitrary</div>
+      <div class="card-text">Bitmap's key innovation: all data is derived from real Bitcoin block data. No randomized traits. No central authority decides appearance — the blockchain itself does.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌍</div>
+      <div class="card-title">Digital Matter Theory</div>
+      <div class="card-text">Bitmap is an application of DMT — the idea that on-chain data has intrinsic matter properties. Each block's data is a unique "digital substance" with real, verifiable characteristics.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔓</div>
+      <div class="card-title">Open Standard</div>
+      <div class="card-text">Bitmap is open-source and permissionless. Any team can build indexers, visualizers, or games on top of it. The protocol belongs to no single company — it belongs to Bitcoin.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- WHY IT MATTERS -->
+<section>
+  <div class="section-label">SIGNIFICANCE</div>
+  <h2 class="section-title">Why It Matters</h2>
+  <div class="analysis-grid">
+    <div class="analysis-card">
+      <div class="analysis-card-header">
+        <div class="analysis-card-icon">🏗️</div>
+        <div class="analysis-card-title">Foundation Layer</div>
+      </div>
+      <p class="card-text">Owning a Bitmap could mean holding a piece of the foundational layer for every metaverse that will exist on Bitcoin. It's infrastructure-level ownership, not just a collectible.</p>
+    </div>
+    <div class="analysis-card">
+      <div class="analysis-card-header">
+        <div class="analysis-card-icon">🔐</div>
+        <div class="analysis-card-title">Bitcoin Security</div>
+      </div>
+      <p class="card-text">Unlike metaverses on Ethereum or Solana, Bitmap is secured by Bitcoin's unparalleled proof-of-work. Every Bitmap is as permanent and secure as Bitcoin itself.</p>
+    </div>
+    <div class="analysis-card">
+      <div class="analysis-card-header">
+        <div class="analysis-card-icon">⚖️</div>
+        <div class="analysis-card-title">Fair Launch</div>
+      </div>
+      <p class="card-text">No pre-mine, no VC allocation, no whitelist. Anyone could claim any unclaimed block. The most democratic NFT launch in Bitcoin history — first-come, first-served.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+<section style="padding-top:2rem;padding-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+  <a href="index.html" class="btn btn-ghost">← HOME</a>
+  <a href="history.html" class="btn btn-primary">BITMAP HISTORY →</a>
+</section>
+
+<footer>
+  <div class="footer-logo">▮ BITMAP HUB</div>
+  <p class="footer-text">Community reference site. Not financial advice.</p>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
