@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Bitmap — Dashboard | Bitmap Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #F7931A;
+  --orange-dim: #C26E00;
+  --orange-glow: rgba(247,147,26,0.25);
+  --bg: #0A0A0A;
+  --bg2: #111111;
+  --bg3: #1A1A1A;
+  --bg4: #222222;
+  --border: rgba(247,147,26,0.2);
+  --border-strong: rgba(247,147,26,0.4);
+  --text: #E8E8E0;
+  --muted: #888880;
+  --accent: #FF6B00;
+  --green: #39FF14;
+  --red: #FF4444;
+  --blue: #61AFEF;
+  --purple: #C678DD;
+  --nav-bg: rgba(10,10,10,0.95);
+  --terminal-bg: #0D0D0D;
+  --sidebar-w: 280px;
+}
+
+body.light {
+  --bg: #F5F0E8;
+  --bg2: #FFFDF8;
+  --bg3: #EDE8DE;
+  --bg4: #E0D8CC;
+  --border: rgba(194,110,0,0.25);
+  --border-strong: rgba(194,110,0,0.5);
+  --text: #1A1208;
+  --muted: #6B5B3A;
+  --orange-glow: rgba(247,147,26,0.1);
+  --green: #1A8A00;
+  --red: #CC2200;
+  --nav-bg: rgba(245,240,232,0.96);
+  --terminal-bg: #EDE8DE;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  overflow-x: hidden;
+  cursor: default;
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(247,147,26,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(247,147,26,0.025) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none; z-index: 0;
+}
+
+body.light::before {
+  background-image:
+    linear-gradient(rgba(194,110,0,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(194,110,0,0.05) 1px, transparent 1px);
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  height: 64px;
+  display: flex; align-items: center;
+  padding: 0 1.5rem;
+  gap: 1rem;
+}
+
+.nav-logo {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900; font-size: 1rem;
+  color: var(--orange);
+  text-decoration: none;
+  letter-spacing: 2px;
+  display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+}
+
+.pixel-icon {
+  width: 24px; height: 24px;
+  display: grid;
+  grid-template-columns: repeat(4,6px);
+  grid-template-rows: repeat(4,6px);
+}
+.pixel-icon span { display: block; }
+
+.nav-links {
+  display: flex; gap: 0; list-style: none;
+  overflow-x: auto; flex: 1;
+}
+.nav-links::-webkit-scrollbar { display: none; }
+.nav-links a {
+  display: block; padding: 0.4rem 0.6rem;
+  color: var(--muted); text-decoration: none;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem; letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--orange); background: var(--orange-glow); }
+
+.nav-right { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+
+.theme-toggle {
+  display: flex; align-items: center; gap: 5px;
+  padding: 0.3rem 0.6rem;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--muted); font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem; letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.theme-toggle:hover { border-color: var(--orange); color: var(--orange); }
+
+/* ── LAYOUT ── */
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height: 100vh;
+  padding-top: 64px;
+  position: relative; z-index: 1;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  position: fixed;
+  top: 64px; left: 0; bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  z-index: 100;
+  display: flex; flex-direction: column;
+}
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--orange-dim); }
+
+.sidebar-section {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem; color: var(--orange);
+  letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  display: flex; align-items: center; gap: 5px;
+}
+.sidebar-label::before { content: '▮'; animation: blink 1s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+/* ── WALLET CONNECT ── */
+.wallet-status {
+  display: flex; flex-direction: column; gap: 0.5rem;
+}
+
+.wallet-address {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 0.6rem 0.75rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--orange);
+  display: flex; align-items: center; gap: 6px;
+  word-break: break-all;
+}
+
+.wallet-btc-bal {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem; font-weight: 700;
+  color: #fff; margin: 0.25rem 0;
+}
+body.light .wallet-btc-bal { color: var(--text); }
+
+.wallet-usd-bal {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem; color: var(--muted);
+}
+
+.wallet-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem;
+}
+
+.wallet-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 0.6rem 0.4rem;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text); cursor: pointer;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem; letter-spacing: 1px; text-transform: uppercase;
+  transition: all 0.2s; text-align: center;
+}
+.wallet-btn:hover { border-color: var(--orange); background: var(--orange-glow); color: var(--orange); }
+.wallet-btn.connected { border-color: var(--green); background: rgba(57,255,20,0.05); color: var(--green); }
+.wallet-btn .w-icon { font-size: 1.2rem; }
+.wallet-btn .w-name { font-size: 0.55rem; }
+
+.disconnect-btn {
+  width: 100%; padding: 0.5rem;
+  background: transparent; border: 1px solid var(--red);
+  color: var(--red); font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem; letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s;
+}
+.disconnect-btn:hover { background: rgba(255,68,68,0.1); }
+
+/* ── FILTER SIDEBAR ── */
+.filter-group { margin-bottom: 0.75rem; }
+
+.filter-group-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem; color: var(--muted);
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 0.4rem;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer;
+}
+.filter-group-title:hover { color: var(--orange); }
+
+.filter-options { display: flex; flex-direction: column; gap: 0.3rem; }
+
+.filter-chip {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.35rem 0.6rem;
+  background: var(--bg3); border: 1px solid transparent;
+  cursor: pointer; transition: all 0.15s;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.62rem; color: var(--muted);
+}
+.filter-chip:hover { border-color: var(--border); color: var(--text); }
+.filter-chip.active { border-color: var(--orange); color: var(--orange); background: var(--orange-glow); }
+.filter-chip .chip-count {
+  font-size: 0.55rem; background: var(--bg4);
+  padding: 0.1rem 0.35rem; color: var(--muted);
+}
+.filter-chip.active .chip-count { background: rgba(247,147,26,0.2); color: var(--orange); }
+
+.range-inputs {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem;
+}
+.range-input {
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text); font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem; padding: 0.35rem 0.5rem; width: 100%;
+  outline: none;
+}
+.range-input:focus { border-color: var(--orange); }
+
+.filter-apply {
+  width: 100%; padding: 0.5rem;
+  background: var(--orange); border: none; color: #000;
+  font-family: 'Orbitron', monospace; font-size: 0.6rem;
+  font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; margin-top: 0.5rem;
+}
+.filter-apply:hover { background: var(--accent); box-shadow: 0 0 20px var(--orange-glow); }
+
+.filter-clear {
+  width: 100%; padding: 0.4rem;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--muted); font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem; letter-spacing: 1px; cursor: pointer;
+  transition: all 0.2s; margin-top: 0.3rem;
+}
+.filter-clear:hover { border-color: var(--orange); color: var(--orange); }
+
+/* ── MAIN CONTENT ── */
+.main-content {
+  margin-left: var(--sidebar-w);
+  padding: 1.5rem;
+  min-height: calc(100vh - 64px);
+}
+
+/* ── TABS ── */
+.tab-bar {
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+
+.tab-btn {
+  padding: 0.75rem 1.25rem;
+  background: transparent; border: none; border-bottom: 2px solid transparent;
+  color: var(--muted); font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; margin-bottom: -1px;
+  display: flex; align-items: center; gap: 6px;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--orange); border-bottom-color: var(--orange); }
+.tab-btn .tab-count {
+  background: var(--bg3); padding: 0.1rem 0.4rem;
+  font-size: 0.55rem; color: var(--muted); min-width: 20px; text-align: center;
+}
+.tab-btn.active .tab-count { background: var(--orange-glow); color: var(--orange); }
+
+/* ── TOOLBAR ── */
+.toolbar {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 1.25rem; flex-wrap: wrap;
+}
+
+.search-bar {
+  display: flex; align-items: center; gap: 0;
+  background: var(--bg2); border: 1px solid var(--border);
+  flex: 1; min-width: 200px; max-width: 340px;
+}
+.search-bar input {
+  background: transparent; border: none; outline: none;
+  color: var(--text); font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem; padding: 0.5rem 0.75rem; flex: 1;
+}
+.search-bar span { padding: 0.5rem 0.75rem; color: var(--muted); font-size: 0.8rem; }
+
+.sort-select {
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--text); font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem; padding: 0.5rem 0.75rem;
+  outline: none; cursor: pointer; letter-spacing: 1px;
+}
+.sort-select:focus { border-color: var(--orange); }
+
+.view-toggle { display: flex; gap: 0; }
+.view-btn {
+  padding: 0.5rem 0.65rem;
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--muted); cursor: pointer; font-size: 0.8rem;
+  transition: all 0.2s;
+}
+.view-btn:first-child { border-right: none; }
+.view-btn.active { background: var(--orange-glow); color: var(--orange); border-color: var(--orange); }
+
+.toolbar-stats {
+  margin-left: auto;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.62rem; color: var(--muted);
+}
+.toolbar-stats span { color: var(--orange); }
+
+/* ── NOT CONNECTED STATE ── */
+.not-connected {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 50vh; text-align: center; gap: 1.5rem;
+}
+
+.not-connected-icon {
+  width: 80px; height: 80px;
+  background: var(--orange-glow);
+  border: 2px solid var(--border);
+  display: grid; grid-template-columns: repeat(5,1fr);
+  overflow: hidden; margin: 0 auto;
+}
+.not-connected-icon span { display: block; aspect-ratio: 1; }
+
+.not-connected h2 {
+  font-family: 'Orbitron', monospace; font-size: 1.2rem;
+  font-weight: 700; color: #fff;
+}
+body.light .not-connected h2 { color: var(--text); }
+
+.not-connected p {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem; color: var(--muted);
+  max-width: 400px; line-height: 1.7;
+}
+
+.connect-wallet-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem; max-width: 600px; width: 100%;
+}
+
+.connect-wallet-card {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 1.25rem 1rem;
+  background: var(--bg2); border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.2s;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem; color: var(--muted); text-align: center;
+}
+.connect-wallet-card:hover {
+  border-color: var(--orange); color: var(--orange);
+  background: var(--orange-glow); transform: translateY(-2px);
+}
+.connect-wallet-card .cw-icon { font-size: 2rem; }
+.connect-wallet-card .cw-name { font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase; }
+.connect-wallet-card .cw-status {
+  font-size: 0.55rem; color: var(--green);
+  border: 1px solid rgba(57,255,20,0.3);
+  padding: 0.1rem 0.4rem;
+}
+
+/* ── BITMAP GRID ── */
+.bitmap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1px; background: var(--border);
+}
+.bitmap-grid.list-view { grid-template-columns: 1fr; gap: 0; background: none; }
+
+.bitmap-card {
+  background: var(--bg2); position: relative;
+  transition: background 0.2s, transform 0.2s;
+  overflow: hidden; cursor: pointer;
+}
+.bitmap-card:hover { background: var(--bg3); }
+.bitmap-grid.list-view .bitmap-card {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.bitmap-canvas {
+  width: 100%; aspect-ratio: 1;
+  background: var(--bg3); position: relative; overflow: hidden;
+}
+.bitmap-grid.list-view .bitmap-canvas {
+  width: 48px; height: 48px; aspect-ratio: 1; flex-shrink: 0;
+}
+
+/* Pixel art bitmap visualizer */
+.bitmap-pixels {
+  width: 100%; height: 100%;
+  display: grid; gap: 1px;
+}
+
+.bitmap-card-body { padding: 0.75rem; }
+.bitmap-grid.list-view .bitmap-card-body {
+  padding: 0; flex: 1;
+  display: flex; align-items: center; gap: 1rem;
+}
+
+.bitmap-block-num {
+  font-family: 'Orbitron', monospace; font-size: 0.8rem;
+  font-weight: 700; color: #fff; margin-bottom: 0.2rem;
+}
+body.light .bitmap-block-num { color: var(--text); }
+.bitmap-grid.list-view .bitmap-block-num { font-size: 0.9rem; }
+
+.bitmap-badges { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 0.5rem; }
+.bitmap-grid.list-view .bitmap-badges { margin-bottom: 0; }
+
+.badge {
+  display: inline-block; padding: 0.1rem 0.4rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem; letter-spacing: 1px; text-transform: uppercase;
+}
+.badge-legendary { background: rgba(255,215,0,0.15); color: #FFD700; border: 1px solid rgba(255,215,0,0.3); }
+.badge-rare { background: rgba(247,147,26,0.15); color: var(--orange); border: 1px solid var(--border); }
+.badge-uncommon { background: rgba(97,175,239,0.1); color: var(--blue); border: 1px solid rgba(97,175,239,0.3); }
+.badge-common { background: var(--bg3); color: var(--muted); border: 1px solid var(--border); }
+.badge-palindrome { background: rgba(198,120,221,0.1); color: var(--purple); border: 1px solid rgba(198,120,221,0.3); }
+.badge-historical { background: rgba(255,215,0,0.1); color: #FFD700; border: 1px solid rgba(255,215,0,0.2); }
+.badge-punk { background: rgba(57,255,20,0.08); color: var(--green); border: 1px solid rgba(57,255,20,0.2); }
+
+.bitmap-price-row {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.bitmap-price {
+  font-family: 'Orbitron', monospace; font-size: 0.7rem;
+  color: var(--orange); font-weight: 700;
+}
+.bitmap-price-usd { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--muted); }
+
+.bitmap-card-actions {
+  position: absolute; inset: 0;
+  background: rgba(10,10,10,0.85);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 0.5rem;
+  opacity: 0; transition: opacity 0.2s;
+}
+body.light .bitmap-card-actions { background: rgba(245,240,232,0.9); }
+.bitmap-card:hover .bitmap-card-actions { opacity: 1; }
+.bitmap-grid.list-view .bitmap-card-actions { display: none; }
+
+.action-btn {
+  padding: 0.4rem 1rem;
+  font-family: 'Share Tech Mono', monospace; font-size: 0.6rem;
+  letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.15s; border: none;
+  text-decoration: none; display: inline-block;
+}
+.action-btn-primary { background: var(--orange); color: #000; font-weight: 700; }
+.action-btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.action-btn:hover { opacity: 0.85; }
+
+/* ── PORTFOLIO SUMMARY ── */
+.portfolio-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+
+.portfolio-stat {
+  background: var(--bg2); padding: 1rem;
+  position: relative;
+}
+.portfolio-stat::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; width: 8px; height: 8px;
+  border-top: 2px solid var(--orange); border-left: 2px solid var(--orange);
+}
+.portfolio-stat-num {
+  font-family: 'Orbitron', monospace; font-size: 1.1rem;
+  font-weight: 700; color: var(--orange); margin-bottom: 0.2rem;
+}
+.portfolio-stat-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase;
+}
+
+/* ── OTHER ASSETS (Runes/BRC20) ── */
+.asset-section { margin-top: 2rem; }
+
+.asset-section-header {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 1rem; padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.asset-section-title {
+  font-family: 'Orbitron', monospace; font-size: 0.85rem;
+  font-weight: 700; color: var(--muted);
+  letter-spacing: 2px;
+}
+
+.asset-table {
+  width: 100%; border-collapse: collapse;
+  font-family: 'Share Tech Mono', monospace; font-size: 0.72rem;
+}
+.asset-table th {
+  text-align: left; padding: 0.6rem 0.75rem;
+  color: var(--orange); font-size: 0.55rem;
+  letter-spacing: 2px; text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg3); white-space: nowrap;
+}
+.asset-table td {
+  padding: 0.65rem 0.75rem; color: var(--muted);
+  border-bottom: 1px solid rgba(247,147,26,0.06);
+}
+.asset-table tr:hover td { background: var(--bg3); color: var(--text); }
+.asset-table .td-name { color: var(--text); font-weight: 700; }
+.asset-table .td-green { color: var(--green); }
+.asset-table .td-red { color: var(--red); }
+.asset-table .td-orange { color: var(--orange); }
+
+/* ── LOADING SHIMMER ── */
+.shimmer {
+  background: linear-gradient(90deg, var(--bg3) 25%, var(--bg4) 50%, var(--bg3) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  grid-column: 1/-1; text-align: center; padding: 4rem 2rem;
+  font-family: 'Share Tech Mono', monospace;
+}
+.empty-state-icon { font-size: 3rem; margin-bottom: 1rem; }
+.empty-state-text { font-size: 0.8rem; color: var(--muted); line-height: 1.7; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+  z-index: 2000; display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px); padding: 1rem;
+  display: none;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--bg2); border: 1px solid var(--orange);
+  max-width: 480px; width: 100%; position: relative;
+  max-height: 90vh; overflow-y: auto;
+}
+
+.modal-header {
+  padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-title {
+  font-family: 'Orbitron', monospace; font-size: 0.9rem;
+  font-weight: 700; color: var(--orange);
+}
+.modal-close {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--muted); cursor: pointer; width: 28px; height: 28px;
+  font-size: 0.8rem; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.modal-close:hover { border-color: var(--orange); color: var(--orange); }
+
+.modal-body { padding: 1.5rem; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--orange-dim); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  :root { --sidebar-w: 240px; }
+}
+@media (max-width: 720px) {
+  .dashboard-layout { grid-template-columns: 1fr; }
+  .sidebar { position: relative; top: 0; width: 100%; height: auto; }
+  .main-content { margin-left: 0; }
+  .bitmap-grid { grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); }
+}
+
+.live-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 8px var(--green);
+  animation: livepulse 1.2s ease-in-out infinite; display: inline-block;
+}
+@keyframes livepulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.7)} }
+
+/* nav buy */
+.nav-buy { position: relative; }
+.nav-buy-btn {
+  display: flex; align-items: center; gap: 4px;
+  padding: 0.4rem 0.75rem; color: #000 !important;
+  background: var(--orange) !important;
+  font-family: 'Share Tech Mono', monospace; font-size: 0.6rem;
+  letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; border: none; font-weight: 700;
+  transition: background 0.2s; height: 100%;
+}
+.nav-buy-btn:hover { background: var(--accent) !important; }
+.nav-buy-dropdown {
+  position: absolute; top: 100%; right: 0;
+  min-width: 200px; background: var(--bg2);
+  border: 1px solid var(--orange); border-top: 2px solid var(--orange);
+  display: none; flex-direction: column; z-index: 2000;
+}
+.nav-buy:hover .nav-buy-dropdown { display: flex; }
+.nav-buy-dropdown a {
+  display: flex !important; align-items: center; gap: 10px;
+  padding: 0.65rem 1rem !important; color: var(--text) !important;
+  background: transparent !important; text-decoration: none;
+  font-family: 'Share Tech Mono', monospace; font-size: 0.65rem;
+  border-bottom: 1px solid rgba(247,147,26,0.1);
+  transition: background 0.15s;
+}
+.nav-buy-dropdown a:last-child { border-bottom: none; }
+.nav-buy-dropdown a:hover { background: var(--orange-glow) !important; color: var(--orange) !important; }
+.market-icon { width:22px;height:22px;background:var(--orange-glow);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.8rem;flex-shrink:0; }
+.market-name { display:flex;flex-direction:column;gap:1px; }
+.market-name span:last-child { color:var(--orange-dim);font-size:0.55rem; }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="pixel-icon">
+      <span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span>
+    </div>
+    BITMAP HUB
+  </a>
+  <ul class="nav-links">
+    <li><a href="introduction.html">INTRO</a></li>
+    <li><a href="history.html">HISTORY</a></li>
+    <li><a href="metaverse.html">METAVERSE</a></li>
+    <li><a href="rarity.html">RARITY</a></li>
+    <li><a href="data.html">DATA</a></li>
+    <li><a href="tools.html">TOOLS</a></li>
+    <li><a href="marketplaces.html">MARKETS</a></li>
+    <li><a href="projects.html">PROJECTS</a></li>
+    <li><a href="future.html">FUTURE</a></li>
+    <li><a href="founders.html">FOUNDERS</a></li>
+    <li><a href="dashboard.html" class="active">MY BITMAP</a></li>
+    <li class="nav-buy">
+      <button class="nav-buy-btn">🛒 BUY <span>▼</span></button>
+      <div class="nav-buy-dropdown">
+        <a href="https://www.satflow.com/ordinals/bitmap" target="_blank" rel="noopener"><div class="market-icon">💧</div><div class="market-name"><span>Satflow</span><span>satflow.com</span></div></a>
+        <a href="https://ordinalswallet.com/collection/bitmap" target="_blank" rel="noopener"><div class="market-icon">📝</div><div class="market-name"><span>Ordinals Wallet</span><span>ordinalswallet.com</span></div></a>
+      </div>
+    </li>
+  </ul>
+  <div class="nav-right">
+    <button class="theme-toggle" onclick="toggleTheme()">
+      <span id="toggleIcon">☀️</span>
+      <span id="toggleLabel">LIGHT</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ── DASHBOARD LAYOUT ── -->
+<div class="dashboard-layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Wallet Section -->
+    <div class="sidebar-section">
+      <div class="sidebar-label">Wallet</div>
+      <div id="walletNotConnected">
+        <p style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.6;">Connect your Bitcoin wallet to view your Bitmaps and digital assets.</p>
+        <div class="wallet-grid">
+          <button class="wallet-btn" onclick="connectWallet('xverse')">
+            <span class="w-icon">🟣</span>
+            <span class="w-name">Xverse</span>
+          </button>
+          <button class="wallet-btn" onclick="connectWallet('unisat')">
+            <span class="w-icon">🟠</span>
+            <span class="w-name">Unisat</span>
+          </button>
+          <button class="wallet-btn" onclick="connectWallet('okx')">
+            <span class="w-icon">⭕</span>
+            <span class="w-name">OKX</span>
+          </button>
+          <button class="wallet-btn" onclick="connectWallet('leather')">
+            <span class="w-icon">🔶</span>
+            <span class="w-name">Leather</span>
+          </button>
+          <button class="wallet-btn" onclick="connectWallet('tap')">
+            <span class="w-icon">🔷</span>
+            <span class="w-name">TAP</span>
+          </button>
+          <button class="wallet-btn" onclick="openDemoMode()" style="border-color:var(--orange);color:var(--orange);">
+            <span class="w-icon">👁️</span>
+            <span class="w-name">DEMO</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="walletConnected" style="display:none;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:0.5rem;">
+          <span class="live-dot"></span>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--green);" id="walletName">CONNECTED</span>
+        </div>
+        <div class="wallet-address" id="walletAddr">—</div>
+        <div style="margin:0.75rem 0;">
+          <div class="wallet-btc-bal" id="walletBtcBal">— BTC</div>
+          <div class="wallet-usd-bal" id="walletUsdBal">— USD</div>
+        </div>
+        <button class="disconnect-btn" onclick="disconnectWallet()">✕ DISCONNECT</button>
+      </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="sidebar-section" id="filterSection" style="display:none;">
+      <div class="sidebar-label">Filters</div>
+
+      <!-- Rarity Filter -->
+      <div class="filter-group">
+        <div class="filter-group-title">▸ RARITY TIER</div>
+        <div class="filter-options">
+          <div class="filter-chip" data-filter="rarity" data-val="legendary" onclick="toggleFilter(this)">
+            ⚡ Legendary (Sub-100) <span class="chip-count" id="cnt-legendary">0</span>
+          </div>
+          <div class="filter-chip" data-filter="rarity" data-val="elite" onclick="toggleFilter(this)">
+            💎 Elite (Sub-1K) <span class="chip-count" id="cnt-elite">0</span>
+          </div>
+          <div class="filter-chip" data-filter="rarity" data-val="premium" onclick="toggleFilter(this)">
+            🏅 Premium (Sub-10K) <span class="chip-count" id="cnt-premium">0</span>
+          </div>
+          <div class="filter-chip" data-filter="rarity" data-val="rare" onclick="toggleFilter(this)">
+            🟧 Rare (Sub-100K) <span class="chip-count" id="cnt-rare">0</span>
+          </div>
+          <div class="filter-chip" data-filter="rarity" data-val="common" onclick="toggleFilter(this)">
+            📦 Common (100K+) <span class="chip-count" id="cnt-common">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Filter -->
+      <div class="filter-group">
+        <div class="filter-group-title">▸ SPECIAL CATEGORY</div>
+        <div class="filter-options">
+          <div class="filter-chip" data-filter="cat" data-val="palindrome" onclick="toggleFilter(this)">
+            🔄 Palindrome <span class="chip-count" id="cnt-palindrome">0</span>
+          </div>
+          <div class="filter-chip" data-filter="cat" data-val="historical" onclick="toggleFilter(this)">
+            📜 Historical <span class="chip-count" id="cnt-historical">0</span>
+          </div>
+          <div class="filter-chip" data-filter="cat" data-val="punk" onclick="toggleFilter(this)">
+            👾 Punk-Shaped <span class="chip-count" id="cnt-punk">0</span>
+          </div>
+          <div class="filter-chip" data-filter="cat" data-val="halving" onclick="toggleFilter(this)">
+            ⚡ Halving Block <span class="chip-count" id="cnt-halving">0</span>
+          </div>
+          <div class="filter-chip" data-filter="cat" data-val="repeating" onclick="toggleFilter(this)">
+            🔢 Repeating Num <span class="chip-count" id="cnt-repeating">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block Range Filter -->
+      <div class="filter-group">
+        <div class="filter-group-title">▸ BLOCK RANGE</div>
+        <div class="range-inputs">
+          <input class="range-input" id="blockMin" type="number" placeholder="MIN" min="0">
+          <input class="range-input" id="blockMax" type="number" placeholder="MAX">
+        </div>
+      </div>
+
+      <!-- Listed / Unlisted -->
+      <div class="filter-group">
+        <div class="filter-group-title">▸ LISTING STATUS</div>
+        <div class="filter-options">
+          <div class="filter-chip" data-filter="listed" data-val="listed" onclick="toggleFilter(this)">
+            🏷️ Listed for Sale
+          </div>
+          <div class="filter-chip" data-filter="listed" data-val="unlisted" onclick="toggleFilter(this)">
+            🔒 Not Listed
+          </div>
+        </div>
+      </div>
+
+      <button class="filter-apply" onclick="applyFilters()">APPLY FILTERS</button>
+      <button class="filter-clear" onclick="clearFilters()">CLEAR ALL</button>
+    </div>
+
+    <!-- Summary -->
+    <div class="sidebar-section" id="summarySection" style="display:none;">
+      <div class="sidebar-label">Portfolio Value</div>
+      <div style="font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:700;color:var(--orange);" id="portfolioTotal">— BTC</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--muted);margin-top:0.2rem;" id="portfolioUsd">— USD</div>
+      <div style="margin-top:0.75rem;display:flex;flex-direction:column;gap:0.3rem;">
+        <div style="display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:0.62rem;">
+          <span style="color:var(--muted)">Bitmaps</span><span id="totalBitmaps" style="color:var(--text)">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:0.62rem;">
+          <span style="color:var(--muted)">Other Ordinals</span><span id="totalOrdinals" style="color:var(--text)">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:0.62rem;">
+          <span style="color:var(--muted)">Runes</span><span id="totalRunes" style="color:var(--text)">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:0.62rem;">
+          <span style="color:var(--muted)">BRC-20</span><span id="totalBrc20" style="color:var(--text)">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- External Links -->
+    <div class="sidebar-section" style="margin-top:auto;">
+      <div class="sidebar-label">Quick Links</div>
+      <div style="display:flex;flex-direction:column;gap:0.3rem;">
+        <a href="https://www.satflow.com/ordinals/bitmap" target="_blank" rel="noopener" style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--muted);text-decoration:none;padding:0.3rem 0;display:flex;align-items:center;gap:6px;">💧 Satflow Market →</a>
+        <a href="https://ordinalswallet.com/collection/bitmap" target="_blank" rel="noopener" style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--muted);text-decoration:none;padding:0.3rem 0;display:flex;align-items:center;gap:6px;">📝 Ordinals Wallet →</a>
+        <a href="https://magiceden.io/ordinals/marketplace/bitmap" target="_blank" rel="noopener" style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--muted);text-decoration:none;padding:0.3rem 0;display:flex;align-items:center;gap:6px;">✨ Magic Eden →</a>
+        <a href="https://unisat.io/inscribe" target="_blank" rel="noopener" style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--muted);text-decoration:none;padding:0.3rem 0;display:flex;align-items:center;gap:6px;">⚡ Inscribe Bitmap →</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main-content" id="mainContent">
+
+    <!-- Not Connected -->
+    <div class="not-connected" id="notConnectedView">
+      <div class="not-connected-icon" id="notConnIcon"></div>
+      <h2>Connect Your Wallet</h2>
+      <p>Connect your Bitcoin wallet to view your Bitmap districts, filter by rarity, and see all your on-chain digital assets in one place.</p>
+      <div class="connect-wallet-grid">
+        <div class="connect-wallet-card" onclick="connectWallet('xverse')">
+          <div class="cw-icon">🟣</div>
+          <div class="cw-name">Xverse</div>
+          <div class="cw-status">SUPPORTED</div>
+        </div>
+        <div class="connect-wallet-card" onclick="connectWallet('unisat')">
+          <div class="cw-icon">🟠</div>
+          <div class="cw-name">Unisat</div>
+          <div class="cw-status">SUPPORTED</div>
+        </div>
+        <div class="connect-wallet-card" onclick="connectWallet('okx')">
+          <div class="cw-icon">⭕</div>
+          <div class="cw-name">OKX Wallet</div>
+          <div class="cw-status">SUPPORTED</div>
+        </div>
+        <div class="connect-wallet-card" onclick="connectWallet('leather')">
+          <div class="cw-icon">🔶</div>
+          <div class="cw-name">Leather</div>
+          <div class="cw-status">SUPPORTED</div>
+        </div>
+        <div class="connect-wallet-card" onclick="connectWallet('tap')">
+          <div class="cw-icon">🔷</div>
+          <div class="cw-name">TAP Wallet</div>
+          <div class="cw-status">SUPPORTED</div>
+        </div>
+        <div class="connect-wallet-card" onclick="openDemoMode()" style="border-color:var(--orange);">
+          <div class="cw-icon">👁️</div>
+          <div class="cw-name">Demo Mode</div>
+          <div class="cw-status" style="color:var(--orange);border-color:rgba(247,147,26,0.4);">TRY NOW</div>
+        </div>
+      </div>
+      <p style="font-size:0.62rem;margin-top:0.5rem;">🔒 We never store your private keys. Read-only wallet access.</p>
+    </div>
+
+    <!-- Connected Dashboard -->
+    <div id="connectedView" style="display:none;">
+
+      <!-- Portfolio Summary Bar -->
+      <div class="portfolio-bar" id="portfolioBar">
+        <div class="portfolio-stat">
+          <div class="portfolio-stat-num" id="ps-bitmaps">—</div>
+          <div class="portfolio-stat-label">Bitmaps Owned</div>
+        </div>
+        <div class="portfolio-stat">
+          <div class="portfolio-stat-num" id="ps-rarest">—</div>
+          <div class="portfolio-stat-label">Rarest Block</div>
+        </div>
+        <div class="portfolio-stat">
+          <div class="portfolio-stat-num" id="ps-value">—</div>
+          <div class="portfolio-stat-label">Est. Floor Value</div>
+        </div>
+        <div class="portfolio-stat">
+          <div class="portfolio-stat-num" id="ps-ordinals">—</div>
+          <div class="portfolio-stat-label">Other Ordinals</div>
+        </div>
+        <div class="portfolio-stat">
+          <div class="portfolio-stat-num" id="ps-runes">—</div>
+          <div class="portfolio-stat-label">Rune Balances</div>
+        </div>
+        <div class="portfolio-stat">
+          <div class="portfolio-stat-num" id="ps-brc20">—</div>
+          <div class="portfolio-stat-label">BRC-20 Tokens</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('bitmaps', this)">
+          🟧 MY BITMAPS <span class="tab-count" id="tab-count-bitmaps">0</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('ordinals', this)">
+          📜 ORDINALS <span class="tab-count" id="tab-count-ordinals">0</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('runes', this)">
+          ⚡ RUNES <span class="tab-count" id="tab-count-runes">0</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('brc20', this)">
+          🪙 BRC-20 <span class="tab-count" id="tab-count-brc20">0</span>
+        </button>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search-bar">
+          <span>🔍</span>
+          <input type="text" placeholder="Search block number..." id="searchInput" oninput="handleSearch(this.value)">
+        </div>
+        <select class="sort-select" id="sortSelect" onchange="handleSort(this.value)">
+          <option value="block-asc">BLOCK # (LOW→HIGH)</option>
+          <option value="block-desc">BLOCK # (HIGH→LOW)</option>
+          <option value="rarity">RARITY</option>
+          <option value="price-asc">PRICE (LOW→HIGH)</option>
+          <option value="price-desc">PRICE (HIGH→LOW)</option>
+        </select>
+        <div class="view-toggle">
+          <button class="view-btn active" id="gridViewBtn" onclick="setView('grid')" title="Grid view">⊞</button>
+          <button class="view-btn" id="listViewBtn" onclick="setView('list')" title="List view">☰</button>
+        </div>
+        <div class="toolbar-stats">
+          Showing <span id="showingCount">0</span> of <span id="totalCount">0</span>
+        </div>
+      </div>
+
+      <!-- Bitmap Grid -->
+      <div id="bitmapTab">
+        <div class="bitmap-grid" id="bitmapGrid"></div>
+      </div>
+
+      <!-- Ordinals Tab -->
+      <div id="ordinalsTab" style="display:none;">
+        <table class="asset-table">
+          <thead>
+            <tr>
+              <th>#</th><th>COLLECTION</th><th>INSCRIPTION ID</th><th>TYPE</th><th>FLOOR PRICE</th><th>ACTION</th>
+            </tr>
+          </thead>
+          <tbody id="ordinalsTable"></tbody>
+        </table>
+      </div>
+
+      <!-- Runes Tab -->
+      <div id="runesTab" style="display:none;">
+        <table class="asset-table">
+          <thead>
+            <tr>
+              <th>RUNE</th><th>BALANCE</th><th>PRICE/TOKEN</th><th>TOTAL VALUE</th><th>24H CHANGE</th><th>ACTION</th>
+            </tr>
+          </thead>
+          <tbody id="runesTable"></tbody>
+        </table>
+      </div>
+
+      <!-- BRC-20 Tab -->
+      <div id="brc20Tab" style="display:none;">
+        <table class="asset-table">
+          <thead>
+            <tr>
+              <th>TOKEN</th><th>BALANCE</th><th>PRICE/TOKEN</th><th>TOTAL VALUE</th><th>24H CHANGE</th><th>ACTION</th>
+            </tr>
+          </thead>
+          <tbody id="brc20Table"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ── BITMAP DETAIL MODAL ── -->
+<div class="modal-overlay" id="bitmapModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">— .bitmap</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════════
+function applyTheme(mode) {
+  document.body.classList.toggle('light', mode === 'light');
+  const icon = document.getElementById('toggleIcon');
+  const label = document.getElementById('toggleLabel');
+  if (icon) icon.textContent = mode === 'light' ? '🌑' : '☀️';
+  if (label) label.textContent = mode === 'light' ? 'DARK' : 'LIGHT';
+}
+function toggleTheme() {
+  const isLight = document.body.classList.contains('light');
+  const next = isLight ? 'dark' : 'light';
+  localStorage.setItem('bitmapTheme', next);
+  applyTheme(next);
+}
+applyTheme(localStorage.getItem('bitmapTheme') || 'dark');
+
+// ═══════════════════════════════════════════════
+// PIXEL ART ICON (not-connected state)
+// ═══════════════════════════════════════════════
+const icon = document.getElementById('notConnIcon');
+if(icon) {
+  icon.style.gridTemplateColumns = 'repeat(5,1fr)';
+  const pattern = [0,1,1,1,0, 1,1,0,1,1, 1,0,0,0,1, 1,1,0,1,1, 0,1,1,1,0];
+  pattern.forEach(on => {
+    const s = document.createElement('span');
+    s.style.background = on ? 'var(--orange)' : 'transparent';
+    s.style.aspectRatio = '1';
+    icon.appendChild(s);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let state = {
+  connected: false,
+  walletType: null,
+  address: null,
+  bitmaps: [],
+  filteredBitmaps: [],
+  ordinals: [],
+  runes: [],
+  brc20: [],
+  filters: {},
+  view: 'grid',
+  activeTab: 'bitmaps',
+  btcPrice: 0
+};
+
+// ═══════════════════════════════════════════════
+// BTC PRICE
+// ═══════════════════════════════════════════════
+async function fetchBtcPrice() {
+  try {
+    const r = await fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot');
+    const d = await r.json();
+    state.btcPrice = parseFloat(d.data.amount);
+  } catch(e) {
+    state.btcPrice = 93000; // fallback estimate
+  }
+}
+fetchBtcPrice();
+
+// ═══════════════════════════════════════════════
+// WALLET CONNECT
+// ═══════════════════════════════════════════════
+const WALLET_LABELS = {
+  xverse: '🟣 XVERSE', unisat: '🟠 UNISAT',
+  okx: '⭕ OKX', leather: '🔶 LEATHER', tap: '🔷 TAP'
+};
+
+async function connectWallet(type) {
+  // Try to connect real wallet APIs
+  let address = null;
+
+  try {
+    if (type === 'unisat' && window.unisat) {
+      const accounts = await window.unisat.requestAccounts();
+      address = accounts[0];
+    } else if (type === 'xverse' && window.XverseProviders) {
+      const res = await window.XverseProviders.BitcoinProvider.request('getAccounts', { purposes: ['ordinals'] });
+      address = res.result.addresses[0]?.address;
+    } else if (type === 'okx' && window.okxwallet) {
+      const res = await window.okxwallet.bitcoin.requestAccounts();
+      address = res[0];
+    } else if (type === 'leather' && window.HiroWalletProvider) {
+      const res = await window.HiroWalletProvider.request('getAddresses');
+      address = res.result.addresses.find(a => a.type === 'p2tr')?.address;
+    } else if (type === 'tap' && window.tapwallet) {
+      const accounts = await window.tapwallet.requestAccounts();
+      address = accounts[0];
+    }
+  } catch(e) {
+    console.log('Wallet connect error:', e);
+  }
+
+  if (!address) {
+    // Wallet not installed — open install page or show demo
+    const installUrls = {
+      xverse: 'https://www.xverse.app',
+      unisat: 'https://unisat.io',
+      okx: 'https://www.okx.com/web3',
+      leather: 'https://leather.io',
+      tap: 'https://tapwallet.io'
+    };
+    const confirmDemo = confirm(
+      `${WALLET_LABELS[type]} wallet not detected.\n\nWould you like to:\n• Click OK to open Demo Mode\n• Click Cancel to install the wallet`
+    );
+    if (confirmDemo) {
+      openDemoMode();
+    } else {
+      window.open(installUrls[type], '_blank');
+    }
+    return;
+  }
+
+  await onWalletConnected(type, address);
+}
+
+async function onWalletConnected(type, address) {
+  state.connected = true;
+  state.walletType = type;
+  state.address = address;
+
+  // Update sidebar
+  document.getElementById('walletNotConnected').style.display = 'none';
+  document.getElementById('walletConnected').style.display = 'block';
+  document.getElementById('walletName').textContent = WALLET_LABELS[type];
+  document.getElementById('walletAddr').textContent =
+    address.slice(0,8) + '...' + address.slice(-6);
+  document.getElementById('filterSection').style.display = 'block';
+  document.getElementById('summarySection').style.display = 'block';
+
+  // Hide not-connected, show dashboard
+  document.getElementById('notConnectedView').style.display = 'none';
+  document.getElementById('connectedView').style.display = 'block';
+
+  // Fetch assets
+  await loadAssets(address);
+}
+
+function disconnectWallet() {
+  state.connected = false; state.walletType = null; state.address = null;
+  state.bitmaps = []; state.ordinals = []; state.runes = []; state.brc20 = [];
+  document.getElementById('walletNotConnected').style.display = 'block';
+  document.getElementById('walletConnected').style.display = 'none';
+  document.getElementById('filterSection').style.display = 'none';
+  document.getElementById('summarySection').style.display = 'none';
+  document.getElementById('notConnectedView').style.display = 'flex';
+  document.getElementById('connectedView').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════
+// DEMO MODE — rich sample data
+// ═══════════════════════════════════════════════
+function openDemoMode() {
+  const demoAddress = 'bc1pdemo0bitmaphub0x0x0x0x0x0x0x0demo';
+
+  const demoBitmaps = [
+    { block: 0, rarity: 'legendary', cats: ['historical'], listed: false, price: 5.0 },
+    { block: 57043, rarity: 'legendary', cats: ['historical','pizza'], listed: false, price: 3.2 },
+    { block: 210000, rarity: 'legendary', cats: ['historical','halving'], listed: false, price: 2.8 },
+    { block: 420000, rarity: 'legendary', cats: ['historical','halving'], listed: true, price: 2.1 },
+    { block: 840, rarity: 'elite', cats: ['repeating'], listed: false, price: 0.85 },
+    { block: 777, rarity: 'elite', cats: ['repeating'], listed: false, price: 0.72 },
+    { block: 123321, rarity: 'premium', cats: ['palindrome'], listed: true, price: 0.45 },
+    { block: 1221, rarity: 'elite', cats: ['palindrome'], listed: false, price: 0.95 },
+    { block: 8888, rarity: 'premium', cats: ['repeating'], listed: false, price: 0.32 },
+    { block: 11111, rarity: 'premium', cats: ['repeating'], listed: false, price: 0.28 },
+    { block: 431897, rarity: 'rare', cats: ['punk'], listed: false, price: 0.18 },
+    { block: 500001, rarity: 'common', cats: [], listed: true, price: 0.002 },
+    { block: 630000, rarity: 'legendary', cats: ['historical','halving'], listed: false, price: 1.9 },
+    { block: 9999, rarity: 'premium', cats: [], listed: false, price: 0.22 },
+    { block: 750000, rarity: 'common', cats: [], listed: false, price: 0.0015 },
+  ];
+
+  const demoOrdinals = [
+    { name: 'NodeMonke #2847', collection: 'NodeMonkes', id: 'a1b2c3...', type: 'PFP', floor: '0.021' },
+    { name: 'Quantum Cat #091', collection: 'Quantum Cats', id: 'd4e5f6...', type: 'PFP', floor: '0.044' },
+    { name: 'Bitcoin Puppet #1337', collection: 'Bitcoin Puppets', id: 'g7h8i9...', type: 'PFP', floor: '0.031' },
+    { name: 'Ordinal Maxi Biz #88', collection: 'OMB', id: 'j0k1l2...', type: 'PFP', floor: '0.019' },
+  ];
+
+  const demoRunes = [
+    { name: 'DOG•GO•TO•THE•MOON', balance: '42,000,000', price: '0.0000082', value: '344.40', change: '+12.3%', up: true },
+    { name: 'SATOSHI•NAKAMOTO', balance: '1,000,000', price: '0.0000021', value: '2.10', change: '-4.1%', up: false },
+    { name: 'BITCOIN•PIZZA•DAY', balance: '10,000', price: '0.000055', value: '0.55', change: '+7.8%', up: true },
+  ];
+
+  const demoBrc20 = [
+    { name: 'ORDI', balance: '150', price: '0.00048', value: '0.072', change: '+5.2%', up: true },
+    { name: 'SATS', balance: '5,000,000', price: '0.000000041', value: '0.205', change: '-2.8%', up: false },
+    { name: 'RATS', balance: '888,888', price: '0.00000012', value: '0.107', change: '+1.1%', up: true },
+    { name: 'MEME', balance: '10,000', price: '0.0000098', value: '0.098', change: '+18.4%', up: true },
+  ];
+
+  state.bitmaps = demoBitmaps;
+  state.ordinals = demoOrdinals;
+  state.runes = demoRunes;
+  state.brc20 = demoBrc20;
+
+  onWalletConnected('demo', demoAddress);
+  document.getElementById('walletName').textContent = '👁️ DEMO MODE';
+  document.getElementById('walletAddr').textContent = 'demo•wallet•preview';
+}
+
+// ═══════════════════════════════════════════════
+// LOAD ASSETS FROM CHAIN
+// ═══════════════════════════════════════════════
+async function loadAssets(address) {
+  showLoadingGrid();
+
+  try {
+    // Fetch inscriptions from Unisat API (public, no key for basic)
+    const res = await fetch(
+      `https://open-api.unisat.io/v1/indexer/address/${address}/inscription-utxo-data?cursor=0&size=80`,
+      { headers: { 'Accept': 'application/json' } }
+    );
+    const data = await res.json();
+
+    if (data.code === 0 && data.data) {
+      const inscriptions = data.data.utxo || [];
+      const bitmaps = [];
+      const ordinals = [];
+
+      inscriptions.forEach(utxo => {
+        (utxo.inscriptions || []).forEach(ins => {
+          const content = ins.contentType || '';
+          const isBitmap = ins.contentBody && /^\d+\.bitmap$/i.test(ins.contentBody.trim());
+          if (isBitmap) {
+            const blockNum = parseInt(ins.contentBody);
+            bitmaps.push({
+              block: blockNum,
+              inscriptionId: ins.inscriptionId,
+              rarity: getBitmapRarity(blockNum),
+              cats: getBitmapCategories(blockNum),
+              listed: false,
+              price: null
+            });
+          } else {
+            ordinals.push({
+              name: ins.contentBody?.slice(0,30) || ins.inscriptionId?.slice(0,16) + '...',
+              collection: 'Unknown',
+              id: ins.inscriptionId?.slice(0,12) + '...',
+              type: content.includes('image') ? 'Image' : content.includes('text') ? 'Text' : 'Other',
+              floor: '—'
+            });
+          }
+        });
+      });
+
+      // Also try BRC-20 balances
+      try {
+        const brc20Res = await fetch(
+          `https://open-api.unisat.io/v1/indexer/address/${address}/brc20/summary?cursor=0&size=20`,
+          { headers: { 'Accept': 'application/json' } }
+        );
+        const brc20Data = await brc20Res.json();
+        if (brc20Data.code === 0) {
+          state.brc20 = (brc20Data.data?.detail || []).map(t => ({
+            name: t.ticker,
+            balance: Number(t.overallBalance).toLocaleString(),
+            price: '—', value: '—', change: '—', up: null
+          }));
+        }
+      } catch(e) {}
+
+      state.bitmaps = bitmaps.sort((a,b) => a.block - b.block);
+      state.ordinals = ordinals;
+
+      if (bitmaps.length === 0 && ordinals.length === 0) {
+        // No on-chain data found — offer demo
+        showEmptyState();
+        return;
+      }
+    } else {
+      throw new Error('API error');
+    }
+  } catch(e) {
+    // Silently fall back to demo data
+    openDemoMode();
+    return;
+  }
+
+  renderAll();
+}
+
+function showLoadingGrid() {
+  const grid = document.getElementById('bitmapGrid');
+  grid.innerHTML = '';
+  for(let i=0; i<12; i++) {
+    const card = document.createElement('div');
+    card.className = 'bitmap-card';
+    card.innerHTML = `<div class="bitmap-canvas shimmer"></div>
+      <div class="bitmap-card-body">
+        <div class="shimmer" style="height:14px;width:60%;margin-bottom:6px;"></div>
+        <div class="shimmer" style="height:10px;width:40%;"></div>
+      </div>`;
+    grid.appendChild(card);
+  }
+}
+
+function showEmptyState() {
+  document.getElementById('bitmapGrid').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-state-icon">🟧</div>
+      <div class="empty-state-text">
+        No Bitmaps found in this wallet.<br>
+        <a href="https://www.satflow.com/ordinals/bitmap" target="_blank" style="color:var(--orange);">Buy your first Bitmap on Satflow →</a><br><br>
+        <button onclick="openDemoMode()" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:0.4rem 1rem;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:1px;text-transform:uppercase;">
+          EXPLORE WITH DEMO DATA
+        </button>
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════
+// RARITY & CATEGORY LOGIC
+// ═══════════════════════════════════════════════
+function getBitmapRarity(n) {
+  if (n < 100) return 'legendary';
+  if (n < 1000) return 'elite';
+  if (n < 10000) return 'premium';
+  if (n < 100000) return 'rare';
+  return 'common';
+}
+
+function getBitmapCategories(n) {
+  const cats = [];
+  const s = String(n);
+  const halvings = [210000,420000,630000,840000];
+  const historical = [0,57043,481824,477120,170,1,2,3,4,5];
+
+  if (halvings.includes(n)) cats.push('halving');
+  if (historical.includes(n)) cats.push('historical');
+  if (s === s.split('').reverse().join('') && s.length > 1) cats.push('palindrome');
+  if (/^(.)\1+$/.test(s) || /^(12|123|1234|12345|123456)(0*)$/.test(s)) cats.push('repeating');
+  // Simulate some punk-shaped blocks
+  if ([431897,388395,404501,280000].includes(n)) cats.push('punk');
+
+  return cats;
+}
+
+function getRarityBadge(rarity) {
+  const map = {
+    legendary: '<span class="badge badge-legendary">⚡ LEGENDARY</span>',
+    elite: '<span class="badge badge-rare">💎 ELITE</span>',
+    premium: '<span class="badge badge-uncommon">🏅 PREMIUM</span>',
+    rare: '<span class="badge badge-common">🟧 RARE</span>',
+    common: '<span class="badge badge-common">📦 COMMON</span>',
+  };
+  return map[rarity] || '';
+}
+
+function getCatBadges(cats) {
+  const map = {
+    palindrome: '<span class="badge badge-palindrome">🔄 PALINDROME</span>',
+    historical: '<span class="badge badge-historical">📜 HISTORICAL</span>',
+    punk: '<span class="badge badge-punk">👾 PUNK</span>',
+    halving: '<span class="badge badge-legendary">⚡ HALVING</span>',
+    repeating: '<span class="badge badge-uncommon">🔢 REPEATING</span>',
+    pizza: '<span class="badge badge-historical">🍕 PIZZA</span>',
+  };
+  return cats.map(c => map[c] || '').join('');
+}
+
+// ═══════════════════════════════════════════════
+// BITMAP PIXEL VISUALIZER
+// ═══════════════════════════════════════════════
+function generatePixelArt(blockNum, size=8) {
+  const rng = (seed) => {
+    let x = Math.sin(seed + blockNum * 0.618) * 10000;
+    return x - Math.floor(x);
+  };
+
+  const colors = ['#F7931A','#C26E00','#FF6B00','#FFB347'];
+  const cells = size * size;
+  let html = `<div style="display:grid;grid-template-columns:repeat(${size},1fr);width:100%;height:100%;gap:0;">`;
+  for(let i=0; i<cells; i++) {
+    const v = rng(i * 7.3 + 1);
+    const col = v > 0.5 ? colors[Math.floor(rng(i*3.1)*colors.length)] : 'transparent';
+    html += `<span style="background:${col};aspect-ratio:1;"></span>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+// ═══════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════
+function renderAll() {
+  state.filteredBitmaps = [...state.bitmaps];
+  applyFiltersToState();
+  updateCounts();
+  renderBitmapGrid();
+  renderOtherAssets();
+  updatePortfolioStats();
+  updateFilterCounts();
+}
+
+function updateCounts() {
+  document.getElementById('showingCount').textContent = state.filteredBitmaps.length;
+  document.getElementById('totalCount').textContent = state.bitmaps.length;
+  document.getElementById('tab-count-bitmaps').textContent = state.bitmaps.length;
+  document.getElementById('tab-count-ordinals').textContent = state.ordinals.length;
+  document.getElementById('tab-count-runes').textContent = state.runes.length;
+  document.getElementById('tab-count-brc20').textContent = state.brc20.length;
+}
+
+function updateFilterCounts() {
+  const tiers = ['legendary','elite','premium','rare','common'];
+  tiers.forEach(t => {
+    const el = document.getElementById('cnt-' + t);
+    if(el) el.textContent = state.bitmaps.filter(b => b.rarity === t).length;
+  });
+  const specialCats = ['palindrome','historical','punk','halving','repeating'];
+  specialCats.forEach(c => {
+    const el = document.getElementById('cnt-' + c);
+    if(el) el.textContent = state.bitmaps.filter(b => b.cats.includes(c)).length;
+  });
+}
+
+function updatePortfolioStats() {
+  const bitmaps = state.bitmaps;
+  document.getElementById('ps-bitmaps').textContent = bitmaps.length;
+  document.getElementById('totalBitmaps').textContent = bitmaps.length;
+
+  const rarest = bitmaps.reduce((a,b) => a.block < b.block ? a : b, bitmaps[0]);
+  document.getElementById('ps-rarest').textContent = rarest ? `#${rarest.block.toLocaleString()}` : '—';
+
+  const totalBtc = bitmaps.reduce((s,b) => s + (b.price || 0.002), 0);
+  document.getElementById('ps-value').textContent = totalBtc.toFixed(3) + ' BTC';
+  document.getElementById('portfolioTotal').textContent = totalBtc.toFixed(4) + ' BTC';
+  document.getElementById('portfolioUsd').textContent = state.btcPrice ? '$' + (totalBtc * state.btcPrice).toLocaleString('en-US',{maximumFractionDigits:0}) : '—';
+  document.getElementById('walletBtcBal').textContent = totalBtc.toFixed(4) + ' BTC';
+  document.getElementById('walletUsdBal').textContent = state.btcPrice ? '≈ $' + (totalBtc * state.btcPrice).toLocaleString('en-US',{maximumFractionDigits:0}) : '';
+
+  document.getElementById('ps-ordinals').textContent = state.ordinals.length;
+  document.getElementById('ps-runes').textContent = state.runes.length;
+  document.getElementById('ps-brc20').textContent = state.brc20.length;
+  document.getElementById('totalOrdinals').textContent = state.ordinals.length;
+  document.getElementById('totalRunes').textContent = state.runes.length;
+  document.getElementById('totalBrc20').textContent = state.brc20.length;
+}
+
+function renderBitmapCard(bitmap) {
+  const isList = state.view === 'list';
+  const priceStr = bitmap.price ? bitmap.price.toFixed(4) + ' BTC' : 'UNLISTED';
+  const priceUsd = bitmap.price && state.btcPrice ? '$' + (bitmap.price * state.btcPrice).toLocaleString('en-US',{maximumFractionDigits:0}) : '';
+
+  const card = document.createElement('div');
+  card.className = 'bitmap-card';
+  card.onclick = () => openBitmapModal(bitmap);
+
+  const pixelArt = generatePixelArt(bitmap.block);
+
+  if (isList) {
+    card.innerHTML = `
+      <div class="bitmap-canvas">${pixelArt}</div>
+      <div class="bitmap-card-body">
+        <div>
+          <div class="bitmap-block-num">${bitmap.block.toLocaleString()}.bitmap</div>
+          <div class="bitmap-badges">${getRarityBadge(bitmap.rarity)}${getCatBadges(bitmap.cats)}</div>
+        </div>
+        <div style="margin-left:auto;text-align:right;">
+          <div class="bitmap-price">${priceStr}</div>
+          <div class="bitmap-price-usd">${priceUsd}</div>
+          ${bitmap.listed ? '<span class="badge badge-rare" style="margin-top:3px;display:inline-block;">🏷️ LISTED</span>' : ''}
+        </div>
+      </div>`;
+  } else {
+    card.innerHTML = `
+      <div class="bitmap-canvas">${pixelArt}</div>
+      <div class="bitmap-card-body">
+        <div class="bitmap-block-num">${bitmap.block.toLocaleString()}.bitmap</div>
+        <div class="bitmap-badges">${getRarityBadge(bitmap.rarity)}${getCatBadges(bitmap.cats)}</div>
+        <div class="bitmap-price-row">
+          <div>
+            <div class="bitmap-price">${priceStr}</div>
+            <div class="bitmap-price-usd">${priceUsd}</div>
+          </div>
+          ${bitmap.listed ? '<span class="badge badge-rare">🏷️</span>' : ''}
+        </div>
+      </div>
+      <div class="bitmap-card-actions">
+        <a href="https://www.satflow.com/ordinals/bitmap/${bitmap.block}" target="_blank" class="action-btn action-btn-primary">VIEW ON SATFLOW</a>
+        <button class="action-btn action-btn-ghost" onclick="event.stopPropagation();openBitmapModal(${JSON.stringify(bitmap).replace(/"/g,'&quot;')})">DETAILS</button>
+      </div>`;
+  }
+  return card;
+}
+
+function renderBitmapGrid() {
+  const grid = document.getElementById('bitmapGrid');
+  grid.innerHTML = '';
+  grid.className = 'bitmap-grid' + (state.view === 'list' ? ' list-view' : '');
+
+  if (state.filteredBitmaps.length === 0) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">No Bitmaps match your filters.<br><button onclick="clearFilters()" style="background:transparent;border:1px solid var(--border);color:var(--orange);padding:0.4rem 1rem;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:1px;margin-top:0.75rem;">CLEAR FILTERS</button></div></div>`;
+    return;
+  }
+
+  state.filteredBitmaps.forEach(b => grid.appendChild(renderBitmapCard(b)));
+}
+
+function renderOtherAssets() {
+  // Ordinals
+  const ot = document.getElementById('ordinalsTable');
+  ot.innerHTML = state.ordinals.length === 0
+    ? `<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted);">No other Ordinals found in this wallet.</td></tr>`
+    : state.ordinals.map((o,i) => `
+      <tr>
+        <td style="color:var(--muted)">${i+1}</td>
+        <td class="td-name">${o.name}</td>
+        <td style="color:var(--muted);font-size:0.6rem;">${o.id}</td>
+        <td><span class="badge badge-uncommon">${o.type}</span></td>
+        <td class="td-orange">${o.floor} BTC</td>
+        <td><a href="https://ordinals.com/inscription/${o.id}" target="_blank" style="color:var(--orange);font-size:0.6rem;text-decoration:none;">VIEW →</a></td>
+      </tr>`).join('');
+
+  // Runes
+  const rt = document.getElementById('runesTable');
+  rt.innerHTML = state.runes.length === 0
+    ? `<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted);">No Rune balances found.</td></tr>`
+    : state.runes.map(r => `
+      <tr>
+        <td class="td-name">${r.name}</td>
+        <td>${r.balance}</td>
+        <td class="td-orange">${r.price} BTC</td>
+        <td>${r.value} BTC</td>
+        <td class="${r.up ? 'td-green' : 'td-red'}">${r.change}</td>
+        <td><a href="https://magiceden.io/runes/${r.name}" target="_blank" style="color:var(--orange);font-size:0.6rem;text-decoration:none;">TRADE →</a></td>
+      </tr>`).join('');
+
+  // BRC-20
+  const bt = document.getElementById('brc20Table');
+  bt.innerHTML = state.brc20.length === 0
+    ? `<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted);">No BRC-20 tokens found.</td></tr>`
+    : state.brc20.map(t => `
+      <tr>
+        <td class="td-name">${t.name}</td>
+        <td>${t.balance}</td>
+        <td class="td-orange">${t.price}</td>
+        <td>${t.value}</td>
+        <td class="${t.up === null ? '' : t.up ? 'td-green' : 'td-red'}">${t.change}</td>
+        <td><a href="https://unisat.io/brc20/${t.name}" target="_blank" style="color:var(--orange);font-size:0.6rem;text-decoration:none;">TRADE →</a></td>
+      </tr>`).join('');
+}
+
+// ═══════════════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════════════
+function toggleFilter(el) {
+  el.classList.toggle('active');
+  document.getElementById('showingCount').textContent = '...';
+}
+
+function applyFiltersToState() {
+  const activeRarity = [...document.querySelectorAll('.filter-chip[data-filter="rarity"].active')].map(e=>e.dataset.val);
+  const activeCats   = [...document.querySelectorAll('.filter-chip[data-filter="cat"].active')].map(e=>e.dataset.val);
+  const activeListed = [...document.querySelectorAll('.filter-chip[data-filter="listed"].active')].map(e=>e.dataset.val);
+  const blockMin = parseInt(document.getElementById('blockMin').value) || 0;
+  const blockMax = parseInt(document.getElementById('blockMax').value) || Infinity;
+  const search = (document.getElementById('searchInput').value || '').trim();
+  const sort = document.getElementById('sortSelect').value;
+
+  let filtered = [...state.bitmaps];
+
+  if (activeRarity.length) filtered = filtered.filter(b => activeRarity.includes(b.rarity));
+  if (activeCats.length)   filtered = filtered.filter(b => activeCats.some(c => b.cats.includes(c)));
+  if (activeListed.includes('listed') && !activeListed.includes('unlisted'))   filtered = filtered.filter(b => b.listed);
+  if (activeListed.includes('unlisted') && !activeListed.includes('listed'))   filtered = filtered.filter(b => !b.listed);
+  if (blockMin > 0 || blockMax < Infinity) filtered = filtered.filter(b => b.block >= blockMin && b.block <= blockMax);
+  if (search) filtered = filtered.filter(b => String(b.block).includes(search));
+
+  // Sort
+  if (sort === 'block-asc') filtered.sort((a,b) => a.block - b.block);
+  else if (sort === 'block-desc') filtered.sort((a,b) => b.block - a.block);
+  else if (sort === 'rarity') {
+    const ro = {legendary:0,elite:1,premium:2,rare:3,common:4};
+    filtered.sort((a,b) => ro[a.rarity] - ro[b.rarity]);
+  } else if (sort === 'price-asc') filtered.sort((a,b) => (a.price||0) - (b.price||0));
+  else if (sort === 'price-desc') filtered.sort((a,b) => (b.price||0) - (a.price||0));
+
+  state.filteredBitmaps = filtered;
+}
+
+function applyFilters() {
+  applyFiltersToState();
+  updateCounts();
+  renderBitmapGrid();
+}
+
+function clearFilters() {
+  document.querySelectorAll('.filter-chip.active').forEach(e => e.classList.remove('active'));
+  document.getElementById('blockMin').value = '';
+  document.getElementById('blockMax').value = '';
+  document.getElementById('searchInput').value = '';
+  applyFilters();
+}
+
+function handleSearch(val) {
+  applyFilters();
+}
+
+function handleSort(val) {
+  applyFilters();
+}
+
+// ═══════════════════════════════════════════════
+// VIEWS & TABS
+// ═══════════════════════════════════════════════
+function setView(v) {
+  state.view = v;
+  document.getElementById('gridViewBtn').classList.toggle('active', v==='grid');
+  document.getElementById('listViewBtn').classList.toggle('active', v==='list');
+  renderBitmapGrid();
+}
+
+function switchTab(tab, btn) {
+  state.activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['bitmaps','ordinals','runes','brc20'].forEach(t => {
+    document.getElementById(t + 'Tab').style.display = t===tab ? 'block' : 'none';
+  });
+  const toolbar = document.querySelector('.toolbar');
+  if(toolbar) toolbar.style.display = tab==='bitmaps' ? 'flex' : 'none';
+}
+
+// ═══════════════════════════════════════════════
+// BITMAP DETAIL MODAL
+// ═══════════════════════════════════════════════
+function openBitmapModal(bitmap) {
+  document.getElementById('modalTitle').textContent = `${bitmap.block.toLocaleString()}.bitmap`;
+  const priceStr = bitmap.price ? bitmap.price.toFixed(4) + ' BTC' : 'Not Listed';
+  const priceUsd = bitmap.price && state.btcPrice ? ' ($' + (bitmap.price * state.btcPrice).toLocaleString('en-US',{maximumFractionDigits:0}) + ')' : '';
+
+  document.getElementById('modalBody').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+      <div style="background:var(--bg3);aspect-ratio:1;">${generatePixelArt(bitmap.block,12)}</div>
+      <div>
+        <div style="font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:900;color:var(--orange);margin-bottom:0.5rem;">#${bitmap.block.toLocaleString()}</div>
+        <div style="margin-bottom:0.75rem;">${getRarityBadge(bitmap.rarity)} ${getCatBadges(bitmap.cats)}</div>
+        <table style="width:100%;border-collapse:collapse;font-family:'Share Tech Mono',monospace;font-size:0.7rem;">
+          <tr><td style="color:var(--muted);padding:0.3rem 0;">Block Height</td><td style="color:var(--text)">#${bitmap.block.toLocaleString()}</td></tr>
+          <tr><td style="color:var(--muted);padding:0.3rem 0;">Rarity Tier</td><td style="color:var(--orange);text-transform:uppercase">${bitmap.rarity}</td></tr>
+          <tr><td style="color:var(--muted);padding:0.3rem 0;">Floor Value</td><td style="color:var(--orange)">${priceStr}${priceUsd}</td></tr>
+          <tr><td style="color:var(--muted);padding:0.3rem 0;">Listed</td><td style="${bitmap.listed ? 'color:var(--green)' : 'color:var(--muted)'}">${bitmap.listed ? 'YES — FOR SALE' : 'No'}</td></tr>
+          ${bitmap.inscriptionId ? `<tr><td style="color:var(--muted);padding:0.3rem 0;">Inscription</td><td style="color:var(--muted);font-size:0.6rem;">${bitmap.inscriptionId.slice(0,20)}...</td></tr>` : ''}
+        </table>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+      <a href="https://www.satflow.com/ordinals/bitmap/${bitmap.block}" target="_blank" style="display:block;padding:0.7rem;background:var(--orange);color:#000;text-align:center;font-family:'Share Tech Mono',monospace;font-size:0.65rem;font-weight:700;letter-spacing:2px;text-decoration:none;text-transform:uppercase;">VIEW ON SATFLOW</a>
+      <a href="https://ordinalswallet.com/inscription/${bitmap.inscriptionId || bitmap.block + '.bitmap'}" target="_blank" style="display:block;padding:0.7rem;background:transparent;border:1px solid var(--border);color:var(--text);text-align:center;font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:2px;text-decoration:none;text-transform:uppercase;">ORDINALS WALLET</a>
+    </div>`;
+
+  document.getElementById('bitmapModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('bitmapModal').classList.remove('open');
+}
+
+document.getElementById('bitmapModal').addEventListener('click', function(e) {
+  if(e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
