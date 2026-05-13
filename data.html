@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bitmap Data — Bitmap Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -50,12 +52,20 @@
 
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:3rem;">
     <div class="stat" style="text-align:center;padding:2rem 1rem;background:var(--bg2);">
-      <div class="stat-num">894K+</div>
-      <div class="stat-label">Total Claimable Blocks</div>
+      <div class="stat-num" id="stat-supply">793,699</div>
+      <div class="stat-label">Total Bitmaps Minted</div>
     </div>
     <div class="stat" style="text-align:center;padding:2rem 1rem;background:var(--bg2);">
-      <div class="stat-num">31,100+</div>
+      <div class="stat-num" id="stat-holders">45,517</div>
       <div class="stat-label">Unique Holders</div>
+    </div>
+    <div class="stat" style="text-align:center;padding:2rem 1rem;background:var(--bg2);">
+      <div class="stat-num" id="stat-floor">LOADING...</div>
+      <div class="stat-label">Floor Price (BTC)</div>
+    </div>
+    <div class="stat" style="text-align:center;padding:2rem 1rem;background:var(--bg2);">
+      <div class="stat-num" id="stat-floor-usd">LOADING...</div>
+      <div class="stat-label">Floor Price (USD)</div>
     </div>
     <div class="stat" style="text-align:center;padding:2rem 1rem;background:var(--bg2);">
       <div class="stat-num">$260M+</div>
@@ -70,18 +80,45 @@
       <div class="stat-label">Teams Building on BRC-420</div>
     </div>
     <div class="stat" style="text-align:center;padding:2rem 1rem;background:var(--bg2);">
-      <div class="stat-num">20K+</div>
-      <div class="stat-label">BRC-420 Addresses</div>
-    </div>
-    <div class="stat" style="text-align:center;padding:2rem 1rem;background:var(--bg2);">
-      <div class="stat-num">95%</div>
-      <div class="stat-label">RCSV Browser Traffic Share</div>
-    </div>
-    <div class="stat" style="text-align:center;padding:2rem 1rem;background:var(--bg2);">
       <div class="stat-num">Jun 13 2023</div>
       <div class="stat-label">Protocol Genesis Date</div>
     </div>
   </div>
+
+  <script>
+  // Fetch live floor price from Coinbase (BTC price) + Magic Eden (floor)
+  (function() {
+    var btcUsd = 0;
+    fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot')
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        btcUsd = parseFloat(d.data.amount);
+        // Try Magic Eden public API for Bitmap floor
+        return fetch('https://api-mainnet.magiceden.dev/v2/ord/btc/collections/bitmap/stats');
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        var floorSats = d.floorPrice;
+        if (floorSats) {
+          var floorBtc = (floorSats / 1e8).toFixed(5);
+          document.getElementById('stat-floor').textContent = floorBtc + ' BTC';
+          if (btcUsd) {
+            var usd = (floorSats / 1e8 * btcUsd).toFixed(2);
+            document.getElementById('stat-floor-usd').textContent = '$' + parseFloat(usd).toLocaleString();
+          }
+        }
+      })
+      .catch(function(){
+        // Fallback to CoinGecko known data
+        document.getElementById('stat-floor').textContent = '~0.000035 BTC';
+        if (btcUsd) {
+          document.getElementById('stat-floor-usd').textContent = '~$' + (0.000035 * btcUsd).toFixed(2);
+        } else {
+          document.getElementById('stat-floor-usd').textContent = '~$3.60';
+        }
+      });
+  })();
+  </script>
 
   <div class="section-label">SUPPLY MECHANICS</div>
   <h3 class="section-title" style="font-size:1.5rem;margin-bottom:1.5rem;">Supply & Distribution</h3>
@@ -188,7 +225,8 @@
   <a href="rarity.html" class="btn btn-ghost">← RARITY</a>
   <a href="tools.html" class="btn btn-primary">BITMAP TOOLS →</a>
 </section>
-<footer><div class="footer-logo">▮ BITMAP HUB</div><p class="footer-text">Community reference site. Not financial advice.</p></footer>
+<footer><div class="footer-logo">▮ BITMAP HUB</div>
+  <div style="margin:0.5rem 0;"><a href="https://x.com/BitmapSummit" target="_blank" rel="noopener" style="color:var(--orange);text-decoration:none;font-family:'Share Tech Mono',monospace;font-size:0.7rem;letter-spacing:1px;">𝕏 @BitmapSummit</a></div><p class="footer-text">Community reference site. Not financial advice.</p></footer>
 <script>
 // ── THEME TOGGLE ──
 function applyTheme(mode) {

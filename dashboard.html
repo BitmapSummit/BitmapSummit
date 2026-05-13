@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Bitmap — Dashboard | Bitmap Hub</title>
@@ -724,25 +726,17 @@ body.light .bitmap-card-actions { background: rgba(245,240,232,0.9); }
       <div id="walletNotConnected">
         <p style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.6;">Connect your Bitcoin wallet to view your Bitmaps and digital assets.</p>
         <div class="wallet-grid">
-          <button class="wallet-btn" onclick="connectWallet('xverse')">
+          <button class="wallet-btn" onclick="connect('xverse')">
             <img class="w-icon" src="Xverse.png" alt="Xverse">
             <span class="w-name">XVERSE</span>
           </button>
-          <button class="wallet-btn" onclick="connectWallet('unisat')">
+          <button class="wallet-btn" onclick="connect('unisat')">
             <img class="w-icon" src="Unisat.png" alt="Unisat">
             <span class="w-name">UNISAT</span>
           </button>
-          <button class="wallet-btn" onclick="connectWallet('okx')">
+          <button class="wallet-btn" onclick="connect('okx')" style="grid-column:1/-1;">
             <img class="w-icon" src="OKX.png" alt="OKX">
-            <span class="w-name">OKX</span>
-          </button>
-          <button class="wallet-btn" onclick="connectWallet('leather')">
-            <img class="w-icon" src="Leather.png" alt="Leather">
-            <span class="w-name">LEATHER</span>
-          </button>
-          <button class="wallet-btn" onclick="connectWallet('tap')" style="grid-column:1/-1;">
-            <img class="w-icon" src="TAP_Wallet.png" alt="TAP">
-            <span class="w-name">TAP WALLET</span>
+            <span class="w-name">OKX WALLET</span>
           </button>
         </div>
       </div>
@@ -818,6 +812,52 @@ body.light .bitmap-card-actions { background: rgba(245,240,232,0.9); }
         </div>
       </div>
 
+      <!-- Price Filter -->
+      <div class="filter-group">
+        <div class="filter-group-title">▸ PRICE (BTC)</div>
+        <div class="range-inputs">
+          <input class="range-input" id="priceMin" type="number" placeholder="MIN" step="0.0001">
+          <input class="range-input" id="priceMax" type="number" placeholder="MAX" step="0.0001">
+        </div>
+      </div>
+
+      <!-- Satflow-style Attributes -->
+      <div class="filter-group">
+        <div class="filter-group-title">▸ YEAR MINED</div>
+        <div class="filter-options">
+          <div class="filter-chip" data-filter="year" data-val="2009" onclick="toggleFilter(this)">2009 (Genesis)</div>
+          <div class="filter-chip" data-filter="year" data-val="2010" onclick="toggleFilter(this)">2010</div>
+          <div class="filter-chip" data-filter="year" data-val="2011" onclick="toggleFilter(this)">2011</div>
+          <div class="filter-chip" data-filter="year" data-val="2012" onclick="toggleFilter(this)">2012</div>
+          <div class="filter-chip" data-filter="year" data-val="2013" onclick="toggleFilter(this)">2013</div>
+          <div class="filter-chip" data-filter="year" data-val="2014" onclick="toggleFilter(this)">2014–2016</div>
+          <div class="filter-chip" data-filter="year" data-val="2017" onclick="toggleFilter(this)">2017+</div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-group-title">▸ BLOCK RARITY (800K)</div>
+        <div class="filter-options">
+          <div class="filter-chip" data-filter="blockRarity" data-val="sub800k" onclick="toggleFilter(this)">Sub-800K</div>
+          <div class="filter-chip" data-filter="blockRarity" data-val="above800k" onclick="toggleFilter(this)">800K+</div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-group-title">▸ SPECIAL TRAITS</div>
+        <div class="filter-options">
+          <div class="filter-chip" data-filter="trait" data-val="fibonacci" onclick="toggleFilter(this)">
+            🌀 Fibonacci Block
+          </div>
+          <div class="filter-chip" data-filter="trait" data-val="sameDigits" onclick="toggleFilter(this)">
+            🔢 Same Digits
+          </div>
+          <div class="filter-chip" data-filter="trait" data-val="sequential" onclick="toggleFilter(this)">
+            📈 Sequential
+          </div>
+        </div>
+      </div>
+
       <!-- Listed / Unlisted -->
       <div class="filter-group">
         <div class="filter-group-title">▸ LISTING STATUS</div>
@@ -877,27 +917,27 @@ body.light .bitmap-card-actions { background: rgba(245,240,232,0.9); }
       <h2>Connect Your Wallet</h2>
       <p>Connect your Bitcoin wallet to view your Bitmap districts, filter by rarity, and see all your on-chain digital assets in one place.</p>
       <div class="connect-wallet-grid">
-        <div class="connect-wallet-card" onclick="connectWallet('xverse')">
+        <div class="connect-wallet-card" onclick="connect('xverse')">
           <img class="cw-icon" src="Xverse.png" alt="Xverse">
           <div class="cw-name">Xverse</div>
           <div class="cw-status">SUPPORTED</div>
         </div>
-        <div class="connect-wallet-card" onclick="connectWallet('unisat')">
+        <div class="connect-wallet-card" onclick="connect('unisat')">
           <img class="cw-icon" src="Unisat.png" alt="Unisat">
           <div class="cw-name">Unisat</div>
           <div class="cw-status">SUPPORTED</div>
         </div>
-        <div class="connect-wallet-card" onclick="connectWallet('okx')">
+        <div class="connect-wallet-card" onclick="connect('okx')">
           <img class="cw-icon" src="OKX.png" alt="OKX">
           <div class="cw-name">OKX Wallet</div>
           <div class="cw-status">SUPPORTED</div>
         </div>
-        <div class="connect-wallet-card" onclick="connectWallet('leather')">
+        <div class="connect-wallet-card" onclick="connect('leather')">
           <img class="cw-icon" src="Leather.png" alt="Leather">
           <div class="cw-name">Leather</div>
           <div class="cw-status">SUPPORTED</div>
         </div>
-        <div class="connect-wallet-card" onclick="connectWallet('tap')">
+        <div class="connect-wallet-card" onclick="connect('tap')">
           <img class="cw-icon" src="TAP_Wallet.png" alt="TAP Wallet">
           <div class="cw-name">TAP Wallet</div>
           <div class="cw-status">SUPPORTED</div>
@@ -1098,75 +1138,126 @@ async function fetchBtcPrice() {
 fetchBtcPrice();
 
 // ═══════════════════════════════════════════════
-// WALLET CONNECT
+// WALLET CONNECT — Xverse, UniSat, OKX only
+// No raw unicode in script. No external CDN.
+// setTimeout(200) for browser gesture compliance
 // ═══════════════════════════════════════════════
-const WALLET_LABELS = {
-  xverse: '🟣 XVERSE', unisat: '🟠 UNISAT',
-  okx: '⭕ OKX', leather: '🔶 LEATHER', tap: '🔷 TAP'
-};
+var WALLET_LABELS = {xverse:'Xverse', unisat:'UniSat', okx:'OKX Wallet'};
 
-async function connectWallet(type) {
-  // Try to connect real wallet APIs
-  let address = null;
-
+function showToast(msg) {
   try {
-    if (type === 'unisat' && window.unisat) {
-      const accounts = await window.unisat.requestAccounts();
-      address = accounts[0];
-    } else if (type === 'xverse' && window.XverseProviders) {
-      const res = await window.XverseProviders.BitcoinProvider.request('getAccounts', { purposes: ['ordinals'] });
-      address = res.result.addresses[0]?.address;
-    } else if (type === 'okx' && window.okxwallet) {
-      const res = await window.okxwallet.bitcoin.requestAccounts();
-      address = res[0];
-    } else if (type === 'leather' && window.HiroWalletProvider) {
-      const res = await window.HiroWalletProvider.request('getAddresses');
-      address = res.result.addresses.find(a => a.type === 'p2tr')?.address;
-    } else if (type === 'tap' && window.tapwallet) {
-      const accounts = await window.tapwallet.requestAccounts();
-      address = accounts[0];
-    }
-  } catch(e) {
-    console.log('Wallet connect error:', e);
-  }
-
-  if (!address) {
-    // Wallet not installed — open install page
-    const installUrls = {
-      xverse: 'https://www.xverse.app',
-      unisat: 'https://unisat.io',
-      okx: 'https://www.okx.com/web3',
-      leather: 'https://leather.io',
-      tap: 'https://tapwallet.io'
-    };
-    alert(`${WALLET_LABELS[type]} wallet not detected.\n\nPlease install the wallet extension and try again.`);
-    window.open(installUrls[type], '_blank');
-    return;
-  }
-
-  await onWalletConnected(type, address);
+    var old = document.getElementById('bh-toast');
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    var t = document.createElement('div');
+    t.id = 'bh-toast';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--bg2);'
+      + 'border:2px solid var(--orange);padding:12px 18px;font-family:\'Share Tech Mono\',monospace;'
+      + 'font-size:12px;color:var(--orange);z-index:9999;max-width:320px;border-radius:2px;';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function() { try { if(t&&t.parentNode) t.parentNode.removeChild(t); } catch(e){} }, 4000);
+  } catch(e) {}
 }
 
-async function onWalletConnected(type, address) {
+// Single entry point called from buttons
+function connect(type) {
+  showToast('Connecting to ' + (WALLET_LABELS[type]||type) + '...');
+  setTimeout(function() {
+    try {
+      if (type === 'xverse') doXverse();
+      else if (type === 'unisat') doUnisat();
+      else if (type === 'okx') doOKX();
+    } catch(err) {
+      showToast('Error: ' + (err.message || String(err)));
+    }
+  }, 200);
+}
+
+function doXverse() {
+  var sc = window.SatsConnect;
+  if (sc && sc.getAddress) {
+    sc.getAddress({
+      payload: {
+        purposes: ['ordinals','payment'],
+        message: 'Connect to Bitmap Hub',
+        network: { type: 'Mainnet' }
+      },
+      onFinish: function(response) {
+        var addrs = (response && response.addresses) || [];
+        var a = null;
+        for (var i=0; i<addrs.length; i++) {
+          if (addrs[i].purpose === 'ordinals') { a = addrs[i]; break; }
+        }
+        if (!a && addrs.length) a = addrs[0];
+        if (a && a.address) onConnected('xverse', a.address);
+        else showToast('Xverse: No address returned');
+      },
+      onCancel: function() { showToast('Xverse: Cancelled'); }
+    });
+    return;
+  }
+  if (window.XverseProviders && window.XverseProviders.BitcoinProvider) {
+    window.XverseProviders.BitcoinProvider.request('wallet_connect', null)
+      .then(function(res) {
+        var a = res && res.result && res.result.addresses && res.result.addresses[0];
+        if (a) onConnected('xverse', a.address);
+        else showToast('Xverse: No address');
+      })
+      .catch(function(e) { showToast('Xverse: ' + e.message); });
+    return;
+  }
+  showToast('Xverse not detected. Opening install page...');
+  setTimeout(function() { window.open('https://www.xverse.app/download','_blank'); }, 800);
+}
+
+function doUnisat() {
+  if (!window.unisat) {
+    showToast('UniSat not detected. Opening install page...');
+    setTimeout(function() { window.open('https://unisat.io/download','_blank'); }, 800);
+    return;
+  }
+  window.unisat.requestAccounts()
+    .then(function(accounts) {
+      if (accounts && accounts[0]) onConnected('unisat', accounts[0]);
+      else showToast('UniSat: No accounts returned');
+    })
+    .catch(function(e) { showToast('UniSat: ' + (e.message||'Connection failed')); });
+}
+
+function doOKX() {
+  var okx = window.okxwallet && window.okxwallet.bitcoin;
+  if (!okx) {
+    showToast('OKX Wallet not detected. Opening install page...');
+    setTimeout(function() { window.open('https://www.okx.com/web3','_blank'); }, 800);
+    return;
+  }
+  okx.requestAccounts()
+    .then(function(accounts) {
+      if (accounts && accounts[0]) onConnected('okx', accounts[0]);
+      else showToast('OKX: No accounts returned');
+    })
+    .catch(function(e) { showToast('OKX: ' + (e.message||'Connection failed')); });
+}
+
+function onConnected(type, address) {
   state.connected = true;
   state.walletType = type;
   state.address = address;
 
-  // Update sidebar
+  // Update sidebar wallet display
   document.getElementById('walletNotConnected').style.display = 'none';
   document.getElementById('walletConnected').style.display = 'block';
-  document.getElementById('walletName').textContent = WALLET_LABELS[type];
-  document.getElementById('walletAddr').textContent =
-    address.slice(0,8) + '...' + address.slice(-6);
+  document.getElementById('walletName').textContent = WALLET_LABELS[type] || type;
+  document.getElementById('walletAddr').textContent = address.slice(0,8) + '...' + address.slice(-6);
   document.getElementById('filterSection').style.display = 'block';
   document.getElementById('summarySection').style.display = 'block';
 
-  // Hide not-connected, show dashboard
+  // Show dashboard
   document.getElementById('notConnectedView').style.display = 'none';
   document.getElementById('connectedView').style.display = 'block';
 
-  // Fetch assets
-  await loadAssets(address);
+  // Fetch assets using native wallet APIs
+  loadAssets(address);
 }
 
 function disconnectWallet() {
@@ -1238,6 +1329,142 @@ function openDemoMode() {
 // LOAD ASSETS FROM CHAIN
 // ═══════════════════════════════════════════════
 async function loadAssets(address) {
+  // Uses wallet native APIs — no CORS issues
+  showLoadingGrid();
+  var type = state.walletType;
+
+  try {
+    if (type === 'unisat' && window.unisat && window.unisat.getInscriptions) {
+      window.unisat.getInscriptions(0, 100).then(function(res) {
+        processInscriptions(type, (res && res.list) || []);
+      }).catch(function(e) {
+        showToast('Could not load inscriptions: ' + e.message);
+        showEmptyState();
+      });
+      return;
+    }
+
+    if (type === 'okx' && window.okxwallet && window.okxwallet.bitcoin &&
+        window.okxwallet.bitcoin.getInscriptions) {
+      window.okxwallet.bitcoin.getInscriptions(0, 100).then(function(res) {
+        processInscriptions(type, (res && res.list) || []);
+      }).catch(function(e) {
+        showToast('Could not load inscriptions: ' + e.message);
+        showEmptyState();
+      });
+      return;
+    }
+
+    if (type === 'xverse') {
+      var sc = window.SatsConnect;
+      if (sc && sc.request) {
+        sc.request('ord_getInscriptions', { limit: 100, offset: 0 })
+          .then(function(res) {
+            if (res && res.status === 'success') {
+              processInscriptions(type, res.result.inscriptions || []);
+            } else { showEmptyState(); }
+          })
+          .catch(function() { showEmptyState(); });
+        return;
+      }
+      if (window.XverseProviders && window.XverseProviders.BitcoinProvider) {
+        window.XverseProviders.BitcoinProvider
+          .request('ord_getInscriptions', { offset: 0, limit: 60 })
+          .then(function(res) {
+            var items = (res && res.result && res.result.inscriptions) || [];
+            if (items.length) processInscriptions(type, items);
+            else showEmptyState();
+          })
+          .catch(function() { showEmptyState(); });
+        return;
+      }
+    }
+
+    showEmptyState();
+  } catch(e) {
+    showToast('Error loading assets: ' + e.message);
+    showEmptyState();
+  }
+}
+
+// Normalize and split inscriptions into bitmaps vs others
+function processInscriptions(walletType, rawList) {
+  var bitmaps = [];
+  var ordinals = [];
+
+  rawList.forEach(function(ins) {
+    var id = ins.inscriptionId || ins.id || '';
+    var num = ins.inscriptionNumber || ins.number || 0;
+    var name = ins.inscriptionName || ins.collectionName || ins.name || '';
+    var preview = ins.preview || ('https://ordinals.com/preview/' + id);
+
+    // Detect Bitmap: collectionName contains 'bitmap', OR name ends in .bitmap
+    var isBitmap = false;
+    var blockNum = null;
+    var lname = (name || '').toLowerCase();
+    var lcollection = ((ins.collectionName || ins.collection_id || ins.collectionId || '')).toLowerCase();
+
+    // Check collection name
+    if (lcollection.indexOf('bitmap') >= 0 || lname.indexOf('.bitmap') >= 0) {
+      isBitmap = true;
+    }
+    // Extract block number from name like "311643.bitmap"
+    var bmMatch = (name || '').match(/^(\d+)\.bitmap$/i);
+    if (bmMatch) {
+      isBitmap = true;
+      blockNum = parseInt(bmMatch[1]);
+    }
+    // Also check inscription number range (Bitmaps are typically high numbers)
+    // but primarily rely on name/collection detection
+
+    if (isBitmap && blockNum !== null) {
+      bitmaps.push({
+        block: blockNum,
+        inscriptionId: id,
+        inscriptionNumber: num,
+        rarity: getBitmapRarity(blockNum),
+        cats: getBitmapCategories(blockNum),
+        listed: false,
+        price: null,
+        preview: preview
+      });
+    } else if (isBitmap && blockNum === null) {
+      // Bitmap detected but couldn't parse block number — still show it
+      bitmaps.push({
+        block: num || 0,
+        inscriptionId: id,
+        inscriptionNumber: num,
+        rarity: 'common',
+        cats: [],
+        listed: false,
+        price: null,
+        preview: preview
+      });
+    } else {
+      ordinals.push({
+        name: name || ('Inscription #' + num),
+        collection: ins.collectionName || 'Unknown',
+        id: id ? id.slice(0,12) + '...' : '—',
+        fullId: id,
+        type: 'Ordinal',
+        floor: '—'
+      });
+    }
+  });
+
+  state.bitmaps = bitmaps.sort(function(a,b) { return a.block - b.block; });
+  state.ordinals = ordinals;
+
+  if (bitmaps.length === 0 && ordinals.length === 0) {
+    showEmptyState();
+    return;
+  }
+
+  renderAll();
+}
+
+// old loadAssets placeholder (replaced above)
+async function _loadAssets_OLD(address) {
   showLoadingGrid();
 
   try {
@@ -1586,31 +1813,84 @@ function toggleFilter(el) {
 }
 
 function applyFiltersToState() {
-  const activeRarity = [...document.querySelectorAll('.filter-chip[data-filter="rarity"].active')].map(e=>e.dataset.val);
-  const activeCats   = [...document.querySelectorAll('.filter-chip[data-filter="cat"].active')].map(e=>e.dataset.val);
-  const activeListed = [...document.querySelectorAll('.filter-chip[data-filter="listed"].active')].map(e=>e.dataset.val);
-  const blockMin = parseInt(document.getElementById('blockMin').value) || 0;
-  const blockMax = parseInt(document.getElementById('blockMax').value) || Infinity;
-  const search = (document.getElementById('searchInput').value || '').trim();
-  const sort = document.getElementById('sortSelect').value;
+  var activeRarity  = [...document.querySelectorAll('.filter-chip[data-filter="rarity"].active')].map(function(e){return e.dataset.val;});
+  var activeCats    = [...document.querySelectorAll('.filter-chip[data-filter="cat"].active')].map(function(e){return e.dataset.val;});
+  var activeListed  = [...document.querySelectorAll('.filter-chip[data-filter="listed"].active')].map(function(e){return e.dataset.val;});
+  var activeYears   = [...document.querySelectorAll('.filter-chip[data-filter="year"].active')].map(function(e){return e.dataset.val;});
+  var activeRarity800 = [...document.querySelectorAll('.filter-chip[data-filter="blockRarity"].active')].map(function(e){return e.dataset.val;});
+  var activeTraits  = [...document.querySelectorAll('.filter-chip[data-filter="trait"].active')].map(function(e){return e.dataset.val;});
+  var blockMin = parseInt(document.getElementById('blockMin').value) || 0;
+  var blockMax = parseInt(document.getElementById('blockMax').value) || Infinity;
+  var priceMin = parseFloat(document.getElementById('priceMin').value) || 0;
+  var priceMax = parseFloat(document.getElementById('priceMax').value) || Infinity;
+  var search = (document.getElementById('searchInput').value || '').trim();
+  var sort = document.getElementById('sortSelect').value;
 
-  let filtered = [...state.bitmaps];
+  var filtered = [...state.bitmaps];
 
-  if (activeRarity.length) filtered = filtered.filter(b => activeRarity.includes(b.rarity));
-  if (activeCats.length)   filtered = filtered.filter(b => activeCats.some(c => b.cats.includes(c)));
-  if (activeListed.includes('listed') && !activeListed.includes('unlisted'))   filtered = filtered.filter(b => b.listed);
-  if (activeListed.includes('unlisted') && !activeListed.includes('listed'))   filtered = filtered.filter(b => !b.listed);
-  if (blockMin > 0 || blockMax < Infinity) filtered = filtered.filter(b => b.block >= blockMin && b.block <= blockMax);
-  if (search) filtered = filtered.filter(b => String(b.block).includes(search));
+  if (activeRarity.length)  filtered = filtered.filter(function(b){ return activeRarity.indexOf(b.rarity) >= 0; });
+  if (activeCats.length)    filtered = filtered.filter(function(b){ return activeCats.some(function(c){ return b.cats.indexOf(c) >= 0; }); });
+  if (activeListed.indexOf('listed') >= 0 && activeListed.indexOf('unlisted') < 0)   filtered = filtered.filter(function(b){ return b.listed; });
+  if (activeListed.indexOf('unlisted') >= 0 && activeListed.indexOf('listed') < 0)   filtered = filtered.filter(function(b){ return !b.listed; });
+  if (blockMin > 0 || blockMax < Infinity) filtered = filtered.filter(function(b){ return b.block >= blockMin && b.block <= blockMax; });
+  if (priceMin > 0 || priceMax < Infinity) filtered = filtered.filter(function(b){ return (b.price||0) >= priceMin && (b.price||0) <= priceMax; });
+  if (search) filtered = filtered.filter(function(b){ return String(b.block).indexOf(search) >= 0; });
+
+  // Year filter — approximate by block height ranges
+  if (activeYears.length) {
+    var YEAR_RANGES = {
+      '2009': [0, 32488], '2010': [32489, 97075], '2011': [97076, 160729],
+      '2012': [160730, 213597], '2013': [213598, 278606], '2014': [278607, 385000],
+      '2017': [385001, Infinity]
+    };
+    filtered = filtered.filter(function(b) {
+      return activeYears.some(function(y) {
+        var r = YEAR_RANGES[y];
+        return r && b.block >= r[0] && b.block <= r[1];
+      });
+    });
+  }
+
+  // Block rarity 800K filter
+  if (activeRarity800.length) {
+    filtered = filtered.filter(function(b) {
+      if (activeRarity800.indexOf('sub800k') >= 0 && b.block < 800000) return true;
+      if (activeRarity800.indexOf('above800k') >= 0 && b.block >= 800000) return true;
+      return false;
+    });
+  }
+
+  // Special traits filter
+  if (activeTraits.length) {
+    filtered = filtered.filter(function(b) {
+      var s = String(b.block);
+      if (activeTraits.indexOf('fibonacci') >= 0) {
+        var fibs = [0,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,10946,17711,28657,46368,75025,121393,196418,317811,514229,832040];
+        if (fibs.indexOf(b.block) >= 0) return true;
+      }
+      if (activeTraits.indexOf('sameDigits') >= 0) {
+        if (s.length > 1 && /^(.)\1+$/.test(s)) return true;
+      }
+      if (activeTraits.indexOf('sequential') >= 0) {
+        var isSeq = true;
+        for (var i=1; i<s.length; i++) {
+          if (parseInt(s[i]) !== parseInt(s[i-1]) + 1) { isSeq = false; break; }
+        }
+        if (s.length > 2 && isSeq) return true;
+      }
+      return false;
+    });
+  }
 
   // Sort
-  if (sort === 'block-asc') filtered.sort((a,b) => a.block - b.block);
-  else if (sort === 'block-desc') filtered.sort((a,b) => b.block - a.block);
+  if (sort === 'block-asc') filtered.sort(function(a,b){ return a.block - b.block; });
+  else if (sort === 'block-desc') filtered.sort(function(a,b){ return b.block - a.block; });
   else if (sort === 'rarity') {
-    const ro = {legendary:0,elite:1,premium:2,rare:3,common:4};
-    filtered.sort((a,b) => ro[a.rarity] - ro[b.rarity]);
-  } else if (sort === 'price-asc') filtered.sort((a,b) => (a.price||0) - (b.price||0));
-  else if (sort === 'price-desc') filtered.sort((a,b) => (b.price||0) - (a.price||0));
+    var ro = {legendary:0, elite:1, premium:2, rare:3, common:4};
+    filtered.sort(function(a,b){ return (ro[a.rarity]||4) - (ro[b.rarity]||4); });
+  }
+  else if (sort === 'price-asc') filtered.sort(function(a,b){ return (a.price||0) - (b.price||0); });
+  else if (sort === 'price-desc') filtered.sort(function(a,b){ return (b.price||0) - (a.price||0); });
 
   state.filteredBitmaps = filtered;
 }
@@ -1622,9 +1902,11 @@ function applyFilters() {
 }
 
 function clearFilters() {
-  document.querySelectorAll('.filter-chip.active').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.filter-chip.active').forEach(function(e){ e.classList.remove('active'); });
   document.getElementById('blockMin').value = '';
   document.getElementById('blockMax').value = '';
+  document.getElementById('priceMin').value = '';
+  document.getElementById('priceMax').value = '';
   document.getElementById('searchInput').value = '';
   applyFilters();
 }

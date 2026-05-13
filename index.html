@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bitmap Hub — The Complete Bitcoin Metaverse Encyclopedia</title>
@@ -1463,16 +1465,16 @@
 
   <div class="hero-stats">
     <div class="stat">
-      <div class="stat-num">894K+</div>
-      <div class="stat-label">Total Blocks</div>
+      <div class="stat-num">793K+</div>
+      <div class="stat-label">Total Bitmaps</div>
     </div>
     <div class="stat">
-      <div class="stat-num">31K+</div>
+      <div class="stat-num">45,500+</div>
       <div class="stat-label">Holders</div>
     </div>
     <div class="stat">
-      <div class="stat-num">$260M+</div>
-      <div class="stat-label">BRC-420 Market Cap</div>
+      <div class="stat-num" id="hero-floor">LIVE ▸</div>
+      <div class="stat-label">Floor Price</div>
     </div>
     <div class="stat">
       <div class="stat-num">2023</div>
@@ -1620,6 +1622,7 @@
 <!-- ── FOOTER ── -->
 <footer>
   <div class="footer-logo">▮ BITMAP HUB</div>
+  <div style="margin:0.5rem 0;"><a href="https://x.com/BitmapSummit" target="_blank" rel="noopener" style="color:var(--orange);text-decoration:none;font-family:'Share Tech Mono',monospace;font-size:0.7rem;letter-spacing:1px;">𝕏 @BitmapSummit</a></div>
   <div class="footer-links">
     <a href="introduction.html">Introduction</a>
     <a href="history.html">History</a>
@@ -1828,6 +1831,12 @@ async function refreshAll() {
   await fetchBTC();
   await fetchBitmapPrices();
   updateTimestamp();
+  // Update hero floor stat
+  var floorEl = document.getElementById('hero-floor');
+  var floorBtcEl = document.getElementById('floor-btc');
+  if (floorEl && floorBtcEl && floorBtcEl.textContent && floorBtcEl.textContent !== 'LOADING...') {
+    floorEl.textContent = floorBtcEl.textContent.replace(/<[^>]+>/g,'').trim().split(' ')[0] + ' BTC';
+  }
 }
 
 // Initial load + refresh every 60 seconds
