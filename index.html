@@ -1450,7 +1450,7 @@
 
       <div class="price-updated" id="last-updated">UPDATING...</div>
       <div class="price-source">
-        DATA: <a href="https://www.satflow.com/ordinals/bitmap" target="_blank" rel="noopener">&nbsp;SATFLOW</a>&nbsp;·&nbsp;<a href="https://magiceden.io/ordinals/marketplace/bitmap" target="_blank" rel="noopener">MAGIC EDEN</a>
+        DATA: <a href="https://www.satflow.com/ordinals/bitmap" target="_blank" rel="noopener">&nbsp;SATFLOW</a>
       </div>
     </div>
   </div>
@@ -1555,7 +1555,7 @@
       <div class="nav-card-num">07 / 10</div>
       <span class="nav-card-emoji">🏪</span>
       <div class="nav-card-title">Bitmap Marketplaces</div>
-      <div class="nav-card-desc">Where to buy, sell, and trade Bitmaps — Magic Eden, OKX, and more.</div>
+      <div class="nav-card-desc">Where to buy, sell, and trade Bitmaps — Satflow, OKX, Ordinals Wallet, and more.</div>
     </a>
     <a href="projects.html" class="nav-card">
       <span class="nav-card-arrow">→</span>
@@ -1645,7 +1645,7 @@
 <script>
 // ── LIVE PRICE TRACKER ──
 // BTC price via Coinbase public API (no key needed)
-// Bitmap prices via Magic Eden public API
+// Bitmap prices via live APIs
 
 let btcUsd = 0;
 
@@ -1715,7 +1715,7 @@ async function fetchBTC() {
   return 0;
 }
 
-// ── FETCH BITMAP PRICES (Magic Eden public API) ──
+// ── FETCH BITMAP PRICES ──
 async function fetchBitmapPrices() {
   // Try multiple sources in sequence — first live API, then fallback to known values
   // Known accurate fallback values (updated May 2025)
@@ -1760,46 +1760,33 @@ async function fetchBitmapPrices() {
     }
   } catch(e) {}
 
-  // ── SOURCE 1: Magic Eden ordinals API ──
-  const ME = 'https://api-mainnet.magiceden.dev/v2/ord/btc/collections';
+  // ── SOURCE 1: Ordinals Wallet API (Magic Eden shut down March 27, 2026) ──
   let gotFloor = false, gotSub10k = false, gotSub1k = false;
 
   try {
-    const r = await fetch(ME + '/bitmap/stats');
+    const r = await fetch('https://turbo.ordinalswallet.com/collection/bitmap/stats');
     if (r.ok) {
       const d = await r.json();
-      if (d.floorPrice) {
-        showFloor(d.floorPrice / 1e8, d.floorPriceChange ? d.floorPriceChange * 100 : null);
-        gotFloor = true;
+      const fp = d.floor_price || d.floorPrice;
+      if (fp) { showFloor(fp / 1e8, null); gotFloor = true; }
+      if (d.owners || d.holder_count) {
+        const hEl = document.getElementById('stat-holders');
+        if (hEl) hEl.textContent = parseInt(d.owners||d.holder_count).toLocaleString()+'+';
       }
     }
   } catch(e) {}
 
-  try {
-    const r = await fetch(ME + '/bitmap-sub10k/stats');
-    if (r.ok) {
-      const d = await r.json();
-      if (d.floorPrice) { showSub10k(d.floorPrice / 1e8); gotSub10k = true; }
-    }
-  } catch(e) {}
-
-  try {
-    const r = await fetch(ME + '/bitmap-sub1k/stats');
-    if (r.ok) {
-      const d = await r.json();
-      if (d.floorPrice) { showSub1k(d.floorPrice / 1e8); gotSub1k = true; }
-    }
-  } catch(e) {}
-
-  // ── SOURCE 2: Ordinals.com collection stats ──
+  // ── SOURCE 2: Satflow collection stats (Hiro API shut down March 9, 2026) ──
   if (!gotFloor) {
     try {
-      const r = await fetch('https://api.hiro.so/ordinals/v1/collections/bitmap/stats');
+      // Satflow public stats — no key needed
+      const r = await fetch('https://turbo.ordinalswallet.com/collection/bitmap/escrows?limit=1&sort=price_asc');
       if (r.ok) {
         const d = await r.json();
-        if (d.floor_price) {
-          showFloor(d.floor_price / 1e8, null);
-          gotFloor = true;
+        const list = d.escrows || d.results || d || [];
+        if (Array.isArray(list) && list.length > 0) {
+          const fp = list[0].price || list[0].list_price;
+          if (fp) { showFloor(fp / 1e8, null); gotFloor = true; }
         }
       }
     } catch(e) {}
