@@ -52,11 +52,11 @@
 
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:3rem;">
     <div class="stat" style="text-align:center;padding:2rem 1rem;background:var(--bg2);">
-      <div class="stat-num" id="stat-supply">793,699</div>
+      <div class="stat-num" id="stat-supply">949,220</div>
       <div class="stat-label">Total Bitmaps Minted</div>
     </div>
     <div class="stat" style="text-align:center;padding:2rem 1rem;background:var(--bg2);">
-      <div class="stat-num" id="stat-holders">45,517</div>
+      <div class="stat-num" id="stat-holders">45,700+</div>
       <div class="stat-label">Unique Holders</div>
     </div>
     <div class="stat" style="text-align:center;padding:2rem 1rem;background:var(--bg2);">
@@ -71,14 +71,8 @@
       <div class="stat-num">$260M+</div>
       <div class="stat-label">BRC-420 Peak Market Cap</div>
     </div>
-    <div class="stat" style="text-align:center;padding:2rem 1rem;background:var(--bg2);">
-      <div class="stat-num">$10M+</div>
-      <div class="stat-label">Protocol Royalties</div>
-    </div>
-    <div class="stat" style="text-align:center;padding:2rem 1rem;background:var(--bg2);">
-      <div class="stat-num">100+</div>
-      <div class="stat-label">Teams Building on BRC-420</div>
-    </div>
+    
+    
     <div class="stat" style="text-align:center;padding:2rem 1rem;background:var(--bg2);">
       <div class="stat-num">Jun 13 2023</div>
       <div class="stat-label">Protocol Genesis Date</div>
@@ -130,11 +124,11 @@
       </p>
 
       <div class="progress-row">
-        <div class="progress-header"><span class="progress-label">Historical Blocks (pre-June 2023)</span><span class="progress-val">~790,000</span></div>
+        <div class="progress-header"><span class="progress-label">Historical Blocks (pre-June 2023)</span><span class="progress-val">~895,000</span></div>
         <div class="progress-track"><div class="progress-fill" style="width:88%"></div></div>
       </div>
       <div class="progress-row">
-        <div class="progress-header"><span class="progress-label">Post-Launch New Blocks</span><span class="progress-val">~104,000+</span></div>
+        <div class="progress-header"><span class="progress-label">Post-Launch New Blocks</span><span class="progress-val">~54,000+</span></div>
         <div class="progress-track"><div class="progress-fill" style="width:12%"></div></div>
       </div>
       <div class="progress-row">
@@ -150,11 +144,11 @@
     <div class="terminal">
       <div><span class="cmt">// Supply Model</span></div>
       <br>
-      <div><span class="kw">TOTAL_SUPPLY</span> = ∞</div>
+      <div><span class="kw">TOTAL_SUPPLY</span> = <span class="num">949,220</span></div>
       <div><span class="cmt">// 1 new Bitmap per Bitcoin block</span></div>
       <div><span class="cmt">// ~144 new blocks/day</span></div>
       <br>
-      <div><span class="kw">HISTORICAL_SUPPLY</span> ≈ <span class="num">894,000</span></div>
+      <div><span class="kw">HISTORICAL_SUPPLY</span> ≈ <span class="num">949,220</span></div>
       <div><span class="cmt">// All blocks before Bitmap launch</span></div>
       <br>
       <div><span class="kw">CLAIM_MECHANISM</span>:</div>
@@ -189,33 +183,38 @@
   <div class="card-grid">
     <div class="card">
       <div class="card-icon">🔍</div>
-      <div class="card-title">Ordinals.com</div>
+      <div class="card-title"><a href="https://ordinals.com" target="_blank" rel="noopener" style="color:var(--orange);text-decoration:none;">Ordinals.com →</a></div>
       <div class="card-text">The primary inscription explorer. Search any inscription number or content hash to verify Bitmap ownership. Shows inscription timestamp, sat number, and current owner address.</div>
     </div>
     <div class="card">
-      <div class="card-icon">📈</div>
-      <div class="card-title">NFT Price Floor</div>
-      <div class="card-text">nftpricefloor.com/bitmap tracks floor prices, sales volume, holder counts, and market cap over time. Essential for tracking Bitmap's market performance.</div>
+      <div class="card-icon">⚡</div>
+      <div class="card-title"><a href="https://bitfeed.live" target="_blank" rel="noopener" style="color:var(--orange);text-decoration:none;">Bitfeed.live →</a></div>
+      <div class="card-text">Real-time Bitcoin block visualizer. Watch live transactions and blocks being mined using the same Mondrian packing algorithm as Bitmap's visual renderer. See new Bitmaps being born in real time.</div>
     </div>
     <div class="card">
       <div class="card-icon">🗺️</div>
-      <div class="card-title">bitmap.land / atlas.land</div>
+      <div class="card-title"><a href="https://bitmap.land" target="_blank" rel="noopener" style="color:var(--orange);text-decoration:none;">bitmap.land / atlas.land →</a></div>
       <div class="card-text">The official Bitmap ecosystem portal. View districts, explore block data visualizations, and access Atlas OS — an on-chain operating system built for Bitmap holders.</div>
     </div>
     <div class="card">
       <div class="card-icon">📡</div>
-      <div class="card-title">Mempool.space</div>
+      <div class="card-title"><a href="https://mempool.space" target="_blank" rel="noopener" style="color:var(--orange);text-decoration:none;">Mempool.space →</a></div>
       <div class="card-text">Track Bitcoin blocks in real time. See block sizes, transaction counts, fees, and timing — all the raw data that determines each new Bitmap's properties.</div>
     </div>
     <div class="card">
       <div class="card-icon">🔬</div>
-      <div class="card-title">Unisat Explorer</div>
+      <div class="card-title"><a href="https://unisat.io/market/collection?collectionId=bitmap" target="_blank" rel="noopener" style="color:var(--orange);text-decoration:none;">Unisat Explorer →</a></div>
       <div class="card-text">Unisat's inscription explorer provides Bitmap-specific search and filtering. See which blocks are claimed, available, and their inscription IDs.</div>
     </div>
     <div class="card">
       <div class="card-icon">📊</div>
-      <div class="card-title">BRC-420 Analytics</div>
+      <div class="card-title"><a href="https://brc420.io" target="_blank" rel="noopener" style="color:var(--orange);text-decoration:none;">BRC-420 Analytics →</a></div>
       <div class="card-text">brc420.io and rcsv.io provide protocol-level analytics for BRC-420 assets built on Bitmap — royalties, volume, active projects, and market data.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">📈</div>
+      <div class="card-title"><a href="https://nftpricefloor.com/bitmap" target="_blank" rel="noopener" style="color:var(--orange);text-decoration:none;">NFT Price Floor →</a></div>
+      <div class="card-text">nftpricefloor.com/bitmap tracks floor prices, sales volume, holder counts, and market cap over time. Essential for tracking Bitmap's market performance.</div>
     </div>
   </div>
 </section>

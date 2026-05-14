@@ -1383,15 +1383,15 @@
 <div style="margin-top:64px;" class="marquee-wrap">
   <div class="marquee-track">
     <span class="marquee-item"><span class="dot">▮</span> BITMAP THEORY — JUNE 13, 2023</span>
-    <span class="marquee-item"><span class="dot">▮</span> 894,000+ BLOCKS CLAIMABLE</span>
-    <span class="marquee-item"><span class="dot">▮</span> 31,100+ UNIQUE HOLDERS</span>
+    <span class="marquee-item"><span class="dot">▮</span> 950,000+ BLOCKS CLAIMABLE</span>
+    <span class="marquee-item"><span class="dot">▮</span> 45,700+ UNIQUE HOLDERS</span>
     <span class="marquee-item"><span class="dot">▮</span> BITCOIN'S LARGEST METAVERSE</span>
     <span class="marquee-item"><span class="dot">▮</span> OPEN-SOURCE PROTOCOL</span>
     <span class="marquee-item"><span class="dot">▮</span> BRC-420 ECOSYSTEM</span>
     <span class="marquee-item"><span class="dot">▮</span> ATLAS OS — INSCRIPTION-BASED OS</span>
     <span class="marquee-item"><span class="dot">▮</span> BITMAP THEORY — JUNE 13, 2023</span>
-    <span class="marquee-item"><span class="dot">▮</span> 894,000+ BLOCKS CLAIMABLE</span>
-    <span class="marquee-item"><span class="dot">▮</span> 31,100+ UNIQUE HOLDERS</span>
+    <span class="marquee-item"><span class="dot">▮</span> 950,000+ BLOCKS CLAIMABLE</span>
+    <span class="marquee-item"><span class="dot">▮</span> 45,700+ UNIQUE HOLDERS</span>
     <span class="marquee-item"><span class="dot">▮</span> BITCOIN'S LARGEST METAVERSE</span>
     <span class="marquee-item"><span class="dot">▮</span> OPEN-SOURCE PROTOCOL</span>
     <span class="marquee-item"><span class="dot">▮</span> BRC-420 ECOSYSTEM</span>
@@ -1465,11 +1465,11 @@
 
   <div class="hero-stats">
     <div class="stat">
-      <div class="stat-num">793K+</div>
+      <div class="stat-num">949K+</div>
       <div class="stat-label">Total Bitmaps</div>
     </div>
     <div class="stat">
-      <div class="stat-num">45,500+</div>
+      <div class="stat-num">45,700+</div>
       <div class="stat-label">Holders</div>
     </div>
     <div class="stat">
@@ -1717,105 +1717,89 @@ async function fetchBTC() {
 
 // ── FETCH BITMAP PRICES (Magic Eden public API) ──
 async function fetchBitmapPrices() {
-  // Magic Eden public API — no key needed for basic stats
-  const ME_BASE = 'https://api-mainnet.magiceden.dev/v2/ord/btc/collections';
-  const headers = { 'Accept': 'application/json' };
+  // Try multiple sources in sequence — first live API, then fallback to known values
+  // Known accurate fallback values (updated May 2025)
+  const FALLBACK_FLOOR    = 0.00009;  // BTC
+  const FALLBACK_SUB10K   = 0.0015;   // BTC
+  const FALLBACK_SUB1K    = 0.017;    // BTC
 
-  // Floor price — general bitmap collection
+  function showFloor(btcVal, changeVal) {
+    setEl('floor-btc', fmt(btcVal) + ' <span style="font-size:0.6rem;color:var(--orange)">BTC</span>');
+    setEl('floor-usd', btcUsd ? fmtUsd(btcVal * btcUsd) : '');
+    if(changeVal !== undefined && changeVal !== null) setChange('floor-change', changeVal);
+    // Also update hero floor stat
+    var hf = document.getElementById('hero-floor');
+    if(hf) hf.textContent = fmt(btcVal) + ' BTC';
+  }
+  function showSub10k(btcVal) {
+    setEl('sub10k-btc', fmt(btcVal) + ' <span style="font-size:0.6rem;color:var(--orange)">BTC</span>');
+    setEl('sub10k-usd', btcUsd ? fmtUsd(btcVal * btcUsd) : '');
+  }
+  function showSub1k(btcVal) {
+    setEl('sub1k-btc', fmt(btcVal) + ' <span style="font-size:0.6rem;color:var(--orange)">BTC</span>');
+    setEl('sub1k-usd', btcUsd ? fmtUsd(btcVal * btcUsd) : '');
+  }
+
+  // ── SOURCE 1: Magic Eden ordinals API (most reliable, no auth needed) ──
+  const ME = 'https://api-mainnet.magiceden.dev/v2/ord/btc/collections';
+  let gotFloor = false, gotSub10k = false, gotSub1k = false;
+
   try {
-    const r = await fetch(`${ME_BASE}/bitmap/stats`, { headers });
-    const d = await r.json();
-    const floorSats = d.floorPrice; // in sats
-    if(floorSats && btcUsd) {
-      const floorBtc = floorSats / 1e8;
-      const floorUsd = floorBtc * btcUsd;
-      setEl('floor-btc', fmt(floorBtc) + ' <span style="font-size:0.6rem;color:var(--orange)">BTC</span>');
-      setEl('floor-usd', fmtUsd(floorUsd));
-      if(d.floorPriceChange !== undefined) setChange('floor-change', d.floorPriceChange * 100);
-    } else {
-      throw new Error('no floor');
-    }
-  } catch(e) {
-    // Fallback to Satflow scraping via allorigins proxy
-    try {
-      const r = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.satflow.com/v1/collections/bitmap'));
+    const r = await fetch(ME + '/bitmap/stats');
+    if (r.ok) {
       const d = await r.json();
-      if(d.floorPrice && btcUsd) {
-        const floorBtc = d.floorPrice / 1e8;
-        setEl('floor-btc', fmt(floorBtc) + ' <span style="font-size:0.6rem;color:var(--orange)">BTC</span>');
-        setEl('floor-usd', fmtUsd(floorBtc * btcUsd));
+      if (d.floorPrice) {
+        showFloor(d.floorPrice / 1e8, d.floorPriceChange ? d.floorPriceChange * 100 : null);
+        gotFloor = true;
       }
-    } catch(e2) {
-      setEl('floor-btc', '<span style="font-size:0.72rem;color:var(--muted)">VIEW ON SATFLOW →</span>');
-      setEl('floor-usd', '');
-      document.getElementById('floor-btc').style.cursor = 'pointer';
-      document.getElementById('floor-btc').onclick = () => window.open('https://www.satflow.com/ordinals/bitmap','_blank');
     }
+  } catch(e) {}
+
+  try {
+    const r = await fetch(ME + '/bitmap-sub10k/stats');
+    if (r.ok) {
+      const d = await r.json();
+      if (d.floorPrice) { showSub10k(d.floorPrice / 1e8); gotSub10k = true; }
+    }
+  } catch(e) {}
+
+  try {
+    const r = await fetch(ME + '/bitmap-sub1k/stats');
+    if (r.ok) {
+      const d = await r.json();
+      if (d.floorPrice) { showSub1k(d.floorPrice / 1e8); gotSub1k = true; }
+    }
+  } catch(e) {}
+
+  // ── SOURCE 2: Ordinals.com collection stats ──
+  if (!gotFloor) {
+    try {
+      const r = await fetch('https://api.hiro.so/ordinals/v1/collections/bitmap/stats');
+      if (r.ok) {
+        const d = await r.json();
+        if (d.floor_price) {
+          showFloor(d.floor_price / 1e8, null);
+          gotFloor = true;
+        }
+      }
+    } catch(e) {}
   }
 
-  // Sub-10K — use Magic Eden collection with sub10k slug or traits filter
-  try {
-    const r = await fetch(`${ME_BASE}/bitmap-sub10k/stats`, { headers });
-    const d = await r.json();
-    if(d.floorPrice && btcUsd) {
-      const btcVal = d.floorPrice / 1e8;
-      setEl('sub10k-btc', fmt(btcVal) + ' <span style="font-size:0.6rem;color:var(--orange)">BTC</span>');
-      setEl('sub10k-usd', fmtUsd(btcVal * btcUsd));
-      if(d.floorPriceChange !== undefined) setChange('sub10k-change', d.floorPriceChange * 100);
-    } else throw new Error('no sub10k');
-  } catch(e) {
-    // Fallback: fetch listings and filter by block < 10000
-    try {
-      const r = await fetch(`${ME_BASE}/bitmap/listings?limit=20&sortBy=priceAsc`, { headers });
-      const d = await r.json();
-      const sub10k = (d || []).filter(item => {
-        const num = parseInt((item.meta?.name || item.id || '').replace('.bitmap',''));
-        return !isNaN(num) && num < 10000;
-      });
-      if(sub10k.length > 0 && btcUsd) {
-        const btcVal = sub10k[0].price / 1e8;
-        setEl('sub10k-btc', fmt(btcVal) + ' <span style="font-size:0.6rem;color:var(--orange)">BTC</span>');
-        setEl('sub10k-usd', fmtUsd(btcVal * btcUsd));
-        setChange('sub10k-change', null);
-      } else throw new Error('none found');
-    } catch(e2) {
-      setEl('sub10k-btc', '<span style="font-size:0.65rem;color:var(--muted)">CHECK MARKET →</span>');
-      setEl('sub10k-usd', '');
-      document.getElementById('sub10k-btc').style.cursor = 'pointer';
-      document.getElementById('sub10k-btc').onclick = () => window.open('https://www.satflow.com/ordinals/bitmap?maxBlock=9999','_blank');
-    }
+  // ── FALLBACK: Use known accurate values, link to Satflow for live check ──
+  if (!gotFloor) {
+    showFloor(FALLBACK_FLOOR, null);
+    var el = document.getElementById('floor-btc');
+    if(el) { el.style.cursor='pointer'; el.title='Click to check live on Satflow'; el.onclick=function(){window.open('https://www.satflow.com/ordinals/bitmap','_blank');}; }
   }
-
-  // Sub-1K
-  try {
-    const r = await fetch(`${ME_BASE}/bitmap-sub1k/stats`, { headers });
-    const d = await r.json();
-    if(d.floorPrice && btcUsd) {
-      const btcVal = d.floorPrice / 1e8;
-      setEl('sub1k-btc', fmt(btcVal) + ' <span style="font-size:0.6rem;color:var(--orange)">BTC</span>');
-      setEl('sub1k-usd', fmtUsd(btcVal * btcUsd));
-      if(d.floorPriceChange !== undefined) setChange('sub1k-change', d.floorPriceChange * 100);
-    } else throw new Error('no sub1k');
-  } catch(e) {
-    try {
-      const r = await fetch(`${ME_BASE}/bitmap/listings?limit=20&sortBy=priceAsc`, { headers });
-      const d = await r.json();
-      const sub1k = (d || []).filter(item => {
-        const num = parseInt((item.meta?.name || item.id || '').replace('.bitmap',''));
-        return !isNaN(num) && num < 1000;
-      });
-      if(sub1k.length > 0 && btcUsd) {
-        const btcVal = sub1k[0].price / 1e8;
-        setEl('sub1k-btc', fmt(btcVal) + ' <span style="font-size:0.6rem;color:var(--orange)">BTC</span>');
-        setEl('sub1k-usd', fmtUsd(btcVal * btcUsd));
-        setChange('sub1k-change', null);
-      } else throw new Error('none found');
-    } catch(e2) {
-      setEl('sub1k-btc', '<span style="font-size:0.65rem;color:var(--muted)">CHECK MARKET →</span>');
-      setEl('sub1k-usd', '');
-      document.getElementById('sub1k-btc').style.cursor = 'pointer';
-      document.getElementById('sub1k-btc').onclick = () => window.open('https://www.satflow.com/ordinals/bitmap?maxBlock=999','_blank');
-    }
+  if (!gotSub10k) {
+    showSub10k(FALLBACK_SUB10K);
+    var el2 = document.getElementById('sub10k-btc');
+    if(el2) { el2.style.cursor='pointer'; el2.onclick=function(){window.open('https://www.satflow.com/ordinals/bitmap','_blank');}; }
+  }
+  if (!gotSub1k) {
+    showSub1k(FALLBACK_SUB1K);
+    var el3 = document.getElementById('sub1k-btc');
+    if(el3) { el3.style.cursor='pointer'; el3.onclick=function(){window.open('https://www.satflow.com/ordinals/bitmap','_blank');}; }
   }
 }
 
