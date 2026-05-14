@@ -357,49 +357,179 @@ function disconnect(){
 function fetchBtcPrice(cb){fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot').then(function(r){return r.json();}).then(function(d){S.btcUsd=parseFloat(d.data.amount)||0;if(cb)cb();}).catch(function(){S.btcUsd=100000;if(cb)cb();});}
 
 // ─── LOAD INSCRIPTIONS ───────────────────────────
+// PRIMARY: turbo.ordinalswallet.com/wallet/:address (live, CORS-friendly)
+// FALLBACK: wallet native APIs
 function loadInscriptions(type,addr){
-  showLoadingGrid();toast('Loading your inscriptions...');
-  if(type==='unisat'&&window.unisat){
-    if(window.unisat.getBalance){window.unisat.getBalance().then(function(b){S.btcBalance=(b.total||0)/1e8;updateBalanceDisplay();}).catch(function(){});}
-    window.unisat.getInscriptions(0,100).then(function(res){processInscriptions(type,(res&&res.list)||[]);}).catch(function(e){toast('Could not load: '+e.message);showEmpty();});
-    return;
+  showLoadingGrid();
+  toast('Loading inscriptions from Ordinals Wallet...');
+
+  // Get BTC balance from wallet native API first (fast)
+  if(type==='unisat'&&window.unisat&&window.unisat.getBalance){
+    window.unisat.getBalance().then(function(b){S.btcBalance=(b.total||0)/1e8;updateBalanceDisplay();}).catch(function(){});
   }
-  if(type==='okx'&&window.okxwallet&&window.okxwallet.bitcoin){
-    window.okxwallet.bitcoin.getInscriptions(0,100).then(function(res){processInscriptions(type,(res&&res.list)||[]);}).catch(function(e){toast('Could not load: '+e.message);showEmpty();});
-    return;
-  }
-  if(type==='xverse'){
-    var sc=window.SatsConnect;
-    if(sc&&sc.request){sc.request('ord_getInscriptions',{limit:100,offset:0}).then(function(res){if(res&&res.status==='success')processInscriptions(type,res.result.inscriptions||[]);else showEmpty();}).catch(function(){showEmpty();});return;}
-    if(window.XverseProviders&&window.XverseProviders.BitcoinProvider){window.XverseProviders.BitcoinProvider.request('ord_getInscriptions',{offset:0,limit:60}).then(function(res){var items=(res&&res.result&&res.result.inscriptions)||[];if(items.length)processInscriptions(type,items);else showEmpty();}).catch(function(){showEmpty();});return;}
-  }
-  showEmpty();
+
+  // PRIMARY: Use turbo.ordinalswallet.com/wallet/:address
+  // Returns full inscription list with proper collection metadata
+  fetch('https://turbo.ordinalswallet.com/wallet/'+addr)
+    .then(function(r){
+      if(!r.ok) throw new Error('OW API '+r.status);
+      return r.json();
+    })
+    .then(function(data){
+      // Also grab BTC balance from OW if wallet API didn't provide it
+      if(!S.btcBalance && data.balance){
+        S.btcBalance = (data.balance.total||data.balance.confirmed||0)/1e8;
+        updateBalanceDisplay();
+      }
+      var inscriptions = data.inscriptions || data || [];
+      if(!Array.isArray(inscriptions)) inscriptions = [];
+      processOWInscriptions(inscriptions);
+    })
+    .catch(function(err){
+      toast('OW API failed, trying wallet API...');
+      loadFromWalletAPI(type, addr);
+    });
 }
 
-// ─── PROCESS INSCRIPTIONS ────────────────────────
-function processInscriptions(wt,rawList){
-  var bitmaps=[],ordinals=[];
-  rawList.forEach(function(ins){
-    var id=ins.inscriptionId||ins.id||'';
-    var num=ins.inscriptionNumber||ins.number||0;
-    var name=ins.inscriptionName||ins.name||'';
-    var colName=((ins.collectionName||ins.collection_id||ins.collectionId||'')).toLowerCase();
-    var blockNum=null;
-    var bmMatch=(name||'').match(/^(\d+)\.bitmap$/i);
-    if(!bmMatch){var m2=(name||'').match(/(\d+)\.bitmap/i);if(m2)bmMatch=m2;}
-    var isBitmap=bmMatch!==null||colName.indexOf('bitmap')>=0;
-    if(bmMatch)blockNum=parseInt(bmMatch[1]);
-    if(isBitmap&&blockNum!==null&&!isNaN(blockNum)){
-      bitmaps.push({block:blockNum,inscriptionId:id,inscriptionNumber:num,traits:getTraits(blockNum),listed:false,price:null});
+// Parse inscriptions from turbo.ordinalswallet.com/wallet/:address
+// Each inscription has: id, num, content_type, collection (with slug), meta (with name)
+function processOWInscriptions(list){
+  var bitmaps=[], ordinals=[];
+
+  list.forEach(function(ins){
+    var id = ins.id || ins.inscriptionId || '';
+    var num = ins.num || ins.number || ins.inscriptionNumber || 0;
+    var contentType = ins.content_type || ins.contentType || '';
+
+    // Collection info from OW API
+    var collection = ins.collection || {};
+    var colSlug = (collection.slug||collection.id||'').toLowerCase();
+    var colName = (collection.name||'').toLowerCase();
+    var metaName = (ins.meta && ins.meta.name) ? ins.meta.name : '';
+
+    // BITMAP DETECTION — multiple strategies:
+    // 1. Collection slug contains "bitmap"
+    // 2. meta.name matches "{digits}.bitmap"
+    // 3. Content is text/plain and content matches bitmap pattern
+    var blockNum = null;
+    var isBitmap = false;
+
+    // Strategy 1: collection slug/name
+    if(colSlug.indexOf('bitmap')>=0 || colName.indexOf('bitmap')>=0){
+      isBitmap = true;
+      // Try to get block number from meta name
+      var m = metaName.match(/^(\d+)\.bitmap$/i);
+      if(m) blockNum = parseInt(m[1]);
+    }
+
+    // Strategy 2: meta name directly
+    if(!isBitmap || blockNum===null){
+      var m2 = metaName.match(/^(\d+)\.bitmap$/i);
+      if(m2){ isBitmap=true; blockNum=parseInt(m2[1]); }
+    }
+
+    // Strategy 3: content_type is text/plain — fetch content to check
+    // (handled async below for unresolved ones)
+
+    if(isBitmap && blockNum!==null && !isNaN(blockNum)){
+      bitmaps.push({
+        block:blockNum, inscriptionId:id, inscriptionNumber:num,
+        traits:getTraits(blockNum), listed:false, price:null,
+        previewUrl:'https://cdn.ordinalswallet.com/inscription/preview/'+id
+      });
     } else {
-      ordinals.push({name:name||('Inscription #'+num),id:id?id.slice(0,14)+'...':'—',fullId:id,num:num,type:'Ordinal'});
+      ordinals.push({
+        name:metaName||('Inscription #'+num),
+        id:id?id.slice(0,14)+'...':'—', fullId:id, num:num,
+        type:colName||contentType||'Ordinal',
+        collection:collection.name||''
+      });
     }
   });
+
+  // For text/plain inscriptions that weren't identified as bitmaps,
+  // fetch their content to check if they match the bitmap pattern
+  var toCheck = list.filter(function(ins){
+    var id=ins.id||ins.inscriptionId||'';
+    var ct=ins.content_type||ins.contentType||'';
+    var alreadyBitmap = bitmaps.some(function(b){return b.inscriptionId===id;});
+    return !alreadyBitmap && (ct.indexOf('text/plain')>=0 || ct==='');
+  });
+
+  if(toCheck.length===0){
+    finalizeBitmaps(bitmaps,ordinals);
+    return;
+  }
+
+  // Batch check content — fetch up to 30 to avoid too many requests
+  var checked=0, limit=Math.min(toCheck.length,30);
+  toCheck.slice(0,limit).forEach(function(ins){
+    var id=ins.id||ins.inscriptionId||'';
+    var num=ins.num||ins.number||0;
+    var metaName=(ins.meta&&ins.meta.name)?ins.meta.name:'';
+    fetch('https://cdn.ordinalswallet.com/inscription/content/'+id)
+      .then(function(r){return r.text();})
+      .then(function(txt){
+        txt=txt.trim();
+        var bm=txt.match(/^(\d+)\.bitmap$/i);
+        if(bm){
+          var blockNum=parseInt(bm[1]);
+          // Move from ordinals to bitmaps
+          ordinals=ordinals.filter(function(o){return o.fullId!==id;});
+          bitmaps.push({
+            block:blockNum, inscriptionId:id, inscriptionNumber:num,
+            traits:getTraits(blockNum), listed:false, price:null,
+            previewUrl:'https://cdn.ordinalswallet.com/inscription/preview/'+id
+          });
+        }
+      })
+      .catch(function(){})
+      .finally(function(){
+        checked++;
+        if(checked>=limit) finalizeBitmaps(bitmaps,ordinals);
+      });
+  });
+  if(limit===0) finalizeBitmaps(bitmaps,ordinals);
+}
+
+function finalizeBitmaps(bitmaps,ordinals){
   S.bitmaps=bitmaps.sort(function(a,b){return a.block-b.block;});
   S.ordinals=ordinals;
   if(bitmaps.length===0&&ordinals.length===0){showEmpty();return;}
-  toast('Loaded '+bitmaps.length+' Bitmap(s)'+(ordinals.length?', '+ordinals.length+' other(s)':''));
+  toast('Found '+bitmaps.length+' Bitmap(s)'+(ordinals.length?', '+ordinals.length+' other ordinal(s)':'')+'!');
   renderAll();
+}
+
+// FALLBACK: wallet native APIs if OW API fails
+function loadFromWalletAPI(type,addr){
+  function onList(list){ processOWInscriptions(list.map(function(ins){
+    // Normalize wallet API fields to OW API shape
+    var name=ins.inscriptionName||ins.name||'';
+    return {
+      id:ins.inscriptionId||ins.id||'',
+      num:ins.inscriptionNumber||ins.number||0,
+      content_type:ins.contentType||ins.content_type||'text/plain',
+      collection:{slug:'',name:''},
+      meta:{name:name}
+    };
+  }));}
+
+  if(type==='unisat'&&window.unisat){
+    window.unisat.getInscriptions(0,100)
+      .then(function(r){onList((r&&r.list)||[]);})
+      .catch(function(){showEmpty();});
+  } else if(type==='okx'&&window.okxwallet&&window.okxwallet.bitcoin){
+    window.okxwallet.bitcoin.getInscriptions(0,100)
+      .then(function(r){onList((r&&r.list)||[]);})
+      .catch(function(){showEmpty();});
+  } else if(type==='xverse'){
+    var sc=window.SatsConnect;
+    if(sc&&sc.request){
+      sc.request('ord_getInscriptions',{limit:100,offset:0})
+        .then(function(r){if(r&&r.status==='success')onList(r.result.inscriptions||[]);else showEmpty();})
+        .catch(function(){showEmpty();});
+    } else { showEmpty(); }
+  } else { showEmpty(); }
 }
 
 // ─── TRAIT DETECTION ─────────────────────────────
@@ -543,10 +673,44 @@ function makeCard(b){
   var isList=S.view==='list';
   var card=document.createElement('div');card.className='bcard';
 
+  // IMAGE WRAP — use real Ordinals Wallet CDN preview image
   var cWrap=document.createElement('div');cWrap.className='bcard-canvas';
+  cWrap.style.cssText='position:relative;overflow:hidden;background:var(--bg3);';
+
+  var previewUrl = b.previewUrl || ('https://cdn.ordinalswallet.com/inscription/preview/'+b.inscriptionId);
+
+  // Primary: real image from OW CDN
+  var img=document.createElement('img');
+  img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
+  img.alt=b.block+'.bitmap';
+  img.loading='lazy';
+
+  // Fallback: Mondrian canvas if image fails
   var cvs=document.createElement('canvas');cvs.width=200;cvs.height=200;
+  cvs.style.cssText='width:100%;height:100%;display:none;';
+
+  img.onerror=function(){
+    img.style.display='none';
+    cvs.style.display='block';
+    renderBitmapCanvas(cvs,b.block);
+  };
+  img.onload=function(){ img.style.display='block'; cvs.style.display='none'; };
+
+  cWrap.appendChild(img);
   cWrap.appendChild(cvs);
 
+  // Lazy-load: set src only when card enters viewport
+  var obs=new IntersectionObserver(function(entries,ob){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        img.src=previewUrl;
+        ob.unobserve(e.target);
+      }
+    });
+  },{threshold:0.05,rootMargin:'100px'});
+  obs.observe(card);
+
+  // BODY
   var body=document.createElement('div');body.className='bcard-body';
   var numEl=document.createElement('div');numEl.className='bcard-num';numEl.textContent=b.block.toLocaleString()+'.bitmap';
   var badges=document.createElement('div');badges.className='bcard-badges';badges.innerHTML=getRarityBadge(b)+getTraitBadges(b.traits);
@@ -561,10 +725,6 @@ function makeCard(b){
   }
   card.appendChild(cWrap);card.appendChild(body);
   card.onclick=function(){openModal(b.block);};
-
-  // Lazy render canvas
-  var obs=new IntersectionObserver(function(entries,ob){entries.forEach(function(e){if(e.isIntersecting){renderBitmapCanvas(cvs,b.block);ob.unobserve(e.target);}});},{threshold:0.1});
-  obs.observe(card);
   return card;
 }
 
@@ -628,10 +788,21 @@ function openModal(blockNum){
   var b=S.bitmaps.find(function(x){return x.block===blockNum;});
   if(!b)return;
   document.getElementById('modalTitle').textContent=b.block.toLocaleString()+'.bitmap';
-  var cvs=document.createElement('canvas');cvs.width=280;cvs.height=280;cvs.style.cssText='width:100%;display:block;';
+
   var body=document.getElementById('modalBody');body.innerHTML='';
   var grid=document.createElement('div');grid.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;';
-  var cDiv=document.createElement('div');cDiv.style.cssText='background:var(--bg3);aspect-ratio:1;overflow:hidden;';cDiv.appendChild(cvs);
+
+  // Real preview image from Ordinals Wallet CDN
+  var previewUrl=b.previewUrl||('https://cdn.ordinalswallet.com/inscription/preview/'+b.inscriptionId);
+  var cDiv=document.createElement('div');cDiv.style.cssText='background:var(--bg3);aspect-ratio:1;overflow:hidden;position:relative;';
+  var mImg=document.createElement('img');
+  mImg.src=previewUrl;
+  mImg.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
+  mImg.alt=b.block+'.bitmap';
+  var mCvs=document.createElement('canvas');mCvs.width=280;mCvs.height=280;mCvs.style.cssText='width:100%;height:100%;display:none;';
+  mImg.onerror=function(){mImg.style.display='none';mCvs.style.display='block';renderBitmapCanvas(mCvs,b.block);};
+  cDiv.appendChild(mImg);cDiv.appendChild(mCvs);
+
   var info=document.createElement('div');
   info.innerHTML='<div style="font-family:\'Orbitron\',monospace;font-size:1.1rem;font-weight:900;color:var(--orange);margin-bottom:0.5rem;">#'+b.block.toLocaleString()+'</div>'
     +'<div style="margin-bottom:0.75rem;">'+getRarityBadge(b)+' '+getTraitBadges(b.traits)+'</div>'
@@ -641,6 +812,7 @@ function openModal(blockNum){
     +'<tr><td style="color:var(--muted);padding:0.3rem 0;">ID</td><td style="color:var(--muted);font-size:0.55rem;">'+(b.inscriptionId?b.inscriptionId.slice(0,16)+'...':'—')+'</td></tr>'
     +'</table>';
   grid.appendChild(cDiv);grid.appendChild(info);body.appendChild(grid);
+
   var links=document.createElement('div');links.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;';
   links.innerHTML='<a href="https://www.satflow.com/ordinals/bitmap/'+b.block+'" target="_blank" rel="noopener" style="display:block;padding:0.7rem;background:var(--orange);color:#000;text-align:center;font-family:\'Share Tech Mono\',monospace;font-size:0.6rem;font-weight:700;letter-spacing:1px;text-decoration:none;text-transform:uppercase;">SATFLOW</a>'
     +'<a href="https://ordinalswallet.com/inscription/'+(b.inscriptionId||'')+'" target="_blank" rel="noopener" style="display:block;padding:0.7rem;background:transparent;border:1px solid var(--border);color:var(--text);text-align:center;font-family:\'Share Tech Mono\',monospace;font-size:0.6rem;letter-spacing:1px;text-decoration:none;text-transform:uppercase;">ORDINALS WALLET</a>'
@@ -648,7 +820,6 @@ function openModal(blockNum){
     +'<a href="https://ordinals.com/inscription/'+(b.inscriptionId||'')+'" target="_blank" rel="noopener" style="display:block;padding:0.7rem;background:transparent;border:1px solid var(--border);color:var(--text);text-align:center;font-family:\'Share Tech Mono\',monospace;font-size:0.6rem;letter-spacing:1px;text-decoration:none;text-transform:uppercase;">ORDINALS.COM</a>';
   body.appendChild(links);
   document.getElementById('detailModal').classList.add('open');
-  setTimeout(function(){renderBitmapCanvas(cvs,b.block);},100);
 }
 
 function closeModal(){document.getElementById('detailModal').classList.remove('open');}

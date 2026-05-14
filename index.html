@@ -1649,7 +1649,7 @@
 
 let btcUsd = 0;
 
-function fmt(n, dec=4) {
+function fmt(n, dec=5) {
   if(!n || isNaN(n)) return '—';
   return n.toFixed(dec).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
 }
@@ -1740,7 +1740,27 @@ async function fetchBitmapPrices() {
     setEl('sub1k-usd', btcUsd ? fmtUsd(btcVal * btcUsd) : '');
   }
 
-  // ── SOURCE 1: Magic Eden ordinals API (most reliable, no auth needed) ──
+  // ── SOURCE 0: Ordinals Wallet turbo API (most reliable for Bitmap) ──
+  try {
+    const r = await fetch('https://turbo.ordinalswallet.com/collection/bitmap/stats');
+    if (r.ok) {
+      const d = await r.json();
+      // OW returns floor in sats
+      if (d.floor_price || d.floorPrice) {
+        var floorSats = d.floor_price || d.floorPrice;
+        showFloor(floorSats / 1e8, null);
+        gotFloor = true;
+      }
+      // Holder count
+      if (d.owners || d.holder_count) {
+        var holders = d.owners || d.holder_count;
+        var hEl = document.getElementById('stat-holders');
+        if (hEl) hEl.textContent = parseInt(holders).toLocaleString()+'+';
+      }
+    }
+  } catch(e) {}
+
+  // ── SOURCE 1: Magic Eden ordinals API ──
   const ME = 'https://api-mainnet.magiceden.dev/v2/ord/btc/collections';
   let gotFloor = false, gotSub10k = false, gotSub1k = false;
 
