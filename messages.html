@@ -380,29 +380,36 @@
 <body>
 
 <!-- NAV -->
-<nav class="main-nav">
-  <div class="nav-container">
-    <a href="index.html" class="nav-logo">
-      <span class="logo-text">BITMAP<span class="logo-accent">HUB</span></span>
-    </a>
-    <button class="nav-toggle" onclick="document.querySelector('.nav-menu').classList.toggle('active')" aria-label="Menu">☰</button>
-    <ul class="nav-menu">
-      <li><a href="index.html">HOME</a></li>
-      <li><a href="introduction.html">INTRODUCTION</a></li>
-      <li><a href="rarity.html">RARITY</a></li>
-      <li><a href="data.html">DATA</a></li>
-      <li><a href="leaderboard.html">LEADERBOARD</a></li>
-      <li><a href="directory.html">DIRECTORY</a></li>
-      <li><a href="messages.html" class="active">BLOCK MESSAGES</a></li>
-      <li><a href="tools.html">TOOLS</a></li>
-      <li><a href="marketplaces.html">MARKETS</a></li>
-      <li><a href="projects.html">PROJECTS</a></li>
-      <li><a href="future.html">FUTURE</a></li>
-      <li><a href="founders.html">FOUNDERS</a></li>
-      <li><a href="history.html">HISTORY</a></li>
-      <li><a href="dashboard.html">MY BITMAP</a></li>
-    </ul>
-  </div>
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="pixel-icon">
+      <span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span>
+    </div>
+    BITMAP HUB
+  </a>
+  <ul class="nav-links">
+    <li><a href="introduction.html">INTRO</a></li>
+    <li><a href="history.html">HISTORY</a></li>
+    <li><a href="metaverse.html">METAVERSE</a></li>
+    <li><a href="rarity.html">RARITY</a></li>
+    <li><a href="data.html">DATA</a></li>
+    <li><a href="tools.html">TOOLS</a></li>
+    <li><a href="marketplaces.html">MARKETS</a></li>
+    <li><a href="projects.html">PROJECTS</a></li>
+    <li><a href="future.html">FUTURE</a></li>
+    <li><a href="founders.html">FOUNDERS</a></li>
+    <li><a href="leaderboard.html">LEADERBOARD</a></li>
+    <li><a href="directory.html">DIRECTORY</a></li>
+    <li><a href="messages.html" style="color:var(--orange);">MESSAGES</a></li>
+    <li><a href="dashboard.html">MY BITMAP</a></li>
+  </ul>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+    <span class="toggle-icon" id="toggleIcon">☀️</span>
+    <span id="toggleLabel">LIGHT</span>
+  </button>
 </nav>
 
 <!-- HERO -->
@@ -492,6 +499,25 @@
   <div class="stat-cell"><div class="stat-num" id="s-date">—</div><div class="stat-lbl">BLOCK DATE</div></div>
 </div>
 
+<!-- LIVE MEMPOOL BANNER -->
+<div style="text-align:center;padding:1rem 1rem 0.5rem;border-top:1px solid #F7931A22;">
+  <a href="https://bitfeed.live" target="_blank" rel="noopener"
+     style="display:inline-flex;align-items:center;gap:0.6rem;
+            font-family:'Orbitron',monospace;font-size:0.65rem;font-weight:700;letter-spacing:2px;
+            color:#F7931A;border:1px solid #F7931A44;padding:0.5rem 1.2rem;
+            background:rgba(247,147,26,0.06);text-decoration:none;border-radius:2px;
+            transition:background 0.2s,border-color 0.2s;"
+     onmouseover="this.style.background='rgba(247,147,26,0.14)';this.style.borderColor='#F7931A99';"
+     onmouseout="this.style.background='rgba(247,147,26,0.06)';this.style.borderColor='#F7931A44';">
+    <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#98C379;animation:bfpulse 1.5s infinite;"></span>
+    VIEW LIVE BITCOIN MEMPOOL ↗
+  </a>
+  <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:#666;margin-top:0.4rem;">
+    Opens bitfeed.live in a new tab — watch transactions flow into blocks in real time
+  </div>
+</div>
+<style>@keyframes bfpulse{0%,100%{opacity:1}50%{opacity:0.3}}</style>
+
 <!-- FEED -->
 <div class="feed-wrap" id="feed-wrap">
   <div class="state-box">
@@ -502,6 +528,20 @@
 </div>
 
 <script>
+// ── THEME ──
+function applyTheme(mode) {
+  document.body.classList.toggle('light', mode === 'light');
+  var icon = document.getElementById('toggleIcon'), label = document.getElementById('toggleLabel');
+  if (icon)  icon.textContent  = mode === 'light' ? '🌑' : '☀️';
+  if (label) label.textContent = mode === 'light' ? 'DARK' : 'LIGHT';
+}
+function toggleTheme() {
+  var next = document.body.classList.contains('light') ? 'dark' : 'light';
+  localStorage.setItem('bitmapTheme', next);
+  applyTheme(next);
+}
+(function(){ applyTheme(localStorage.getItem('bitmapTheme') || 'dark'); })();
+
 (function () {
   'use strict';
 

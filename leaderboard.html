@@ -414,7 +414,7 @@ body.light .total-bar-wrap { background: rgba(0,0,0,0.1); }
       </thead>
       <tbody id="lbBody">
         <tr><td colspan="5" class="lb-status">
-          <div class="lb-spinner"></div><br>Loading leaderboard — fetching up to 2,000 wallets…
+          <div class="lb-spinner"></div><br>Loading leaderboard — scanning up to 6,000 inscriptions…
         </td></tr>
       </tbody>
     </table>
@@ -429,7 +429,7 @@ body.light .total-bar-wrap { background: rgba(0,0,0,0.1); }
 <div class="divider"></div>
 <section style="padding-top:1.5rem;padding-bottom:1.5rem;">
   <div class="highlight-box" data-label="LIVE DATA">
-    Leaderboard data is fetched live from the Ordinals Wallet public API (<code>turbo.ordinalswallet.com</code>). Up to 2,000 top wallets are scanned per refresh. Data auto-refreshes every 5 minutes. Use the Refresh Now button after a big trade to see latest rankings. The <strong style="color:#61AFEF;">4-DIGIT ◈</strong> tab shows all wallets holding any block 1,000–9,999, with their individual block numbers listed — coverage typically reaches 90%+ of all 9,000 four-digit Bitmaps. Wallets holding only low quantities with no higher-ranked inscriptions may not appear in the top 2,000.
+    Leaderboard data is fetched live from the Ordinals Wallet public API (<code>turbo.ordinalswallet.com</code>). Up to 6,000 inscriptions are scanned per refresh to build the holder rankings. Data auto-refreshes every 5 minutes. The <strong style="color:#61AFEF;">4-DIGIT ◈</strong> tab shows all wallets holding any block 1,000–9,999, with their individual block numbers. If you search a specific wallet address and it's not in the leaderboard, the page will look it up directly from the API and add it automatically.
   </div>
 </section>
 <section style="padding-top:1rem;padding-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
@@ -511,8 +511,71 @@ function setSort(key) {
 }
 
 // ── VIEW ──
+// ── WALLET DIRECT LOOKUP ──
+var walletLookupTimer = null;
+var lastLookedUp = '';
+
+function lookupWalletDirect(addr) {
+  if (addr === lastLookedUp) return;
+  lastLookedUp = addr;
+  // Check if already in allHolders
+  var existing = allHolders.find(function(h){ return h.address.toLowerCase() === addr.toLowerCase(); });
+  if (existing) return; // already there, normal filter will find it
+
+  var noteEl = document.getElementById('pageNote');
+  if (noteEl) noteEl.textContent = '🔍 Looking up wallet directly…';
+
+  var allIns = [];
+  var offsets2 = [];
+  for (var o2 = 0; o2 < 2000; o2 += 100) offsets2.push(o2);
+  var pending2 = offsets2.length;
+
+  offsets2.forEach(function(off2) {
+    fetch('https://turbo.ordinalswallet.com/wallet/' + addr + '/inscriptions?offset=' + off2 + '&limit=100', { cache: 'no-store' })
+      .then(function(r){ return r.ok ? r.json() : []; })
+      .then(function(data) {
+        var items = Array.isArray(data) ? data : (data.inscriptions || data.results || data.data || []);
+        items.forEach(function(ins) {
+          var name = (ins.meta && ins.meta.name) ? ins.meta.name : (ins.name || '');
+          var m = name.match(/^(\d+)\.bitmap$/i);
+          if (!m) return;
+          allIns.push({ owner: addr, blockNum: parseInt(m[1]), name: name });
+        });
+        // Stop early if page returned nothing (no more inscriptions)
+        if (items.length === 0) pending2 = 1;
+      })
+      .catch(function(){})
+      .finally(function(){
+        pending2--;
+        if (pending2 === 0) {
+          if (allIns.length > 0) {
+            var map2 = buildHolderMap(allIns);
+            var h = Object.values(map2)[0];
+            if (h) {
+              // Merge into allHolders
+              var idx = allHolders.findIndex(function(x){ return x.address === addr; });
+              if (idx >= 0) allHolders[idx] = h; else allHolders.push(h);
+              if (noteEl) noteEl.textContent = '✓ Wallet found — ' + h.total + ' Bitmaps loaded';
+              applyView();
+            } else {
+              if (noteEl) noteEl.textContent = '⚠️ Wallet holds no Bitmaps in the collection';
+            }
+          } else {
+            if (noteEl) noteEl.textContent = '⚠️ Wallet not found or holds no Bitmaps';
+          }
+        }
+      });
+  });
+}
+
 function applyView() {
   var query = (document.getElementById('lbSearch').value || '').toLowerCase().trim();
+
+  // If searching a full-length BTC address not in data, trigger direct lookup
+  if (query.length > 25) {
+    if (walletLookupTimer) clearTimeout(walletLookupTimer);
+    walletLookupTimer = setTimeout(function(){ lookupWalletDirect(query); }, 600);
+  }
 
   var list = allHolders.filter(function(h) {
     if (activeTab !== 'all') {
@@ -779,7 +842,7 @@ function loadData(isInitial) {
   }
 
   var offsets = [];
-  for (var o = 0; o < 2000; o += 100) offsets.push(o);
+  for (var o = 0; o < 6000; o += 100) offsets.push(o);
 
   var allIns = [];
   var pending = offsets.length;
