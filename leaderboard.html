@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitmap Leaderboard — Bitmap Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+/* ── LEADERBOARD STYLES ── */
+.lb-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+.lb-tab {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+.lb-tab:hover { border-color: var(--orange); color: var(--orange); }
+.lb-tab.active { background: var(--orange); border-color: var(--orange); color: #000; }
+.lb-tab .tab-count {
+  display: inline-block;
+  margin-left: 0.4rem;
+  background: rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 0 0.4rem;
+  font-size: 0.6rem;
+}
+.lb-tab.active .tab-count { background: rgba(0,0,0,0.2); }
+
+.d1 { color: #FF6B6B; } .d2 { color: #FFD700; } .d3 { color: #F7931A; }
+.d4 { color: #61AFEF; } .d5 { color: #98C379; } .d6 { color: #C678DD; }
+.d1-bg { background: #FF6B6B; } .d2-bg { background: #FFD700; } .d3-bg { background: #F7931A; }
+.d4-bg { background: #61AFEF; } .d5-bg { background: #98C379; } .d6-bg { background: #C678DD; }
+
+/* ── REFRESH BAR ── */
+.refresh-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 0.65rem 1rem;
+  margin-bottom: 1.5rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+}
+.refresh-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  color: var(--muted);
+}
+.refresh-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+}
+.refresh-dot.live { background: #98C379; animation: pulse 1.5s infinite; }
+.refresh-dot.loading { background: var(--orange); animation: pulse 0.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.refresh-countdown { color: var(--orange); font-family: 'Orbitron', monospace; font-size: 0.65rem; }
+.refresh-btn {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  padding: 0.4rem 0.9rem;
+  background: transparent;
+  border: 1px solid var(--orange);
+  color: var(--orange);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.refresh-btn:hover { background: var(--orange); color: #000; }
+.refresh-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.refresh-progress {
+  height: 2px;
+  background: var(--border);
+  margin-bottom: 0;
+  border-radius: 0;
+}
+.refresh-progress-fill {
+  height: 100%;
+  background: var(--orange);
+  border-radius: 0;
+  transition: width 1s linear;
+}
+.page-note {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-left: 0.5rem;
+}
+
+/* Stats bar */
+.lb-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.lb-stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 0.8rem 1rem;
+  text-align: center;
+}
+.lb-stat-val {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--orange);
+}
+.lb-stat-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-top: 0.2rem;
+}
+
+/* Controls */
+.lb-controls {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.lb-search {
+  flex: 1;
+  min-width: 200px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  outline: none;
+}
+.lb-search:focus { border-color: var(--orange); }
+.lb-search::placeholder { color: var(--muted); }
+.sort-btn {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+.sort-btn.active { border-color: var(--orange); color: var(--orange); }
+.sort-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+/* Digit legend */
+.digit-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.digit-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.digit-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+/* Table */
+.lb-table-wrap { overflow-x: auto; border: 1px solid var(--border); }
+.lb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+}
+.lb-table th {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  color: var(--muted);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+.lb-table th:hover { color: var(--orange); }
+.lb-table th.sort-asc::after { content: ' ▲'; color: var(--orange); }
+.lb-table th.sort-desc::after { content: ' ▼'; color: var(--orange); }
+.lb-table td {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  vertical-align: middle;
+}
+.lb-table tbody tr:hover { background: rgba(247,147,26,0.04); }
+.lb-table tbody tr:last-child td { border-bottom: none; }
+
+.rank-cell { font-family:'Orbitron',monospace; font-size:0.9rem; font-weight:700; text-align:center; min-width:40px; }
+.rank-1 { color: #FFD700; } .rank-2 { color: #C0C0C0; } .rank-3 { color: #CD7F32; }
+
+.wallet-cell { display:flex; align-items:center; gap:0.5rem; min-width:160px; }
+.wallet-addr { font-family:'Share Tech Mono',monospace; font-size:0.72rem; color:var(--fg); }
+.wallet-copy { background:none; border:none; color:var(--muted); cursor:pointer; font-size:0.75rem; padding:0; line-height:1; }
+.wallet-copy:hover { color:var(--orange); }
+.wallet-ext { color:var(--muted); text-decoration:none; font-size:0.75rem; }
+.wallet-ext:hover { color:var(--orange); }
+
+.total-cell { min-width:100px; }
+.total-val { font-family:'Orbitron',monospace; font-size:0.85rem; font-weight:700; color:var(--orange); }
+.total-bar-wrap { height:3px; background:var(--border); border-radius:2px; margin-top:3px; }
+.total-bar { height:100%; background:var(--orange); border-radius:2px; }
+
+.digit-badges { display:flex; gap:0.3rem; flex-wrap:wrap; min-width:220px; }
+.digit-badge {
+  display:inline-flex; align-items:center; gap:0.2rem;
+  border-radius:2px; padding:0.15rem 0.4rem;
+  font-size:0.6rem; font-family:'Orbitron',monospace; font-weight:700;
+}
+.digit-badge .badge-label { opacity:0.7; font-size:0.55rem; }
+
+.share-cell { font-size:0.7rem; color:var(--muted); white-space:nowrap; }
+
+/* Loading / empty */
+.lb-status { text-align:center; padding:3rem 1rem; font-family:'Share Tech Mono',monospace; color:var(--muted); font-size:0.8rem; }
+.lb-spinner { display:inline-block; width:24px; height:24px; border:2px solid var(--border); border-top-color:var(--orange); border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:0.75rem; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* Loading overlay during refresh */
+.lb-table-wrap { position: relative; }
+.lb-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(10,10,10,0.55);
+  z-index: 10;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.7rem;
+  color: var(--orange);
+  letter-spacing: 2px;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.lb-overlay.show { display: flex; }
+body.light .lb-overlay { background: rgba(240,240,240,0.7); }
+
+/* Pagination */
+.lb-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.2rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+.page-btn {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.6rem;
+  padding: 0.35rem 0.65rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+.page-btn:hover, .page-btn.active { border-color: var(--orange); color: var(--orange); }
+.page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* light mode */
+body.light .lb-table td { border-bottom-color: rgba(0,0,0,0.06); }
+body.light .lb-table tbody tr:hover { background: rgba(247,147,26,0.06); }
+body.light .total-bar-wrap { background: rgba(0,0,0,0.1); }
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="pixel-icon">
+      <span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span>
+    </div>
+    BITMAP HUB
+  </a>
+  <ul class="nav-links">
+    <li><a href="introduction.html">INTRO</a></li>
+    <li><a href="history.html">HISTORY</a></li>
+    <li><a href="metaverse.html">METAVERSE</a></li>
+    <li><a href="rarity.html">RARITY</a></li>
+    <li><a href="data.html">DATA</a></li>
+    <li><a href="tools.html">TOOLS</a></li>
+    <li><a href="marketplaces.html">MARKETS</a></li>
+    <li><a href="projects.html">PROJECTS</a></li>
+    <li><a href="future.html">FUTURE</a></li>
+    <li><a href="founders.html">FOUNDERS</a></li>
+    <li><a href="leaderboard.html" style="color:var(--orange);">LEADERBOARD</a></li>
+    <li><a href="dashboard.html">MY BITMAP</a></li>
+  </ul>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+    <span class="toggle-icon" id="toggleIcon">☀️</span>
+    <span id="toggleLabel">LIGHT</span>
+  </button>
+</nav>
+
+<div class="page-header">
+  <div class="section-label">— LEADERBOARD</div>
+  <h1 class="section-title" style="font-size:clamp(2rem,5vw,3.5rem);">Bitmap <span style="color:var(--orange)">Holder</span><br>Leaderboard</h1>
+  <p class="section-desc">Top wallets ranked by rare Bitmap holdings — filter by digit category. Data refreshes every 5 minutes to reflect latest trades.</p>
+</div>
+
+<div class="divider"></div>
+
+<section>
+
+  <!-- Stats bar -->
+  <div class="lb-stats-bar">
+    <div class="lb-stat"><div class="lb-stat-val" id="statWallets">—</div><div class="lb-stat-label">WALLETS TRACKED</div></div>
+    <div class="lb-stat"><div class="lb-stat-val" id="statTotal">—</div><div class="lb-stat-label">TOTAL BITMAPS</div></div>
+    <div class="lb-stat"><div class="lb-stat-val" id="statTop">—</div><div class="lb-stat-label">TOP HOLDER COUNT</div></div>
+    <div class="lb-stat"><div class="lb-stat-val" id="statAvg">—</div><div class="lb-stat-label">AVG PER WALLET</div></div>
+    <div class="lb-stat"><div class="lb-stat-val" id="statFetched">—</div><div class="lb-stat-label">INSCRIPTIONS SCANNED</div></div>
+  </div>
+
+  <!-- Refresh bar -->
+  <div class="refresh-bar">
+    <div class="refresh-info">
+      <div class="refresh-dot" id="refreshDot"></div>
+      <span id="refreshStatus">Initialising…</span>
+      <span class="page-note" id="pageNote"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <span class="refresh-countdown" id="refreshCountdown"></span>
+      <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()">⟳ REFRESH NOW</button>
+    </div>
+  </div>
+  <div class="refresh-progress"><div class="refresh-progress-fill" id="refreshBar" style="width:100%"></div></div>
+
+  <!-- Digit legend -->
+  <div class="digit-legend" style="margin-top:1.2rem;">
+    <div class="digit-legend-item"><div class="digit-dot d1-bg"></div>1-Digit (0–9)</div>
+    <div class="digit-legend-item"><div class="digit-dot d2-bg"></div>2-Digit (10–99)</div>
+    <div class="digit-legend-item"><div class="digit-dot d3-bg"></div>3-Digit (100–999)</div>
+    <div class="digit-legend-item"><div class="digit-dot d4-bg"></div>4-Digit (1K–9,999)</div>
+    <div class="digit-legend-item"><div class="digit-dot d5-bg"></div>5-Digit (10K–99,999)</div>
+    <div class="digit-legend-item"><div class="digit-dot d6-bg"></div>6-Digit (100K–999,999)</div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="lb-tabs" id="lbTabs">
+    <button class="lb-tab active" data-digit="all" onclick="setTab(this,'all')">ALL<span class="tab-count" id="cnt-all">0</span></button>
+    <button class="lb-tab d1"  data-digit="1"   onclick="setTab(this,'1')">1-DIGIT<span class="tab-count" id="cnt-1">0</span></button>
+    <button class="lb-tab d2"  data-digit="2"   onclick="setTab(this,'2')">2-DIGIT<span class="tab-count" id="cnt-2">0</span></button>
+    <button class="lb-tab d3"  data-digit="3"   onclick="setTab(this,'3')">3-DIGIT<span class="tab-count" id="cnt-3">0</span></button>
+    <button class="lb-tab d4"  data-digit="4"   onclick="setTab(this,'4')">4-DIGIT<span class="tab-count" id="cnt-4">0</span></button>
+    <button class="lb-tab d5"  data-digit="5"   onclick="setTab(this,'5')">5-DIGIT<span class="tab-count" id="cnt-5">0</span></button>
+    <button class="lb-tab d6"  data-digit="6"   onclick="setTab(this,'6')">6-DIGIT<span class="tab-count" id="cnt-6">0</span></button>
+  </div>
+
+  <!-- Controls -->
+  <div class="lb-controls">
+    <input class="lb-search" id="lbSearch" type="text" placeholder="Search wallet address…" oninput="applyView()">
+    <button class="sort-btn active" id="sortTotal"  onclick="setSort('total')">SORT: TOTAL</button>
+    <button class="sort-btn"        id="sortDigit"  onclick="setSort('digit')">SORT: DIGIT TIER</button>
+    <button class="sort-btn"        id="sortWallet" onclick="setSort('wallet')">SORT: WALLET A–Z</button>
+  </div>
+
+  <!-- Table -->
+  <div class="lb-table-wrap">
+    <div class="lb-overlay" id="lbOverlay">
+      <div class="lb-spinner"></div>
+      <span id="overlayMsg">REFRESHING…</span>
+    </div>
+    <table class="lb-table" id="lbTable">
+      <thead>
+        <tr>
+          <th style="width:48px;text-align:center;">#</th>
+          <th>WALLET</th>
+          <th id="th-total" onclick="setSort('total')">TOTAL ▼</th>
+          <th>DIGIT BREAKDOWN</th>
+          <th>SHARE %</th>
+        </tr>
+      </thead>
+      <tbody id="lbBody">
+        <tr><td colspan="5" class="lb-status">
+          <div class="lb-spinner"></div><br>Loading leaderboard — fetching up to 2,000 wallets…
+        </td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="lb-pagination" id="lbPager"></div>
+
+  <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--muted);text-align:right;margin-top:0.5rem;" id="lastUpdated"></div>
+</section>
+
+<div class="divider"></div>
+<section style="padding-top:1.5rem;padding-bottom:1.5rem;">
+  <div class="highlight-box" data-label="LIVE DATA">
+    Leaderboard data is fetched live from the Ordinals Wallet public API (<code>turbo.ordinalswallet.com</code>). Up to 2,000 top wallets are scanned per refresh. Data auto-refreshes every 5 minutes. Use the Refresh Now button after a big trade to see latest rankings. Wallets with very few total Bitmaps but rare low-digit blocks may not appear in the top 2,000.
+  </div>
+</section>
+<section style="padding-top:1rem;padding-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+  <a href="data.html" class="btn btn-ghost">← DATA</a>
+  <a href="dashboard.html" class="btn btn-primary">MY BITMAP →</a>
+</section>
+
+<footer>
+  <div class="footer-logo">▮ BITMAP HUB</div>
+  <div style="margin:0.5rem 0;"><a href="https://x.com/BitmapSummit" target="_blank" rel="noopener" style="color:var(--orange);text-decoration:none;font-family:'Share Tech Mono',monospace;font-size:0.7rem;letter-spacing:1px;">𝕏 @BitmapSummit</a></div>
+  <p class="footer-text">Community reference site. Not financial advice.</p>
+</footer>
+
+<script>
+// ── THEME ──
+function applyTheme(mode) {
+  document.body.classList.toggle('light', mode === 'light');
+  var icon = document.getElementById('toggleIcon'), label = document.getElementById('toggleLabel');
+  if (icon)  icon.textContent  = mode === 'light' ? '🌑' : '☀️';
+  if (label) label.textContent = mode === 'light' ? 'DARK' : 'LIGHT';
+}
+function toggleTheme() {
+  var next = document.body.classList.contains('light') ? 'dark' : 'light';
+  localStorage.setItem('bitmapTheme', next);
+  applyTheme(next);
+}
+(function(){ applyTheme(localStorage.getItem('bitmapTheme') || 'dark'); })();
+
+// ── STATE ──
+var allHolders  = [];      // processed holder objects
+var activeTab   = 'all';
+var sortKey     = 'total';
+var sortDir     = -1;      // -1 desc, 1 asc
+var currentPage = 1;
+var PAGE_SIZE   = 50;
+
+var REFRESH_INTERVAL = 5 * 60; // 5 minutes in seconds
+var refreshTimer  = null;       // setInterval for countdown
+var countdownSecs = REFRESH_INTERVAL;
+var isLoading     = false;
+var totalFetched  = 0;
+
+var DCOLORS = { 1:'#FF6B6B', 2:'#FFD700', 3:'#F7931A', 4:'#61AFEF', 5:'#98C379', 6:'#C678DD' };
+
+// ── HELPERS ──
+function digitOf(block) {
+  if (block <= 9)      return 1;
+  if (block <= 99)     return 2;
+  if (block <= 999)    return 3;
+  if (block <= 9999)   return 4;
+  if (block <= 99999)  return 5;
+  return 6;
+}
+function walletShort(addr) {
+  if (!addr || addr.length <= 14) return addr || '???';
+  return addr.slice(0, 8) + '…' + addr.slice(-6);
+}
+function copyAddr(addr) {
+  if (navigator.clipboard) navigator.clipboard.writeText(addr).catch(function(){});
+}
+
+// ── TAB / SORT ──
+function setTab(btn, digit) {
+  document.querySelectorAll('.lb-tab').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  activeTab = digit;
+  currentPage = 1;
+  applyView();
+}
+function setSort(key) {
+  if (sortKey === key) { sortDir *= -1; } else { sortKey = key; sortDir = -1; }
+  ['sortTotal','sortDigit','sortWallet'].forEach(function(id){
+    document.getElementById(id).classList.remove('active');
+  });
+  var map = { total:'sortTotal', digit:'sortDigit', wallet:'sortWallet' };
+  document.getElementById(map[key]).classList.add('active');
+  currentPage = 1;
+  applyView();
+}
+
+// ── VIEW ──
+function applyView() {
+  var query = (document.getElementById('lbSearch').value || '').toLowerCase().trim();
+
+  var list = allHolders.filter(function(h) {
+    if (activeTab !== 'all') {
+      if ((h['d' + activeTab] || 0) === 0) return false;
+    }
+    if (query && h.address.toLowerCase().indexOf(query) < 0) return false;
+    return true;
+  });
+
+  // Sort
+  list.sort(function(a, b) {
+    if (sortKey === 'wallet') {
+      return sortDir * (a.address < b.address ? -1 : a.address > b.address ? 1 : 0);
+    }
+    if (sortKey === 'digit' && activeTab !== 'all') {
+      return sortDir * ((b['d' + activeTab] || 0) - (a['d' + activeTab] || 0));
+    }
+    return sortDir * (b.total - a.total);
+  });
+
+  // Pagination
+  var totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  if (currentPage > totalPages) currentPage = totalPages;
+  var start = (currentPage - 1) * PAGE_SIZE;
+  var pageList = list.slice(start, start + PAGE_SIZE);
+
+  renderTable(pageList, list.length, start);
+  renderPager(totalPages);
+}
+
+function renderTable(list, totalFiltered, rankOffset) {
+  var tbody = document.getElementById('lbBody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="lb-status">No wallets found for this filter.</td></tr>';
+    return;
+  }
+
+  var maxTotal = 0;
+  allHolders.forEach(function(h){ if (h.total > maxTotal) maxTotal = h.total; });
+  var grandTotal = allHolders.reduce(function(s,h){ return s + h.total; }, 0) || 1;
+
+  var html = '';
+  list.forEach(function(h, i) {
+    var rank = rankOffset + i + 1;
+    var rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+    var rankClass   = rank <= 3 ? 'rank-' + rank : '';
+
+    var badges = '';
+    for (var d = 1; d <= 6; d++) {
+      var cnt = h['d' + d] || 0;
+      if (cnt > 0) {
+        badges += '<span class="digit-badge" style="background:' + DCOLORS[d] + '22;border:1px solid ' + DCOLORS[d] + '44;">'
+          + '<span class="badge-label" style="color:' + DCOLORS[d] + ';">' + d + 'D</span>'
+          + '<span class="badge-count" style="color:' + DCOLORS[d] + ';">' + cnt + '</span>'
+          + '</span>';
+      }
+    }
+
+    // Highlight the active digit tier badge
+    if (activeTab !== 'all') {
+      var hl = 'd' + activeTab;
+      badges = badges.replace(
+        'style="background:' + DCOLORS[parseInt(activeTab)] + '22',
+        'style="background:' + DCOLORS[parseInt(activeTab)] + '55'
+      );
+    }
+
+    var barW = maxTotal > 0 ? Math.round(h.total / maxTotal * 100) : 0;
+    var shareVal = ((h.total / grandTotal) * 100).toFixed(2) + '%';
+    var owLink = 'https://ordinalswallet.com/wallet/' + h.address;
+
+    html += '<tr>'
+      + '<td class="rank-cell ' + rankClass + '">' + rankDisplay + '</td>'
+      + '<td><div class="wallet-cell">'
+        + '<span class="wallet-addr">' + walletShort(h.address) + '</span>'
+        + '<button class="wallet-copy" onclick="copyAddr(\'' + h.address + '\')" title="Copy full address">⧉</button>'
+        + '<a class="wallet-ext" href="' + owLink + '" target="_blank" rel="noopener" title="View on Ordinals Wallet">↗</a>'
+      + '</div></td>'
+      + '<td class="total-cell"><div class="total-val">' + h.total.toLocaleString() + '</div>'
+        + '<div class="total-bar-wrap"><div class="total-bar" style="width:' + barW + '%"></div></div></td>'
+      + '<td><div class="digit-badges">' + (badges || '<span style="color:var(--muted);font-size:0.65rem;">—</span>') + '</div></td>'
+      + '<td class="share-cell">' + shareVal + '</td>'
+      + '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+function renderPager(totalPages) {
+  var pager = document.getElementById('lbPager');
+  if (totalPages <= 1) { pager.innerHTML = ''; return; }
+
+  var html = '<button class="page-btn" onclick="goPage(' + (currentPage-1) + ')" ' + (currentPage===1?'disabled':'') + '>◀</button>';
+  var start = Math.max(1, currentPage - 2);
+  var end   = Math.min(totalPages, currentPage + 2);
+  if (start > 1) html += '<button class="page-btn" onclick="goPage(1)">1</button>' + (start > 2 ? '<span style="color:var(--muted)">…</span>' : '');
+  for (var p = start; p <= end; p++) {
+    html += '<button class="page-btn' + (p===currentPage?' active':'') + '" onclick="goPage(' + p + ')">' + p + '</button>';
+  }
+  if (end < totalPages) html += (end < totalPages-1 ? '<span style="color:var(--muted)">…</span>' : '') + '<button class="page-btn" onclick="goPage(' + totalPages + ')">' + totalPages + '</button>';
+  html += '<button class="page-btn" onclick="goPage(' + (currentPage+1) + ')" ' + (currentPage===totalPages?'disabled':'') + '>▶</button>';
+  html += '<span style="margin-left:0.5rem;">Page ' + currentPage + ' / ' + totalPages + '</span>';
+  pager.innerHTML = html;
+}
+
+function goPage(p) {
+  currentPage = p;
+  applyView();
+  document.getElementById('lbTable').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+// ── FINALIZE ──
+function finalizeHolders(map) {
+  allHolders = Object.values(map).filter(function(h){ return h.total >= 1; });
+  allHolders.sort(function(a,b){ return b.total - a.total; });
+
+  // Tab counts
+  var totals = { all: allHolders.length };
+  for (var d = 1; d <= 6; d++) totals[d] = 0;
+  allHolders.forEach(function(h){
+    for (var d = 1; d <= 6; d++) { if ((h['d'+d]||0) > 0) totals[d]++; }
+  });
+  for (var k in totals) {
+    var el = document.getElementById('cnt-' + k);
+    if (el) el.textContent = totals[k].toLocaleString();
+  }
+
+  var totalBitmaps = allHolders.reduce(function(s,h){ return s+h.total; }, 0);
+  var topHolder = allHolders.length > 0 ? allHolders[0].total : 0;
+  var avg = allHolders.length > 0 ? Math.round(totalBitmaps / allHolders.length) : 0;
+
+  document.getElementById('statWallets').textContent  = allHolders.length.toLocaleString();
+  document.getElementById('statTotal').textContent    = totalBitmaps.toLocaleString();
+  document.getElementById('statTop').textContent      = topHolder.toLocaleString();
+  document.getElementById('statAvg').textContent      = avg.toLocaleString();
+  document.getElementById('statFetched').textContent  = totalFetched.toLocaleString();
+  document.getElementById('lastUpdated').textContent  = 'Last updated: ' + new Date().toLocaleString('en-MY', {timeZone:'Asia/Kuala_Lumpur'}) + ' MYT';
+
+  setRefreshStatus('live', 'Live — ' + allHolders.length.toLocaleString() + ' wallets loaded');
+
+  currentPage = 1;
+  applyView();
+  startCountdown();
+}
+
+// ── REFRESH STATUS ──
+function setRefreshStatus(state, msg) {
+  var dot = document.getElementById('refreshDot');
+  var statusEl = document.getElementById('refreshStatus');
+  dot.className = 'refresh-dot ' + (state === 'loading' ? 'loading' : state === 'live' ? 'live' : '');
+  if (statusEl) statusEl.textContent = msg;
+  document.getElementById('refreshBtn').disabled = (state === 'loading');
+}
+
+// ── COUNTDOWN ──
+function startCountdown() {
+  if (refreshTimer) clearInterval(refreshTimer);
+  countdownSecs = REFRESH_INTERVAL;
+  updateCountdown();
+  refreshTimer = setInterval(function() {
+    countdownSecs--;
+    updateCountdown();
+    if (countdownSecs <= 0) {
+      clearInterval(refreshTimer);
+      loadData(false);
+    }
+  }, 1000);
+}
+
+function updateCountdown() {
+  var mins = Math.floor(countdownSecs / 60);
+  var secs = countdownSecs % 60;
+  var txt = 'Next refresh in ' + mins + ':' + (secs < 10 ? '0' : '') + secs;
+  var el = document.getElementById('refreshCountdown');
+  if (el) el.textContent = countdownSecs > 0 ? txt : '';
+  // Progress bar: 100% = full time, 0% = about to refresh
+  var pct = (countdownSecs / REFRESH_INTERVAL) * 100;
+  var bar = document.getElementById('refreshBar');
+  if (bar) bar.style.width = pct + '%';
+}
+
+function manualRefresh() {
+  if (isLoading) return;
+  if (refreshTimer) clearInterval(refreshTimer);
+  document.getElementById('refreshCountdown').textContent = '';
+  loadData(false);
+}
+
+// ── OVERLAY ──
+function showOverlay(msg) {
+  var o = document.getElementById('lbOverlay');
+  document.getElementById('overlayMsg').textContent = msg || 'REFRESHING…';
+  o.classList.add('show');
+}
+function hideOverlay() { document.getElementById('lbOverlay').classList.remove('show'); }
+
+// ── DATA LOADING ──
+// Strategy: fetch /collection/bitmap/inscriptions across 20 pages (offset 0–1900)
+// Each page returns up to 100 inscriptions with owner + meta.name
+// Build holder map from there — this gives real digit breakdown for up to 2,000 inscriptions
+// Then fall back to demo data if API unreachable
+
+function loadData(isInitial) {
+  if (isLoading) return;
+  isLoading = true;
+  totalFetched = 0;
+
+  if (isInitial) {
+    setRefreshStatus('loading', 'Fetching inscription data…');
+    document.getElementById('pageNote').textContent = '';
+  } else {
+    showOverlay('REFRESHING DATA…');
+    setRefreshStatus('loading', 'Refreshing…');
+  }
+
+  var offsets = [];
+  for (var o = 0; o < 2000; o += 100) offsets.push(o);
+
+  var allIns = [];
+  var pending = offsets.length;
+  var failed  = 0;
+  var fetched = 0;
+
+  offsets.forEach(function(offset) {
+    fetch('https://turbo.ordinalswallet.com/collection/bitmap/inscriptions?offset=' + offset + '&limit=100', { cache: 'no-store' })
+      .then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(data) {
+        var items = Array.isArray(data) ? data : (data.inscriptions || data.results || data.data || []);
+        items.forEach(function(ins) {
+          // Only keep Bitmap inscriptions
+          var name = (ins.meta && ins.meta.name) ? ins.meta.name : '';
+          var slug = ((ins.collection && ins.collection.slug) || '').toLowerCase();
+          var m    = name.match(/^(\d+)\.bitmap$/i);
+          var isBm = slug.indexOf('bitmap') >= 0 || !!m;
+          if (!isBm || !ins.owner) return;
+          allIns.push({ owner: ins.owner, blockNum: m ? parseInt(m[1]) : null, name: name });
+        });
+        fetched += items.length;
+        totalFetched = fetched;
+        // Update progress in status
+        setRefreshStatus('loading', 'Fetching… ' + fetched.toLocaleString() + ' inscriptions scanned');
+      })
+      .catch(function() { failed++; })
+      .finally(function() {
+        pending--;
+        if (pending === 0) {
+          isLoading = false;
+          hideOverlay();
+          if (allIns.length > 0) {
+            var map = buildHolderMap(allIns);
+            if (failed > 0) {
+              document.getElementById('pageNote').textContent =
+                '(' + failed + ' pages unavailable — partial data)';
+            } else {
+              document.getElementById('pageNote').textContent = '';
+            }
+            finalizeHolders(map);
+          } else {
+            // All failed — try holders endpoint fallback
+            setRefreshStatus('loading', 'Trying alternate endpoint…');
+            loadFallback();
+          }
+        }
+      });
+  });
+}
+
+function buildHolderMap(inscriptions) {
+  var map = {};
+  inscriptions.forEach(function(ins) {
+    var owner    = ins.owner;
+    var blockNum = ins.blockNum;
+    if (!owner || blockNum === null || blockNum === undefined) return;
+    var d = digitOf(blockNum);
+    if (!map[owner]) map[owner] = { address: owner, d1:0, d2:0, d3:0, d4:0, d5:0, d6:0, total:0 };
+    map[owner]['d' + d]++;
+    map[owner].total++;
+  });
+  return map;
+}
+
+// Fallback: demo data
+function loadFallback() {
+  isLoading = false;
+  hideOverlay();
+  var demo = [
+    { address:'bc1p8zxlf37gnalslxkmkxbzq4nwer8fkf4v4ufvz6jw0s7cjkzr6v4sqwmkn4', d1:3,d2:8,d3:45,d4:210,d5:512,d6:88 },
+    { address:'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',                     d1:2,d2:6,d3:31,d4:188,d5:441,d6:72 },
+    { address:'bc1p5d7rjq7g6rdk2yhzks9sml0whcrmv4r0nzg93l0',                    d1:1,d2:5,d3:28,d4:155,d5:380,d6:61 },
+    { address:'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',                     d1:3,d2:4,d3:22,d4:133,d5:299,d6:55 },
+    { address:'bc1q7cyrfmckh3gqmqkz2vmzs6mykpk7x2r8w0efzz',                    d1:0,d2:7,d3:18,d4:121,d5:267,d6:49 },
+    { address:'bc1pzx7e6fzwm5yuvjz2w6kqj5qjvhc9nxh6uv9aeh',                   d1:2,d2:3,d3:15,d4:98, d5:234,d6:43 },
+    { address:'bc1qpzryct2dk08e3yvkgp70q4uynhh5wknkhjtm0d',                    d1:0,d2:4,d3:11,d4:87, d5:198,d6:38 },
+    { address:'bc1qglmxr5yvz0x55wmuajpjnxfgmzeml2p2hkzrqm',                    d1:1,d2:2,d3:9, d4:74, d5:167,d6:33 },
+    { address:'bc1q5el7z9ym9lmzx02m0dlr0cdggq5hq5pjhxr6p7',                    d1:0,d2:3,d3:7, d4:61, d5:141,d6:28 },
+    { address:'bc1qcjrnh9tlqsyqvfyqplmhre3yewgrj4j0fzr3sv',                    d1:1,d2:1,d3:5, d4:52, d5:118,d6:24 },
+  ];
+  var map = {};
+  demo.forEach(function(h) {
+    h.total = h.d1 + h.d2 + h.d3 + h.d4 + h.d5 + h.d6;
+    map[h.address] = h;
+  });
+  document.getElementById('pageNote').textContent = '⚠️ API unavailable — demo data shown';
+  finalizeHolders(map);
+}
+
+// ── INIT ──
+loadData(true);
+</script>
+</body>
+</html>
