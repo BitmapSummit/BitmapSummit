@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Messages from the Mines | Bitmap Hub</title>
+  <link rel="stylesheet" href="shared.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <style>
+    body { background: #0a0a0f; color: #e0e0e0; font-family: 'Share Tech Mono', monospace; }
+
+    /* ── Hero ── */
+    .page-hero {
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a0a00 60%, #0a0a0f 100%);
+      padding: 60px 20px 40px;
+      text-align: center;
+      border-bottom: 1px solid #F7931A33;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, #F7931A18 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .page-hero h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.6rem, 4vw, 2.8rem);
+      font-weight: 900;
+      color: #F7931A;
+      text-shadow: 0 0 30px #F7931A66;
+      margin: 0 0 12px;
+      letter-spacing: 2px;
+    }
+    .page-hero p {
+      font-size: 0.95rem;
+      color: #aaa;
+      max-width: 620px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── How It Works panel ── */
+    .how-it-works {
+      background: #0d0d14;
+      border-bottom: 1px solid #F7931A22;
+      padding: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+      max-height: 0;
+    }
+    .how-it-works.open { max-height: 600px; }
+    .how-it-works-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 24px 28px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+    .hiw-card {
+      background: #111118;
+      border: 1px solid #F7931A22;
+      border-radius: 6px;
+      padding: 16px;
+    }
+    .hiw-card h4 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      color: #F7931A;
+      letter-spacing: 1px;
+      margin: 0 0 8px;
+    }
+    .hiw-card p {
+      font-size: 0.78rem;
+      color: #888;
+      line-height: 1.6;
+      margin: 0;
+    }
+    .hiw-card p strong { color: #bbb; }
+
+    /* ── Toggle button ── */
+    .hiw-toggle-bar {
+      background: #0d0d14;
+      border-bottom: 1px solid #F7931A22;
+      text-align: center;
+      padding: 8px;
+    }
+    .hiw-toggle-btn {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      color: #F7931A88;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 12px;
+      transition: color 0.2s;
+    }
+    .hiw-toggle-btn:hover { color: #F7931A; }
+
+    /* ── Search bar ── */
+    .search-bar {
+      background: #111118;
+      border-bottom: 1px solid #F7931A33;
+      padding: 20px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+    }
+    .search-bar-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      color: #F7931A;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+    .block-input {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1rem;
+      background: #0a0a0f;
+      border: 2px solid #F7931A55;
+      color: #F7931A;
+      padding: 10px 16px;
+      border-radius: 4px;
+      width: 200px;
+      text-align: center;
+      letter-spacing: 2px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      /* hide spinners */
+      -moz-appearance: textfield;
+    }
+    .block-input::-webkit-inner-spin-button,
+    .block-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .block-input:focus { outline: none; border-color: #F7931A; box-shadow: 0 0 12px #F7931A33; }
+    .block-input.error { border-color: #e06c75; box-shadow: 0 0 12px #e06c7533; }
+
+    .go-btn {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      padding: 11px 28px;
+      background: #F7931A;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+    .go-btn:hover { background: #FFB347; }
+    .go-btn:active { transform: scale(0.97); }
+    .go-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .latest-btn {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      padding: 11px 16px;
+      background: transparent;
+      color: #F7931A88;
+      border: 1px solid #F7931A33;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .latest-btn:hover { border-color: #F7931A; color: #F7931A; }
+    .latest-btn.hidden { display: none; }
+
+    .block-range-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .block-range-label {
+      font-size: 0.7rem;
+      color: #555;
+      white-space: nowrap;
+    }
+    select.range-sel {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      background: #0a0a0f;
+      border: 1px solid #F7931A33;
+      color: #aaa;
+      padding: 6px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    select.range-sel:focus { outline: none; border-color: #F7931A66; }
+
+    /* ── Mode badge ── */
+    .mode-badge {
+      background: #111118;
+      border-bottom: 1px solid #F7931A11;
+      padding: 8px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.72rem;
+      color: #555;
+    }
+    .mode-pill {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.62rem;
+      padding: 2px 10px;
+      border-radius: 12px;
+      letter-spacing: 1px;
+    }
+    .mode-pill.latest  { background: #1a2a1a; color: #98C379; border: 1px solid #98C37944; }
+    .mode-pill.single  { background: #1a0e00; color: #F7931A; border: 1px solid #F7931A44; }
+    .mode-text { flex: 1; }
+    .refresh-fill-wrap { flex: 1; height: 3px; background: #1a1a1a; border-radius: 2px; overflow: hidden; max-width: 200px; }
+    .refresh-fill { height: 100%; width: 100%; background: linear-gradient(90deg,#F7931A,#FFB347); border-radius: 2px; transform-origin: left; transition: transform 1s linear; }
+
+    /* ── Filter bar ── */
+    .filter-bar {
+      background: #0d0d14;
+      border-bottom: 1px solid #F7931A11;
+      padding: 10px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .filter-left { display: flex; gap: 8px; flex-wrap: wrap; }
+    .filter-right { display: flex; gap: 8px; align-items: center; }
+
+    .filt-btn {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 5px 12px;
+      border-radius: 3px;
+      border: 1px solid #333;
+      background: transparent;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filt-btn:hover { border-color: #F7931A55; color: #F7931A; }
+    .filt-btn.active { background: #F7931A; color: #000; border-color: #F7931A; }
+
+    .msg-search {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.8rem;
+      background: #0a0a0f;
+      border: 1px solid #333;
+      color: #e0e0e0;
+      padding: 6px 10px;
+      border-radius: 3px;
+      width: 180px;
+      transition: border-color 0.2s;
+    }
+    .msg-search:focus { outline: none; border-color: #F7931A55; }
+    .msg-search::placeholder { color: #444; }
+
+    /* ── Stats strip ── */
+    .stats-strip {
+      display: flex;
+      background: #0a0a0f;
+      border-bottom: 1px solid #F7931A11;
+    }
+    .stat-cell {
+      flex: 1;
+      text-align: center;
+      padding: 10px 8px;
+      border-right: 1px solid #F7931A0d;
+      min-width: 80px;
+    }
+    .stat-cell:last-child { border-right: none; }
+    .stat-num { font-family: 'Orbitron', sans-serif; font-size: 1.05rem; font-weight: 700; color: #F7931A; }
+    .stat-lbl { font-size: 0.6rem; color: #555; letter-spacing: 1px; margin-top: 2px; }
+
+    /* ── Feed ── */
+    .feed-wrap { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
+
+    .block-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 28px 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #F7931A33;
+      flex-wrap: wrap;
+    }
+    .block-num { font-family: 'Orbitron', sans-serif; font-size: 0.95rem; font-weight: 700; color: #F7931A; }
+    .block-hash { font-size: 0.7rem; color: #444; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 260px; }
+    .block-ts { font-size: 0.7rem; color: #555; margin-left: auto; white-space: nowrap; }
+    .block-msg-count { font-size: 0.7rem; background: #F7931A1a; color: #F7931A; padding: 2px 9px; border-radius: 10px; border: 1px solid #F7931A33; }
+
+    /* Message cards */
+    .msg-card {
+      background: #111118;
+      border: 1px solid #1e1e28;
+      border-left: 3px solid #2a2a2a;
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .msg-card:hover { border-color: #2a2a3a; box-shadow: 0 2px 16px #00000033; }
+    .msg-card.type-text   { border-left-color: #61AFEF; }
+    .msg-card.type-json   { border-left-color: #98C379; }
+    .msg-card.type-url    { border-left-color: #C678DD; }
+    .msg-card.type-bitmap { border-left-color: #F7931A; background: linear-gradient(135deg,#120a00,#111118); }
+    .msg-card.type-hex    { border-left-color: #333; }
+
+    .msg-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .msg-txid {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.68rem;
+      color: #F7931A66;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .msg-txid:hover { color: #F7931A; }
+    .msg-tag {
+      padding: 1px 8px;
+      border-radius: 3px;
+      font-size: 0.6rem;
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 1px;
+    }
+    .tag-bitmap { background: #F7931A22; color: #F7931A; }
+    .tag-text   { background: #61AFEF1a; color: #61AFEF; }
+    .tag-json   { background: #98C3791a; color: #98C379; }
+    .tag-url    { background: #C678DD1a; color: #C678DD; }
+    .tag-hex    { background: #1a1a1a; color: #555; }
+
+    .msg-body {
+      font-size: 0.86rem;
+      color: #ccc;
+      line-height: 1.65;
+      word-break: break-all;
+      white-space: pre-wrap;
+      font-family: 'Share Tech Mono', monospace;
+      max-height: 160px;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .msg-body.expanded { max-height: 4000px; }
+    .msg-body.hex-display { color: #555; font-size: 0.72rem; }
+
+    .msg-actions { display: flex; gap: 7px; margin-top: 10px; flex-wrap: wrap; }
+    .msg-act-btn {
+      font-size: 0.6rem;
+      font-family: 'Orbitron', sans-serif;
+      padding: 3px 9px;
+      border: 1px solid #222;
+      background: transparent;
+      color: #555;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-block;
+      letter-spacing: 0.5px;
+    }
+    .msg-act-btn:hover { border-color: #F7931A44; color: #F7931A; }
+    .msg-act-btn.copied { border-color: #98C37966; color: #98C379; }
+
+    /* States */
+    .state-box {
+      text-align: center;
+      padding: 80px 20px;
+    }
+    .spinner {
+      width: 44px; height: 44px;
+      border: 3px solid #1a1a1a;
+      border-top-color: #F7931A;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .state-box h3 { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: #F7931A; margin-bottom: 10px; }
+    .state-box p  { font-size: 0.85rem; color: #555; line-height: 1.6; }
+
+    /* Overlay */
+    .refresh-overlay {
+      position: fixed; inset: 0;
+      background: rgba(10,10,15,0.88);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      display: none;
+    }
+    .refresh-overlay.visible { display: flex; }
+    .spin-big {
+      width: 56px; height: 56px;
+      border: 4px solid #1a1a1a;
+      border-top-color: #F7931A;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 16px;
+    }
+    .refresh-overlay p { font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: #F7931A; letter-spacing: 2px; }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .search-bar { flex-direction: column; align-items: stretch; }
+      .search-bar > * { justify-content: center; }
+      .block-input { width: 100%; box-sizing: border-box; }
+      .go-btn, .latest-btn { width: 100%; }
+      .block-range-wrap { justify-content: center; }
+      .filter-bar { flex-direction: column; align-items: stretch; }
+      .filter-left { justify-content: center; }
+      .filter-right { justify-content: center; }
+      .msg-search { width: 100%; box-sizing: border-box; }
+      .stats-strip { flex-wrap: wrap; }
+      .stat-cell { min-width: 80px; }
+      .block-hash, .block-ts { display: none; }
+      .how-it-works-inner { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="main-nav">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-text">BITMAP<span class="logo-accent">HUB</span></span>
+    </a>
+    <button class="nav-toggle" onclick="document.querySelector('.nav-menu').classList.toggle('active')" aria-label="Menu">☰</button>
+    <ul class="nav-menu">
+      <li><a href="index.html">HOME</a></li>
+      <li><a href="introduction.html">INTRODUCTION</a></li>
+      <li><a href="rarity.html">RARITY</a></li>
+      <li><a href="data.html">DATA</a></li>
+      <li><a href="leaderboard.html">LEADERBOARD</a></li>
+      <li><a href="messages.html" class="active">MESSAGES</a></li>
+      <li><a href="tools.html">TOOLS</a></li>
+      <li><a href="marketplaces.html">MARKETS</a></li>
+      <li><a href="projects.html">PROJECTS</a></li>
+      <li><a href="future.html">FUTURE</a></li>
+      <li><a href="founders.html">FOUNDERS</a></li>
+      <li><a href="history.html">HISTORY</a></li>
+      <li><a href="dashboard.html">MY BITMAP</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="page-hero">
+  <h1>⛏ MESSAGES FROM THE MINES</h1>
+  <p>Hidden messages embedded in the Bitcoin blockchain — decoded live from OP_RETURN outputs. Browse the latest blocks or look up any specific block in history.</p>
+</section>
+
+<!-- HOW IT WORKS TOGGLE -->
+<div class="hiw-toggle-bar">
+  <button class="hiw-toggle-btn" id="hiw-btn" onclick="toggleHIW()">▼ HOW THIS WORKS &amp; WHAT TO EXPECT</button>
+</div>
+
+<!-- HOW IT WORKS PANEL -->
+<div class="how-it-works" id="hiw-panel">
+  <div class="how-it-works-inner">
+    <div class="hiw-card">
+      <h4>📡 DATA SOURCE</h4>
+      <p>All data is fetched live from <strong>mempool.space</strong> — a free, public Bitcoin API. No sign-up or API key needed. Calls go from your browser directly to their servers.</p>
+    </div>
+    <div class="hiw-card">
+      <h4>📦 ONE BLOCK AT A TIME</h4>
+      <p>Each block lookup fetches <strong>one Bitcoin block only</strong>. This keeps loading fast (under 5 seconds) and avoids hitting API limits. You can look up any block from block 0 to the latest.</p>
+    </div>
+    <div class="hiw-card">
+      <h4>⚠️ FIRST 25 TXS ONLY</h4>
+      <p>mempool.space returns <strong>25 transactions per page</strong>. Each block may contain thousands of txs. We only scan the first 25, so some messages deeper in the block may not appear.</p>
+    </div>
+    <div class="hiw-card">
+      <h4>🔎 OP_RETURN ONLY</h4>
+      <p>This page reads <strong>OP_RETURN outputs</strong> — the standard Bitcoin data field. Modern Ordinals inscriptions use Taproot witness data instead and will <em>not</em> appear here.</p>
+    </div>
+    <div class="hiw-card">
+      <h4>🔄 AUTO-REFRESH</h4>
+      <p>In <strong>Latest Blocks</strong> mode, the page refreshes every 5 minutes to pick up new blocks. Auto-refresh pauses when you jump to a specific block.</p>
+    </div>
+    <div class="hiw-card">
+      <h4>🏷️ MESSAGE TYPES</h4>
+      <p><strong>TEXT</strong> — readable ASCII/UTF-8 &nbsp;·&nbsp; <strong>JSON</strong> — structured data (BRC-20, Runes) &nbsp;·&nbsp; <strong>URL</strong> — links &nbsp;·&nbsp; <strong>BITMAP</strong> — .bitmap inscriptions &nbsp;·&nbsp; <strong>HEX</strong> — binary/unreadable</p>
+    </div>
+  </div>
+</div>
+
+<!-- SEARCH BAR -->
+<div class="search-bar">
+  <span class="search-bar-label">⬡ BLOCK</span>
+  <input
+    class="block-input"
+    id="block-inp"
+    type="number"
+    min="0"
+    placeholder="e.g. 500000"
+    onkeydown="if(event.key==='Enter')goBlock()"
+    oninput="onBlockInput()"
+  />
+  <button class="go-btn" id="go-btn" onclick="goBlock()">⬡ SCAN BLOCK</button>
+  <button class="latest-btn hidden" id="latest-btn" onclick="goLatest()">↩ BACK TO LATEST</button>
+  <div class="block-range-wrap">
+    <span class="block-range-label">LATEST</span>
+    <select class="range-sel" id="range-sel" onchange="onRangeChange()">
+      <option value="10">10 blocks</option>
+      <option value="25" selected>25 blocks</option>
+      <option value="50">50 blocks</option>
+    </select>
+  </div>
+</div>
+
+<!-- MODE BADGE / REFRESH BAR -->
+<div class="mode-badge">
+  <span class="mode-pill latest" id="mode-pill">LIVE</span>
+  <span class="mode-text" id="mode-text">Showing latest blocks · auto-refreshing</span>
+  <div class="refresh-fill-wrap" id="fill-wrap">
+    <div class="refresh-fill" id="refresh-fill"></div>
+  </div>
+  <span id="refresh-timer" style="font-size:0.68rem;white-space:nowrap;"></span>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <div class="filter-left">
+    <button class="filt-btn active" id="f-all"    onclick="setFilter('all')">ALL</button>
+    <button class="filt-btn"        id="f-text"   onclick="setFilter('text')">TEXT</button>
+    <button class="filt-btn"        id="f-json"   onclick="setFilter('json')">JSON</button>
+    <button class="filt-btn"        id="f-url"    onclick="setFilter('url')">URL</button>
+    <button class="filt-btn"        id="f-bitmap" onclick="setFilter('bitmap')">BITMAP</button>
+    <button class="filt-btn"        id="f-hex"    onclick="setFilter('hex')">HEX ONLY</button>
+  </div>
+  <div class="filter-right">
+    <input class="msg-search" id="msg-search" type="text" placeholder="Search messages…" oninput="onSearch()" />
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat-cell"><div class="stat-num" id="s-blocks">—</div><div class="stat-lbl">BLOCK(S)</div></div>
+  <div class="stat-cell"><div class="stat-num" id="s-txs">—</div><div class="stat-lbl">TXS SCANNED</div></div>
+  <div class="stat-cell"><div class="stat-num" id="s-msgs">—</div><div class="stat-lbl">OP_RETURN</div></div>
+  <div class="stat-cell"><div class="stat-num" id="s-readable">—</div><div class="stat-lbl">READABLE</div></div>
+  <div class="stat-cell"><div class="stat-num" id="s-latest">—</div><div class="stat-lbl">LATEST BLOCK</div></div>
+</div>
+
+<!-- FEED -->
+<div class="feed-wrap" id="feed-wrap">
+  <div class="state-box">
+    <div class="spinner"></div>
+    <p>Connecting to Bitcoin network…</p>
+  </div>
+</div>
+
+<!-- OVERLAY -->
+<div class="refresh-overlay" id="overlay">
+  <div class="spin-big"></div>
+  <p>SCANNING BLOCKCHAIN…</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var API = 'https://mempool.space/api';
+  var REFRESH_SEC = 300;
+
+  var S = {
+    msgs       : [],
+    blockCount : 0,
+    txCount    : 0,
+    latestBlk  : 0,
+    loading    : false,
+    filter     : 'all',
+    search     : '',
+    blockLimit : 25,
+    jumpMode   : false,
+    jumpHeight : null,   // single block number
+    timerSec   : REFRESH_SEC,
+    timer      : null
+  };
+
+  // ── Boot ──────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', function () {
+    load(false);
+  });
+
+  // ── Public window bindings ─────────────────────────────────────────────
+  window.goBlock     = goBlock;
+  window.goLatest    = goLatest;
+  window.onBlockInput = onBlockInput;
+  window.onRangeChange = onRangeChange;
+  window.setFilter   = setFilter;
+  window.onSearch    = onSearch;
+  window.toggleHIW   = toggleHIW;
+  window.toggleExpand = toggleExpand;
+  window.toggleHex   = toggleHex;
+  window.copyMsg     = copyMsg;
+
+  // ── How-it-works panel ────────────────────────────────────────────────
+  function toggleHIW() {
+    var panel = document.getElementById('hiw-panel');
+    var btn   = document.getElementById('hiw-btn');
+    var open  = panel.classList.toggle('open');
+    btn.textContent = (open ? '▲' : '▼') + ' HOW THIS WORKS & WHAT TO EXPECT';
+  }
+
+  // ── Block input helpers ───────────────────────────────────────────────
+  function onBlockInput() {
+    var el = document.getElementById('block-inp');
+    el.classList.remove('error');
+  }
+
+  function goBlock() {
+    var el  = document.getElementById('block-inp');
+    var val = parseInt(el.value, 10);
+    if (isNaN(val) || val < 0) {
+      el.classList.add('error');
+      setTimeout(function () { el.classList.remove('error'); }, 1500);
+      return;
+    }
+    S.jumpMode   = true;
+    S.jumpHeight = val;
+    stopTimer();
+    // Update UI to jump mode
+    setPill('single', 'BLOCK ' + val.toLocaleString());
+    setText('mode-text', 'Showing block ' + val.toLocaleString() + ' · auto-refresh paused');
+    setEl('fill-wrap', 'display', 'none');
+    setText('refresh-timer', '');
+    document.getElementById('latest-btn').classList.remove('hidden');
+    document.getElementById('range-sel').disabled = true;
+    load(false);
+  }
+
+  function goLatest() {
+    S.jumpMode   = false;
+    S.jumpHeight = null;
+    document.getElementById('block-inp').value     = '';
+    document.getElementById('latest-btn').classList.add('hidden');
+    document.getElementById('range-sel').disabled  = false;
+    setEl('fill-wrap', 'display', '');
+    load(false);
+  }
+
+  function onRangeChange() {
+    S.blockLimit = parseInt(document.getElementById('range-sel').value, 10);
+    if (!S.jumpMode) load(true);
+  }
+
+  // ── Filter / search ───────────────────────────────────────────────────
+  function setFilter(f) {
+    S.filter = f;
+    ['all','text','json','url','bitmap','hex'].forEach(function (k) {
+      var el = document.getElementById('f-' + k);
+      if (el) el.classList.toggle('active', k === f);
+    });
+    render();
+  }
+
+  function onSearch() {
+    S.search = (document.getElementById('msg-search').value || '').trim().toLowerCase();
+    render();
+  }
+
+  // ── Timer ─────────────────────────────────────────────────────────────
+  function startTimer() {
+    stopTimer();
+    S.timerSec = REFRESH_SEC;
+    paintTimer();
+    S.timer = setInterval(function () {
+      S.timerSec--;
+      if (S.timerSec <= 0) { load(true); }
+      else { paintTimer(); }
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if (S.timer) { clearInterval(S.timer); S.timer = null; }
+  }
+
+  function paintTimer() {
+    var pct = S.timerSec / REFRESH_SEC;
+    var fill = document.getElementById('refresh-fill');
+    if (fill) fill.style.transform = 'scaleX(' + pct + ')';
+    var m = Math.floor(S.timerSec / 60);
+    var s = S.timerSec % 60;
+    setText('refresh-timer', m + ':' + (s < 10 ? '0' : '') + s);
+  }
+
+  // ── Main load ─────────────────────────────────────────────────────────
+  function load(isRefresh) {
+    if (S.loading) return;
+    S.loading = true;
+    if (isRefresh && S.msgs.length) { showOverlay(true); }
+    else { showLoading(); }
+
+    fetchData()
+      .then(function (r) {
+        S.msgs       = r.msgs;
+        S.blockCount = r.blockCount;
+        S.txCount    = r.txCount;
+        S.latestBlk  = r.latestBlk;
+        updateStats();
+        render();
+        if (!S.jumpMode) {
+          setPill('latest', 'LIVE');
+          setText('mode-text', 'Showing latest ' + S.blockLimit + ' blocks · auto-refreshing every 5 min');
+          startTimer();
+        }
+      })
+      .catch(function (err) {
+        console.error(err);
+        showError(err.message);
+        if (!S.jumpMode) startTimer();
+      })
+      .then(function () {   // always runs
+        S.loading = false;
+        showOverlay(false);
+      });
+  }
+
+  // ── Fetch ─────────────────────────────────────────────────────────────
+  function fetchData() {
+    if (S.jumpMode && S.jumpHeight !== null) {
+      return fetchOneBlock(S.jumpHeight).then(function (r) {
+        return {
+          msgs      : r ? r.msgs : [],
+          blockCount: 1,
+          txCount   : r ? r.txCount : 0,
+          latestBlk : S.jumpHeight
+        };
+      });
+    }
+
+    // Latest N blocks
+    return fetch(API + '/blocks/tip/height')
+      .then(function (r) {
+        if (!r.ok) throw new Error('Cannot reach mempool.space (HTTP ' + r.status + '). Check your connection.');
+        return r.json();
+      })
+      .then(function (tip) {
+        var heights = [];
+        for (var h = tip; h > tip - S.blockLimit && h >= 0; h--) heights.push(h);
+
+        var msgs = [], txs = 0;
+        function batch(i) {
+          if (i >= heights.length) return Promise.resolve({ msgs: msgs, blockCount: heights.length, txCount: txs, latestBlk: tip });
+          var slice = heights.slice(i, i + 5);
+          return Promise.all(slice.map(fetchOneBlock)).then(function (res) {
+            res.forEach(function (r) { if (r) { msgs = msgs.concat(r.msgs); txs += r.txCount; } });
+            return batch(i + 5);
+          });
+        }
+        return batch(0);
+      });
+  }
+
+  function fetchOneBlock(height) {
+    var hash, ts;
+    return fetch(API + '/block-height/' + height)
+      .then(function (r) { return r.ok ? r.text() : null; })
+      .then(function (t) {
+        if (!t) return null;
+        hash = t.trim();
+        return fetch(API + '/block/' + hash);
+      })
+      .then(function (r) { return (r && r.ok) ? r.json() : null; })
+      .then(function (info) {
+        if (!info) return null;
+        ts = info.timestamp;
+        return fetch(API + '/block/' + hash + '/txs/0');
+      })
+      .then(function (r) { return (r && r.ok) ? r.json() : null; })
+      .then(function (txs) {
+        if (!txs) return null;
+        var msgs = [];
+        txs.forEach(function (tx) {
+          if (!tx.vout) return;
+          tx.vout.forEach(function (out) {
+            if (out.scriptpubkey_type !== 'op_return') return;
+            var asm  = out.scriptpubkey_asm || '';
+            var hex  = asm.replace(/^OP_RETURN\s*/i, '').replace(/\s+/g, '');
+            if (!hex) return;
+            var dec  = hexToUtf8(hex);
+            var type = classify(dec);
+            msgs.push({ block: height, blockHash: hash, blockTs: ts, txid: tx.txid, raw: hex, decoded: dec, type: type });
+          });
+        });
+        return { msgs: msgs, txCount: txs.length };
+      })
+      .catch(function (e) { console.warn('Block', height, e.message); return null; });
+  }
+
+  // ── Decode ────────────────────────────────────────────────────────────
+  function hexToUtf8(hex) {
+    if (!hex || hex.length < 2) return '';
+    if (hex.length % 2) hex = '0' + hex;
+    try {
+      var b = new Uint8Array(hex.length / 2);
+      for (var i = 0; i < b.length; i++) b[i] = parseInt(hex.substr(i * 2, 2), 16);
+      if (typeof TextDecoder !== 'undefined') {
+        try { return new TextDecoder('utf-8', { fatal: true }).decode(b); } catch (e) {}
+        try { return new TextDecoder('iso-8859-1').decode(b); } catch (e) {}
+      }
+      var s = '';
+      for (var j = 0; j < b.length; j++) s += (b[j] >= 32 && b[j] < 127) ? String.fromCharCode(b[j]) : (b[j] === 0 ? '' : '·');
+      return s;
+    } catch (e) { return ''; }
+  }
+
+  function isPrintable(s) {
+    if (!s || !s.length) return false;
+    var ok = 0;
+    for (var i = 0; i < s.length; i++) { var c = s.charCodeAt(i); if ((c >= 32 && c < 127) || c === 9 || c === 10 || c === 13) ok++; }
+    return ok / s.length >= 0.40;
+  }
+
+  function classify(dec) {
+    if (!dec || !isPrintable(dec)) return 'hex';
+    if (/\d+\.bitmap/i.test(dec)) return 'bitmap';
+    var d = dec.trim();
+    if ((d[0] === '{' && d[d.length-1] === '}') || (d[0] === '[' && d[d.length-1] === ']')) {
+      try { JSON.parse(d); return 'json'; } catch (e) {}
+    }
+    if (/^https?:\/\//i.test(d) || /^ord:/i.test(d)) return 'url';
+    return 'text';
+  }
+
+  // ── Stats ─────────────────────────────────────────────────────────────
+  function updateStats() {
+    setText('s-blocks',   fmt(S.blockCount));
+    setText('s-txs',      fmt(S.txCount));
+    setText('s-msgs',     fmt(S.msgs.length));
+    setText('s-readable', fmt(S.msgs.filter(function (m) { return m.type !== 'hex'; }).length));
+    setText('s-latest',   S.latestBlk ? fmt(S.latestBlk) : '—');
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────
+  function render() {
+    var wrap = document.getElementById('feed-wrap');
+    if (!wrap) return;
+
+    var list = S.msgs.filter(function (m) {
+      if (S.filter !== 'all' && m.type !== S.filter) return false;
+      if (S.search) {
+        var h = ((m.decoded || '') + ' ' + m.txid + ' ' + m.block).toLowerCase();
+        if (h.indexOf(S.search) === -1) return false;
+      }
+      return true;
+    });
+
+    if (!list.length) {
+      wrap.innerHTML = '<div class="state-box"><h3>NO MESSAGES</h3><p>No ' +
+        (S.filter === 'all' ? '' : S.filter + ' ') + 'messages found' +
+        (S.search ? ' matching "' + esc(S.search) + '"' : '') +
+        (S.jumpMode ? ' in block ' + S.jumpHeight.toLocaleString() : ' in the last ' + S.blockLimit + ' blocks') +
+        '.</p></div>';
+      return;
+    }
+
+    // Group by block
+    var byBlock = Object.create(null), order = [];
+    list.forEach(function (m) {
+      if (!byBlock[m.block]) { byBlock[m.block] = []; order.push(m.block); }
+      byBlock[m.block].push(m);
+    });
+    order.sort(function (a, b) { return b - a; });
+
+    var html = '';
+    order.forEach(function (blk) {
+      var ms  = byBlock[blk];
+      var ts  = ms[0].blockTs ? new Date(ms[0].blockTs * 1000).toLocaleString('en-MY', { timeZone: 'Asia/Kuala_Lumpur' }) : '';
+      var hsh = ms[0].blockHash ? ms[0].blockHash.slice(0, 14) + '…' + ms[0].blockHash.slice(-10) : '';
+
+      html += '<div class="block-header">';
+      html += '<span class="block-num">⬡ BLOCK ' + blk.toLocaleString() + '</span>';
+      if (hsh) html += '<span class="block-hash">' + hsh + '</span>';
+      html += '<span class="block-msg-count">' + ms.length + ' message' + (ms.length !== 1 ? 's' : '') + '</span>';
+      if (ts) html += '<span class="block-ts">' + ts + ' MYT</span>';
+      html += '</div>';
+
+      ms.forEach(function (m, i) {
+        var uid    = 'b' + blk + 'i' + i;
+        var isHex  = m.type === 'hex';
+        var isLong = m.decoded && m.decoded.length > 200;
+
+        html += '<div class="msg-card type-' + m.type + '">';
+
+        html += '<div class="msg-meta">';
+        html += '<a class="msg-txid" href="https://mempool.space/tx/' + m.txid + '" target="_blank" rel="noopener">' +
+          m.txid.slice(0, 14) + '…' + m.txid.slice(-10) + '</a>';
+        html += '<span class="msg-tag tag-' + m.type + '">' + m.type.toUpperCase() + '</span>';
+        html += '</div>';
+
+        html += '<div class="msg-body' + (isHex ? ' hex-display' : '') + '" id="body-' + uid + '">';
+        html += isHex ? esc(m.raw.match(/.{1,64}/g).join('\n')) : esc(m.decoded);
+        html += '</div>';
+
+        // Hidden data stores (safe, no inline string escaping risks)
+        html += '<input type="hidden" id="raw-' + uid + '" value="' + ea(m.raw) + '">';
+        html += '<input type="hidden" id="dec-' + uid + '" value="' + ea(m.decoded) + '">';
+
+        html += '<div class="msg-actions">';
+        if (isLong) html += '<button class="msg-act-btn" id="exp-' + uid + '" onclick="toggleExpand(\'' + uid + '\')">▼ EXPAND</button>';
+        html += '<button class="msg-act-btn" id="cp-' + uid + '" onclick="copyMsg(\'' + uid + '\')">⧉ COPY</button>';
+        html += '<a class="msg-act-btn" href="https://mempool.space/tx/' + m.txid + '" target="_blank" rel="noopener">↗ VIEW TX</a>';
+        if (!isHex) html += '<button class="msg-act-btn" id="hx-' + uid + '" onclick="toggleHex(\'' + uid + '\')">{ HEX }</button>';
+        html += '</div>';
+        html += '</div>';
+      });
+    });
+
+    wrap.innerHTML = html;
+  }
+
+  // ── Card actions ──────────────────────────────────────────────────────
+  window.toggleExpand = function (uid) {
+    var body = document.getElementById('body-' + uid);
+    var btn  = document.getElementById('exp-' + uid);
+    if (!body) return;
+    var ex = body.classList.toggle('expanded');
+    if (btn) btn.textContent = ex ? '▲ COLLAPSE' : '▼ EXPAND';
+  };
+
+  window.toggleHex = function (uid) {
+    var body = document.getElementById('body-' + uid);
+    var rawV = document.getElementById('raw-' + uid);
+    var decV = document.getElementById('dec-' + uid);
+    var btn  = document.getElementById('hx-' + uid);
+    if (!body) return;
+    var toHex = body.classList.toggle('hex-display');
+    body.textContent = toHex
+      ? (rawV ? rawV.value.match(/.{1,64}/g).join('\n') : '')
+      : (decV ? decV.value : '');
+    if (btn) btn.textContent = toHex ? 'TEXT' : '{ HEX }';
+  };
+
+  window.copyMsg = function (uid) {
+    var decV = document.getElementById('dec-' + uid);
+    var rawV = document.getElementById('raw-' + uid);
+    var btn  = document.getElementById('cp-' + uid);
+    var text = (decV && decV.value) ? decV.value : (rawV ? rawV.value : '');
+    if (!text) return;
+    function markCopied() {
+      if (btn) { btn.textContent = '✓ COPIED'; btn.classList.add('copied'); }
+      setTimeout(function () { if (btn) { btn.textContent = '⧉ COPY'; btn.classList.remove('copied'); } }, 2000);
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(markCopied).catch(function () { fallbackCopy(text); markCopied(); });
+    } else { fallbackCopy(text); markCopied(); }
+  };
+
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+
+  // ── UI helpers ────────────────────────────────────────────────────────
+  function showLoading() {
+    var w = document.getElementById('feed-wrap');
+    if (w) w.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Scanning the blockchain…</p></div>';
+  }
+
+  function showError(msg) {
+    var w = document.getElementById('feed-wrap');
+    if (w) w.innerHTML = '<div class="state-box"><h3>CONNECTION ERROR</h3><p>' + esc(msg) + '</p>' +
+      '<p style="margin-top:10px;font-size:0.78rem;color:#444;">mempool.space may be temporarily unavailable. Please try again in a moment.</p>' +
+      '<button class="go-btn" style="margin-top:20px;font-size:0.72rem;" onclick="load(false)">↻ RETRY</button></div>';
+  }
+
+  function showOverlay(v) {
+    var el = document.getElementById('overlay');
+    if (el) el.classList.toggle('visible', v);
+  }
+
+  function setPill(mode, label) {
+    var el = document.getElementById('mode-pill');
+    if (!el) return;
+    el.className = 'mode-pill ' + mode;
+    el.textContent = label;
+  }
+
+  function setText(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
+  function setEl(id, prop, v) { var el = document.getElementById(id); if (el) el.style[prop] = v; }
+  function fmt(n) { return Number(n).toLocaleString(); }
+
+  function esc(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function ea(s) {   // escape for value="…" attribute
+    if (s == null) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').slice(0, 3000);
+  }
+
+  // expose load for retry button
+  window.load = function(r) { load(r); };
+
+})();
+</script>
+</body>
+</html>
