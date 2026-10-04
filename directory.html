@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitmap Directory — Bitmap Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .dir-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  .dir-search {
+    flex: 1;
+    min-width: 220px;
+    padding: 0.6rem 1rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .dir-search:focus { border-color: var(--orange); }
+  .cat-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .cat-pill {
+    padding: 0.35rem 0.9rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  .cat-pill:hover, .cat-pill.active {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: #000;
+  }
+  .dir-section {
+    margin-bottom: 3.5rem;
+  }
+  .dir-section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .dir-section-header h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--orange);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .dir-section-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+  .dir-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .dir-card {
+    background: var(--bg2);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    transition: background 0.15s;
+    text-decoration: none;
+    color: inherit;
+  }
+  .dir-card:hover {
+    background: var(--bg3, #181818);
+  }
+  .dir-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .dir-card-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .dir-card-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    flex-shrink: 0;
+  }
+  .badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 0;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .badge-social  { background: #1a0a2a; color: #b06ee8; border: 1px solid #6633aa55; }
+  .badge-youtube { background: #1a0a0a; color: #e86e6e; border: 1px solid #aa333355; }
+  .badge-github  { background: #0a0f1a; color: #6e9ee8; border: 1px solid #3355aa55; }
+  .badge-defi    { background: #0a1a0a; color: #6ee886; border: 1px solid #33aa5555; }
+  .badge-live    { background: #0a1a0a; color: #4ecb71; border: 1px solid #33aa5555; }
+  .badge-telegram{ background: #0a1220; color: #5bc8f5; border: 1px solid #1177aa55; }
+  .badge-discord { background: #0f0f2a; color: #8899ee; border: 1px solid #4455bb55; }
+  .badge-docs    { background: #1a1200; color: #e8c46e; border: 1px solid #aa881133; }
+  .dir-card-desc {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.6;
+    flex: 1;
+  }
+  .dir-card-url {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--orange);
+    opacity: 0.8;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: auto;
+  }
+  .dir-card:hover .dir-card-url { opacity: 1; }
+  .no-results {
+    padding: 3rem;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    font-size: 0.85rem;
+    grid-column: 1/-1;
+  }
+  .dir-stats-bar {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    padding: 1rem 1.25rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+  }
+  .dir-stat-item {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+  }
+  .dir-stat-item span { color: var(--orange); font-weight: 700; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="pixel-icon">
+      <span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span>
+      <span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span>
+    </div>
+    BITMAP HUB
+  </a>
+  <ul class="nav-links">
+    <li><a href="introduction.html">INTRO</a></li>
+    <li><a href="history.html">HISTORY</a></li>
+    <li><a href="metaverse.html">METAVERSE</a></li>
+    <li><a href="rarity.html">RARITY</a></li>
+    <li><a href="data.html">DATA</a></li>
+    <li><a href="tools.html">TOOLS</a></li>
+    <li><a href="marketplaces.html">MARKETS</a></li>
+    <li><a href="projects.html">PROJECTS</a></li>
+    <li><a href="future.html">FUTURE</a></li>
+    <li><a href="founders.html">FOUNDERS</a></li>
+    <li><a href="leaderboard.html">LEADERBOARD</a></li>
+    <li><a href="messages.html">BLOCK MESSAGES</a></li>
+    <li><a href="directory.html" style="color:var(--orange);">DIRECTORY</a></li>
+    <li><a href="dashboard.html">MY BITMAP</a></li>
+  </ul>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+    <span class="toggle-icon" id="toggleIcon">☀️</span>
+    <span id="toggleLabel">LIGHT</span>
+  </button>
+</nav>
+
+<div class="page-header">
+  <div class="section-label">BITMAP ECOSYSTEM</div>
+  <h1 class="section-title" style="font-size:clamp(2rem,5vw,3.5rem);">Bitmap<br><span style="color:var(--orange)">Directory</span></h1>
+  <p class="section-desc">A comprehensive directory of every project, tool, marketplace, community, and experience in the Bitcoin Bitmap ecosystem. Sourced from <a href="https://bitmap-directory.gitbook.io/bitmap.directory" target="_blank" rel="noopener" style="color:var(--orange)">bitmap.directory</a>.</p>
+</div>
+
+<div class="divider"></div>
+
+<section>
+  <div class="dir-stats-bar">
+    <div class="dir-stat-item">Total Projects: <span id="count-total">129</span></div>
+    <div class="dir-stat-item">Showing: <span id="count-showing">129</span></div>
+    <div class="dir-stat-item">Categories: <span>10</span></div>
+  </div>
+
+  <div class="dir-controls">
+    <input class="dir-search" id="dir-search" type="text" placeholder="🔍  Search projects, descriptions, URLs..." oninput="filterDir()" autocomplete="off">
+  </div>
+
+  <div class="cat-pills" id="cat-pills">
+    <button class="cat-pill active" onclick="filterCat('all',this)">ALL</button>
+    <button class="cat-pill" onclick="filterCat('core',this)">Core Resources</button>
+    <button class="cat-pill" onclick="filterCat('explorers',this)">Explorers & Data</button>
+    <button class="cat-pill" onclick="filterCat('experiences',this)">Experiences</button>
+    <button class="cat-pill" onclick="filterCat('art',this)">Art</button>
+    <button class="cat-pill" onclick="filterCat('standards',this)">Standards & Protocols</button>
+    <button class="cat-pill" onclick="filterCat('defi',this)">DeFi</button>
+    <button class="cat-pill" onclick="filterCat('marketplaces',this)">Marketplaces</button>
+    <button class="cat-pill" onclick="filterCat('podcasts',this)">Podcasts & Spaces</button>
+    <button class="cat-pill" onclick="filterCat('community',this)">Community</button>
+    <button class="cat-pill" onclick="filterCat('devtools',this)">Developer Tools</button>
+  </div>
+
+  <!-- ── CORE RESOURCES ── -->
+  <div class="dir-section" id="sec-core" data-cat="core">
+    <div class="dir-section-header">
+      <h2>⚡ Core Resources</h2>
+      <span class="dir-section-count">Essential tools to navigate the Bitmap ecosystem</span>
+    </div>
+    <div class="dir-grid">
+      <a href="https://bitmap.land/" class="dir-card" target="_blank" rel="noopener" data-search="bitmap.land bitmap theory docs official signature project bitmap ecosystem portal">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Theory Docs / bitmap.land</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">The official home of Bitmap Theory — the standard that ascribes ownership of a Bitcoin block. The signature Bitmap project and primary reference for the protocol.</div>
+        <div class="dir-card-url">bitmap.land</div>
+      </a>
+      <a href="https://bitfeed.live/" class="dir-card" target="_blank" rel="noopener" data-search="bitfeed explorer visualize block patterns tx vbyte value">
+        <div class="dir-card-top"><div class="dir-card-name">Bitfeed Explorer</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Real-time visual representation of Bitcoin blocks as they are mined. Visualize block patterns by transaction, vbyte, and ₿ value in a beautiful live feed.</div>
+        <div class="dir-card-url">bitfeed.live</div>
+      </a>
+      <a href="https://mempool.space/" class="dir-card" target="_blank" rel="noopener" data-search="mempool explorer visualize blocks transactions addresses bitcoin">
+        <div class="dir-card-top"><div class="dir-card-name">Mempool Explorer</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">The gold-standard Bitcoin block explorer. Visualize real-time data related to blocks, transactions, and addresses. Essential for verifying block data and understanding Bitmap characteristics.</div>
+        <div class="dir-card-url">mempool.space</div>
+      </a>
+      <a href="https://geniidata.com/user/poshi/ordinals-bitmap-index" class="dir-card" target="_blank" rel="noopener" data-search="bitmap index analytics genii data holder counts transfers poshi">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Index Analytics</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">In-depth on-chain analytics dashboard tracking Bitmap holder counts, transfer volumes, and ecosystem metrics. Built on Genii Data's self-indexing ordinals infrastructure.</div>
+        <div class="dir-card-url">geniidata.com</div>
+      </a>
+      <a href="https://unisat.io/" class="dir-card" target="_blank" rel="noopener" data-search="unisat explorer inscriber search verify inscribe bitmaps">
+        <div class="dir-card-top"><div class="dir-card-name">Unisat Explorer & Inscriber</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">The most widely used platform to search, verify, and inscribe Bitmaps. Unisat provides a built-in marketplace, wallet, and inscription tools all in one place.</div>
+        <div class="dir-card-url">unisat.io</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── EXPLORERS & DATA ── -->
+  <div class="dir-section" id="sec-explorers" data-cat="explorers">
+    <div class="dir-section-header">
+      <h2>🔭 Explorers & Data</h2>
+      <span class="dir-section-count">Tools to explore, verify, and analyze Bitmap data</span>
+    </div>
+    <div class="dir-grid">
+      <a href="https://bitmap.community/" class="dir-card" target="_blank" rel="noopener" data-search="bitmap community tools data repositories">
+        <div class="dir-card-top"><div class="dir-card-name">bitmap.community</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Community-sourced tools and data repositories for the Bitmap ecosystem. A hub for community-built resources and collaborative projects.</div>
+        <div class="dir-card-url">bitmap.community</div>
+      </a>
+      <a href="https://bitlords.land/" class="dir-card" target="_blank" rel="noopener" data-search="bitlords land block data analyzer 3d visualizer">
+        <div class="dir-card-top"><div class="dir-card-name">Bitlords.land</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Block data analyzer and 3D visualizer for Bitcoin blocks. Explore and understand the properties of your Bitmap blocks in an immersive visual format.</div>
+        <div class="dir-card-url">bitlords.land</div>
+      </a>
+      <a href="https://bitmap-stats.vercel.app/stats/parcel/all" class="dir-card" target="_blank" rel="noopener" data-search="bitmap statistics vbyte size txs stats">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Statistics</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Detailed statistics on Bitmap block properties including vbyte sizes, block sizes, and transaction counts. Essential for researching block rarity characteristics.</div>
+        <div class="dir-card-url">bitmap-stats.vercel.app</div>
+      </a>
+      <a href="https://geniidata.com/user/poshi/ordinals-transactions" class="dir-card" target="_blank" rel="noopener" data-search="ordinals transaction analytics poshi genii data volume">
+        <div class="dir-card-top"><div class="dir-card-name">Ordinals Transaction Analytics</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Comprehensive ordinal transaction volume data by Poshi.sats. Track historical and real-time ordinal trading activity across the ecosystem.</div>
+        <div class="dir-card-url">geniidata.com / poshi</div>
+      </a>
+      <a href="https://epoch0.vercel.app/" class="dir-card" target="_blank" rel="noopener" data-search="bitmap search engine businesses holders epoch0">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Search Engine</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Search engine for Bitmap businesses and holders. Find specific Bitmap owners and explore businesses building in the ecosystem.</div>
+        <div class="dir-card-url">epoch0.vercel.app</div>
+      </a>
+      <a href="https://geniidata.com/user/2satsmaxi/bitmap-sales-analytics" class="dir-card" target="_blank" rel="noopener" data-search="bitmap transaction analytics 2satsmaxi daily weekly transfer data sales">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Sales Analytics by 2satsmaxi</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Daily and weekly Bitmap transfer and sales data. Track trading trends, volume spikes, and historical market activity across the Bitmap ecosystem.</div>
+        <div class="dir-card-url">geniidata.com / 2satsmaxi</div>
+      </a>
+      <a href="https://ordinalswallet.com/collection/bitmap/game" class="dir-card" target="_blank" rel="noopener" data-search="ordinals wallet bitmap map render visualization">
+        <div class="dir-card-top"><div class="dir-card-name">Ordinals Wallet Bitmap Map</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Ordinals Wallet's interactive render of the full Bitmap map. Visually explore the Bitmap landscape and see where different blocks sit in the ecosystem.</div>
+        <div class="dir-card-url">ordinalswallet.com</div>
+      </a>
+      <a href="https://ordinal-hoods.vercel.app/index.html" class="dir-card" target="_blank" rel="noopener" data-search="ordinal hoods bitcoin difficulty epochs bitmap">
+        <div class="dir-card-top"><div class="dir-card-name">Ordinal Hoods</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Explore Bitcoin Difficulty Epochs on Bitmap. Understand how difficulty adjustments shaped block characteristics and which epochs contain the most valuable Bitmaps.</div>
+        <div class="dir-card-url">ordinal-hoods.vercel.app</div>
+      </a>
+      <a href="https://blockchair.com/bitcoin/blocks" class="dir-card" target="_blank" rel="noopener" data-search="blockchair bitcoin block explorer">
+        <div class="dir-card-top"><div class="dir-card-name">Blockchair</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Powerful multi-blockchain explorer with detailed Bitcoin block data. Research specific block properties, transactions, miner information, and historical data for any block.</div>
+        <div class="dir-card-url">blockchair.com</div>
+      </a>
+      <a href="https://geniidata.com/user/rw2023/bitmap-ecosystem" class="dir-card" target="_blank" rel="noopener" data-search="bitmap ecosystem overview index holder transfer data rw2023">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Ecosystem Overview Index</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Broad ecosystem overview tracking Bitmap holder counts and transfer data. A high-level dashboard for understanding the health and growth of the Bitmap ecosystem.</div>
+        <div class="dir-card-url">geniidata.com / rw2023</div>
+      </a>
+      <a href="http://satoshiblocks.info/" class="dir-card" target="_blank" rel="noopener" data-search="patoshi blocks early bitcoin mining satoshi information">
+        <div class="dir-card-top"><div class="dir-card-name">Patoshi Blocks (Satoshi Blocks)</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Identify Patoshi Blocks — the early Bitcoin blocks believed to have been mined by Satoshi Nakamoto. Essential for researching genesis-era Bitmaps with historical significance.</div>
+        <div class="dir-card-url">satoshiblocks.info</div>
+      </a>
+      <a href="https://geniidata.com/user/axiemaid/bitmap-pizza-day-club" class="dir-card" target="_blank" rel="noopener" data-search="bitmap pizza day club index holder data axiemaid">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Pizza Day Club Index</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Track holder data for Pizza Day Bitmaps — blocks mined on May 22, 2010, the day of the famous Bitcoin pizza transaction. A historically significant Bitmap subset.</div>
+        <div class="dir-card-url">geniidata.com / axiemaid</div>
+      </a>
+      <a href="https://geniidata.com/user/axiemaid/bitmap-3-digit-club" class="dir-card" target="_blank" rel="noopener" data-search="bitmap 3 digit club index holder data axiemaid">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap 3-Digit Club Index</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Track holder data for 3-digit Bitmaps (blocks 100–999). One of the most coveted subsets due to extreme rarity — only 900 blocks qualify.</div>
+        <div class="dir-card-url">geniidata.com / axiemaid</div>
+      </a>
+      <a href="https://geniidata.com/user/axiemaid/bitmap-4-digit-club" class="dir-card" target="_blank" rel="noopener" data-search="bitmap 4 digit club index holder data axiemaid">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap 4-Digit Club Index</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Track holder data for 4-digit Bitmaps (blocks 1,000–9,999). A highly sought-after rarity tier with only 9,000 qualifying blocks in existence.</div>
+        <div class="dir-card-url">geniidata.com / axiemaid</div>
+      </a>
+      <a href="https://geniidata.com/user/WizOp/bitmap-punks" class="dir-card" target="_blank" rel="noopener" data-search="bitmap punks index data wizop indexed">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Punks Index</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Data dashboard tracking indexed Bitmap Punks — Bitcoin blocks whose transaction patterns visually resemble CryptoPunks. Tracks ownership and transfer activity.</div>
+        <div class="dir-card-url">geniidata.com / WizOp</div>
+      </a>
+      <a href="https://geniidata.com/user/axiemaid/pristine-bitmap-punks" class="dir-card" target="_blank" rel="noopener" data-search="pristine bitmap punk index holder data axiemaid">
+        <div class="dir-card-top"><div class="dir-card-name">Pristine Bitmap Punk Index</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Track holder data for Pristine Bitmap Punks — the rarest subset of Bitmap Punks with specific visual qualities. A premium tier within the Bitmap Punk community.</div>
+        <div class="dir-card-url">geniidata.com / axiemaid</div>
+      </a>
+      <a href="https://bitmapview.xyz/punk" class="dir-card" target="_blank" rel="noopener" data-search="bitmapview collection explorer visualizer punk">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmapview</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Bitmap collection explorer and visualizer. Browse and view the Bitmap Punk collection and explore individual block visualizations in an intuitive interface.</div>
+        <div class="dir-card-url">bitmapview.xyz</div>
+      </a>
+      <a href="https://verify.bitmap.wtf/" class="dir-card" target="_blank" rel="noopener" data-search="bitmaps wtf tool verify explore wallet">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmaps WTF Tool</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Verify and explore the Bitmaps in your wallet. Quickly confirm inscription validity, check block details, and see all Bitmaps associated with your address.</div>
+        <div class="dir-card-url">verify.bitmap.wtf</div>
+      </a>
+      <a href="https://trac.network/trac-demos/bitmap/" class="dir-card" target="_blank" rel="noopener" data-search="bitmap tool trac validate check bitmaps wallet">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Tool by Trac</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Check and validate all your Bitmaps using Trac's indexing infrastructure. Built on Trac Network's ordinals indexer for accurate, real-time Bitmap data.</div>
+        <div class="dir-card-url">trac.network</div>
+      </a>
+      <a href="https://messagesfromthemines.brangerbriz.com/" class="dir-card" target="_blank" rel="noopener" data-search="messages from the mines bitcoin blockchain hidden messages coinbase">
+        <div class="dir-card-top"><div class="dir-card-name">Messages from the Mines</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Discover messages permanently embedded in the Bitcoin blockchain by miners. Explore coinbase messages and OP_RETURN data hidden inside Bitcoin blocks since the genesis block.</div>
+        <div class="dir-card-url">messagesfromthemines.brangerbriz.com</div>
+      </a>
+      <a href="https://www.lambo.id/" class="dir-card" target="_blank" rel="noopener" data-search="lambo id verification checker pokemon plot yacht">
+        <div class="dir-card-top"><div class="dir-card-name">lambo.id</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Verification checker for sub-protocol inscriptions including .lambo, .pokemon, .plot, .yacht, and more. Confirm ownership of your named Bitmap sub-assets.</div>
+        <div class="dir-card-url">lambo.id</div>
+      </a>
+      <a href="https://twitter.com/BitmapSupply" class="dir-card" target="_blank" rel="noopener" data-search="bitmap supply twitter bot districts parcels daily updates">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Supply Twitter Bot</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Automated Twitter bot posting daily updates on Bitmap supply metrics — districts and parcels. Stay informed on how many Bitmaps remain unclaimed each day.</div>
+        <div class="dir-card-url">twitter.com/BitmapSupply</div>
+      </a>
+      <a href="https://twitter.com/bitmapsocial" class="dir-card" target="_blank" rel="noopener" data-search="bitmap sales twitter bot social data">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Sales Twitter Bot</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Automated Twitter bot tracking and posting Bitmap sales data in real time. Get notified of significant Bitmap transactions and market movements as they happen.</div>
+        <div class="dir-card-url">twitter.com/bitmapsocial</div>
+      </a>
+      <a href="https://verifybitmap.foxxi.co/" class="dir-card" target="_blank" rel="noopener" data-search="bitmap verification foxxi verify explore wallet">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Verification by FOXXI</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Verify and explore Bitmaps in any wallet using FOXXI's verification tool. A clean interface for confirming Bitmap ownership and exploring block attributes.</div>
+        <div class="dir-card-url">verifybitmap.foxxi.co</div>
+      </a>
+      <a href="https://looksordinal.com/" class="dir-card" target="_blank" rel="noopener" data-search="looksordinal verify inscribe bitmaps ordinal">
+        <div class="dir-card-top"><div class="dir-card-name">LooksOrdinal</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Verify and inscribe Bitmaps through LooksOrdinal's clean interface. Browse ordinals, verify your inscriptions, and manage your Bitmap portfolio in one place.</div>
+        <div class="dir-card-url">looksordinal.com</div>
+      </a>
+      <a href="https://www.bitmap.wtf/" class="dir-card" target="_blank" rel="noopener" data-search="blockout countdown unclaimed bitmap blocks">
+        <div class="dir-card-top"><div class="dir-card-name">Blockout Countdown</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Displays the real-time count of unclaimed Bitmap blocks. Watch how many blocks remain available to be inscribed as the Bitcoin blockchain grows and more Bitmaps are claimed.</div>
+        <div class="dir-card-url">bitmap.wtf</div>
+      </a>
+      <a href="https://bitmap-mint-ui.vercel.app/" class="dir-card" target="_blank" rel="noopener" data-search="unclaimed land bitmap blocks list available">
+        <div class="dir-card-top"><div class="dir-card-name">Unclaimed Land</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Lists unclaimed Bitmap blocks available to inscribe. Browse available blocks, filter by properties, and find your ideal Bitmap before someone else claims it.</div>
+        <div class="dir-card-url">bitmap-mint-ui.vercel.app</div>
+      </a>
+      <a href="https://bitmap-generator.vercel.app/" class="dir-card" target="_blank" rel="noopener" data-search="bitmap finder available bitmaps numbering strategies">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Finder</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">List of available Bitmaps using various numbering strategies. Find unclaimed blocks matching specific number patterns — palindromes, repeating digits, sequential runs, and more.</div>
+        <div class="dir-card-url">bitmap-generator.vercel.app</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── EXPERIENCES ── -->
+  <div class="dir-section" id="sec-experiences" data-cat="experiences">
+    <div class="dir-section-header">
+      <h2>🌐 Experiences</h2>
+      <span class="dir-section-count">Games, metaverses, and interactive worlds built on Bitmap</span>
+    </div>
+    <div class="dir-grid">
+      <a href="https://inscribed.space/" class="dir-card" target="_blank" rel="noopener" data-search="inscribed space on-chain 3d metaverse world builder interactive">
+        <div class="dir-card-top"><div class="dir-card-name">On-Chain Worlds Builder by Inscribed.space</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">On-chain interactive 3D metaverse world builder. Create and explore immersive worlds inscribed directly on Bitcoin, leveraging the Bitmap protocol as the underlying land layer.</div>
+        <div class="dir-card-url">inscribed.space</div>
+      </a>
+      <a href="https://inscribed.space/tools/bitmap2terrain/" class="dir-card" target="_blank" rel="noopener" data-search="bitmap2terrain inscribed space terrain generator bitmap">
+        <div class="dir-card-top"><div class="dir-card-name">bitmap2terrain by Inscribed.space</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Converts Bitmap block data into 3D terrain. Transform your Bitmap's on-chain transaction data into a unique procedurally generated landscape using real block properties.</div>
+        <div class="dir-card-url">inscribed.space/tools</div>
+      </a>
+      <a href="https://twitter.com/IMSOnft_Chris" class="dir-card" target="_blank" rel="noopener" data-search="bitmap valley IMSO virtual plots connected bitmaps">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Valley by IMSO</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Virtual plots connected to Bitmap blocks within the Bitmap Valley metaverse. Each plot corresponds to a specific Bitcoin block, creating ownership-based virtual real estate.</div>
+        <div class="dir-card-url">twitter.com/IMSOnft_Chris</div>
+      </a>
+      <a href="https://bitmap.game/" class="dir-card" target="_blank" rel="noopener" data-search="bitmap explorer recursiverse multiplayer app realtime game">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Explorer by Recursiverse</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">The first multiplayer Bitmap app in real time. Explore Bitcoin blocks as a living world where Bitmap holders can interact, build, and experience the blockchain in a shared space.</div>
+        <div class="dir-card-url">bitmap.game</div>
+      </a>
+      <a href="https://luminex.io/bitworld" class="dir-card" target="_blank" rel="noopener" data-search="bitworld luminex on-chain 3d land reinscription generated">
+        <div class="dir-card-top"><div class="dir-card-name">BitWorld by Luminex</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">On-chain 3D generated land reinscription on Bitmap. Luminex creates unique, procedurally generated 3D worlds derived from Bitcoin block data, fully inscribed on-chain.</div>
+        <div class="dir-card-url">luminex.io/bitworld</div>
+      </a>
+      <a href="https://twitter.com/darkcity_x" class="dir-card" target="_blank" rel="noopener" data-search="dark city mmorpg powered bitmap">
+        <div class="dir-card-top"><div class="dir-card-name">Dark City</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">A Massively Multiplayer Online RPG (MMORPG) powered by Bitmap. Players explore a dark, gritty urban world where Bitcoin blocks form the backbone of the game's virtual geography.</div>
+        <div class="dir-card-url">twitter.com/darkcity_x</div>
+      </a>
+      <a href="https://mscribe.io/" class="dir-card" target="_blank" rel="noopener" data-search="mscribe interactive 3d bitmap render">
+        <div class="dir-card-top"><div class="dir-card-name">mscribe</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Interactive 3D render of Bitmap blocks. Explore your Bitcoin block in a visually immersive 3D environment, bringing the abstract concept of block ownership to life.</div>
+        <div class="dir-card-url">mscribe.io</div>
+      </a>
+      <a href="https://ordinals.hiro.so/inscription/4232709c32275c090dcb954f6ad15b4bf56af97ca9a5fa57229ade73854084e2i0" class="dir-card" target="_blank" rel="noopener" data-search="bitmap pizzeria pizza day block data pizzas ordinal inscription">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Pizzeria</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Renders Bitmap Pizza Day block data as pizzas. A creative on-chain inscription that transforms the transaction data from Bitcoin Pizza Day blocks into unique pizza visualizations.</div>
+        <div class="dir-card-url">ordinals.hiro.so (inscription)</div>
+      </a>
+      <a href="https://bitmap.land/" class="dir-card" target="_blank" rel="noopener" data-search="bitmap land signature project official ecosystem portal">
+        <div class="dir-card-top"><div class="dir-card-name">bitmap.land</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">The signature Bitmap project — the official Bitmap ecosystem portal. Explore districts, read the Bitmap whitepaper, and access the foundational resources for the entire protocol.</div>
+        <div class="dir-card-url">bitmap.land</div>
+      </a>
+      <a href="https://whitepaper.foxxi.co/bitverse-by-foxxi/bitverse-leveraging-open-protocol-on-bitcoin-blockchain" class="dir-card" target="_blank" rel="noopener" data-search="bitverse foxxi bitcoin metaverse unique experience blockchain">
+        <div class="dir-card-top"><div class="dir-card-name">Bitverse by FOXXI</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">FOXXI's Bitverse leverages Bitmap Theory to create a unique metaverse experience on the Bitcoin blockchain. A rich open-protocol world built on the foundations of block ownership.</div>
+        <div class="dir-card-url">whitepaper.foxxi.co</div>
+      </a>
+      <a href="https://twitter.com/BitmapTown" class="dir-card" target="_blank" rel="noopener" data-search="bitmap town avatars furniture decorations indoor outdoor">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Town</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Avatars, furniture, indoor and outdoor decorations for Bitmaps. Build and personalize your virtual space within the Bitmap ecosystem with a growing collection of on-chain assets.</div>
+        <div class="dir-card-url">twitter.com/BitmapTown</div>
+      </a>
+      <a href="http://bitnite.io/" class="dir-card" target="_blank" rel="noopener" data-search="bitnite metasoft fortnite rendered bitmap data game">
+        <div class="dir-card-top"><div class="dir-card-name">Bitnite by Metasoft</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">A Fortnite-style game rendered using real Bitcoin block data. Bitnite maps actual Bitmap block properties to in-game terrain and environments, creating a truly unique game world.</div>
+        <div class="dir-card-url">bitnite.io</div>
+      </a>
+      <a href="https://twitter.com/BavoBTC/status/1698715792580489532?s=20" class="dir-card" target="_blank" rel="noopener" data-search="bitpets bavo pets bitmap interactive digital artifacts">
+        <div class="dir-card-top"><div class="dir-card-name">Bitpets by BAVO</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Pets on Bitmap — the first interactive digital artifacts on the Bitmap protocol. Adopt and care for on-chain pets whose traits are derived from Bitcoin block data.</div>
+        <div class="dir-card-url">twitter.com/BavoBTC</div>
+      </a>
+      <a href="https://twitter.com/Starbreeder_DAO" class="dir-card" target="_blank" rel="noopener" data-search="starbreeders multiverse built on bitmap dao">
+        <div class="dir-card-top"><div class="dir-card-name">Starbreeders</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">A multiverse built on Bitmap. Starbreeders creates an expansive inter-connected universe using Bitcoin blocks as foundational land parcels within a broader multi-world narrative.</div>
+        <div class="dir-card-url">twitter.com/Starbreeder_DAO</div>
+      </a>
+      <a href="https://linktr.ee/bitmap_planet" class="dir-card" target="_blank" rel="noopener" data-search="bitmap planet mixverse utility transaction liquidity ecosystem">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Planet by MixVerse</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Providing utility and transaction liquidity to the Bitmap ecosystem. MixVerse's Bitmap Planet expands the use-case for Bitmap blocks with additional interoperability and ecosystem tools.</div>
+        <div class="dir-card-url">linktr.ee/bitmap_planet</div>
+      </a>
+      <a href="https://twitter.com/SRBitrunners" class="dir-card" target="_blank" rel="noopener" data-search="silk road bitrunners GTA game bitmap parcels">
+        <div class="dir-card-top"><div class="dir-card-name">Silk Road Bitrunners</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">A GTA-style game incorporating Bitmap parcels as the game world. Players navigate a gritty open world where Bitcoin blocks define territory in this action-packed blockchain game.</div>
+        <div class="dir-card-url">twitter.com/SRBitrunners</div>
+      </a>
+      <a href="https://twitter.com/xspectar" class="dir-card" target="_blank" rel="noopener" data-search="bitmap island xspectar realistic metaverse platform connected bitmaps">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Island by xSPECTAR</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Realistic metaverse platform connected to Bitmaps. xSPECTAR builds photorealistic virtual environments tied to Bitcoin block ownership, offering a premium metaverse experience.</div>
+        <div class="dir-card-url">twitter.com/xspectar</div>
+      </a>
+      <a href="https://twitter.com/RealBentoshi/status/1700220561345929662?s=20" class="dir-card" target="_blank" rel="noopener" data-search="bitcory bentoshi metaverse on bitmap city">
+        <div class="dir-card-top"><div class="dir-card-name">BitCity by Bentoshi</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">A metaverse city built entirely on Bitmap by Bentoshi. BitCity maps Bitcoin blocks to city districts, creating an immersive urban environment powered by block ownership.</div>
+        <div class="dir-card-url">twitter.com/RealBentoshi</div>
+      </a>
+      <a href="https://twitter.com/ogbiome" class="dir-card" target="_blank" rel="noopener" data-search="biome project vr metaverse experience bitmap technology">
+        <div class="dir-card-top"><div class="dir-card-name">The BIOME Project</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">The first VR-enabled Metaverse Experience built using Bitmap technology. BIOME brings immersive virtual reality to the Bitmap ecosystem, enabling block owners to step inside their land.</div>
+        <div class="dir-card-url">twitter.com/ogbiome</div>
+      </a>
+      <a href="https://app.hastearcade.com/metaverse" class="dir-card" target="_blank" rel="noopener" data-search="haste arcade social gaming land mint bitmap protocol">
+        <div class="dir-card-top"><div class="dir-card-name">Haste Arcade</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Social gaming land mint on the Bitmap protocol. Haste Arcade enables players to mint gaming land tied to Bitcoin blocks, creating ownership-based gaming experiences within their metaverse.</div>
+        <div class="dir-card-url">app.hastearcade.com</div>
+      </a>
+      <a href="https://twitter.com/skoonsnft" class="dir-card" target="_blank" rel="noopener" data-search="skoons interactive storyworld bitmap metaverse nft">
+        <div class="dir-card-top"><div class="dir-card-name">Skoons</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Interactive storyworld built on the Bitmap metaverse. Skoons creates a narrative-driven experience where Bitcoin block owners participate in an evolving on-chain story universe.</div>
+        <div class="dir-card-url">twitter.com/skoonsnft</div>
+      </a>
+      <a href="https://twitter.com/PixelPoniesBTC" class="dir-card" target="_blank" rel="noopener" data-search="pixel ponies bitmap pony stables btc">
+        <div class="dir-card-top"><div class="dir-card-name">Pixel Ponies</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Bitmap pony stables — a collectible and interactive pony project built on Bitmap. Each pony is tied to a Bitcoin block, with stables organized by block characteristics and rarity.</div>
+        <div class="dir-card-url">twitter.com/PixelPoniesBTC</div>
+      </a>
+      <a href="https://play.ordz.games/ordz-rush-game-builder" class="dir-card" target="_blank" rel="noopener" data-search="ordz rush platform runner builder bitmap game">
+        <div class="dir-card-top"><div class="dir-card-name">Ordz Rush</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Platform runner game builder for Bitmap. Ordz Rush lets players build and play side-scrolling runner games where Bitmap blocks define level geometry and game world elements.</div>
+        <div class="dir-card-url">play.ordz.games</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── ART ── -->
+  <div class="dir-section" id="sec-art" data-cat="art">
+    <div class="dir-section-header">
+      <h2>🎨 Art</h2>
+      <span class="dir-section-count">Artists and creative projects building on Bitmap</span>
+    </div>
+    <div class="dir-grid">
+      <a href="https://twitter.com/BitmapPunks" class="dir-card" target="_blank" rel="noopener" data-search="bitmap punks collection bitcoin blocks resembling punks">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Punks</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">A collection of Bitcoin blocks that visually resemble CryptoPunks using the Bitmap standard. One of the earliest and most iconic sub-collections in the Bitmap ecosystem.</div>
+        <div class="dir-card-url">twitter.com/BitmapPunks</div>
+      </a>
+      <a href="https://twitter.com/boppleton/status/1691951933865562367?s=20" class="dir-card" target="_blank" rel="noopener" data-search="boropunk pendant boppleton borosilicate glass bitmap punk physical">
+        <div class="dir-card-top"><div class="dir-card-name">Boropunk Pendant by @boppleton</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Handcrafted borosilicate glass Bitmap Punk pendants — physical art pieces inspired by on-chain Bitmap Punks. Bridging the gap between digital Bitcoin art and physical collectibles.</div>
+        <div class="dir-card-url">twitter.com/boppleton</div>
+      </a>
+      <a href="https://twitter.com/rgen_art" class="dir-card" target="_blank" rel="noopener" data-search="rgen 3d mapping bitmap blocks parcels art">
+        <div class="dir-card-top"><div class="dir-card-name">rgen</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">3D mapping of Bitmap blocks and parcels. rgen creates stunning three-dimensional visualizations that transform abstract Bitcoin block data into spatial art installations.</div>
+        <div class="dir-card-url">twitter.com/rgen_art</div>
+      </a>
+      <a href="https://twitter.com/helo2ouloulou" class="dir-card" target="_blank" rel="noopener" data-search="hellorange digital art bitmap">
+        <div class="dir-card-top"><div class="dir-card-name">Hellorange</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Digital art inspired by and built on the Bitmap protocol. Hellorange creates vibrant digital pieces that explore the intersection of Bitcoin blockchain data and visual art.</div>
+        <div class="dir-card-url">twitter.com/helo2ouloulou</div>
+      </a>
+      <a href="https://twitter.com/Schwonktoshi" class="dir-card" target="_blank" rel="noopener" data-search="schwonk traditional medium art bitmap">
+        <div class="dir-card-top"><div class="dir-card-name">Schwonk</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Traditional medium artwork inspired by the Bitmap ecosystem. Schwonktoshi brings physical art traditions to the Bitcoin Ordinals space, creating unique traditional pieces for Bitmap holders.</div>
+        <div class="dir-card-url">twitter.com/Schwonktoshi</div>
+      </a>
+      <a href="https://twitter.com/SCirculaire" class="dir-card" target="_blank" rel="noopener" data-search="the arch AI art bitmap bitcoin">
+        <div class="dir-card-top"><div class="dir-card-name">The Arch</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">AI-generated art created within the Bitmap ecosystem. The Arch explores the frontier of artificial intelligence and Bitcoin blockchain art, inscribing AI-generated works on-chain.</div>
+        <div class="dir-card-url">twitter.com/SCirculaire</div>
+      </a>
+      <a href="https://twitter.com/_CRFTD_/status/1693390519941136740?s=20" class="dir-card" target="_blank" rel="noopener" data-search="bitmap city crftd aerial photography art">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap City by CRFTD</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Bitmap meets aerial photography. CRFTD maps Bitcoin block transaction patterns to real-world aerial cityscapes, creating a breathtaking visual bridge between on-chain data and urban art.</div>
+        <div class="dir-card-url">twitter.com/_CRFTD_</div>
+      </a>
+      <a href="https://twitter.com/mzkvisuals" class="dir-card" target="_blank" rel="noopener" data-search="mzk digital art visuals bitmap bitcoin">
+        <div class="dir-card-top"><div class="dir-card-name">MZK</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Digital art and visual design created for the Bitmap ecosystem. MZK produces high-quality visual content that celebrates and promotes the Bitmap community and its projects.</div>
+        <div class="dir-card-url">twitter.com/mzkvisuals</div>
+      </a>
+      <a href="https://www.ord.io/29595096" class="dir-card" target="_blank" rel="noopener" data-search="pristine pixelpunk boppelton 3d interactive bitmap punk inscription ordengine">
+        <div class="dir-card-top"><div class="dir-card-name">Pristine PixelPunk by @boppleton</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">A 3D interactive Bitmap Punk inscription built using OrdEngine. This on-chain inscription showcases a pristine Bitmap Punk in a fully interactive 3D environment, directly on Bitcoin.</div>
+        <div class="dir-card-url">ord.io (inscription)</div>
+      </a>
+      <a href="https://twitter.com/justtripit" class="dir-card" target="_blank" rel="noopener" data-search="justtrip.it animated renders bitmaps art">
+        <div class="dir-card-top"><div class="dir-card-name">Justtrip.it</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Animated renders of Bitmap blocks. Justtrip.it creates mesmerizing animated visualizations that bring Bitcoin block data to life through motion, color, and creative interpretation.</div>
+        <div class="dir-card-url">twitter.com/justtripit</div>
+      </a>
+      <a href="https://twitter.com/_CRFTD_/status/1699657629348569594?s=20" class="dir-card" target="_blank" rel="noopener" data-search="punkmaps crftd crypto punks pristine derivative art bitmap">
+        <div class="dir-card-top"><div class="dir-card-name">PunkMaps by CRFTD</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">CryptoPunks × Pristine Punks derivative art mapped onto Bitmap blocks. CRFTD combines two iconic NFT universes into a unique aerial art series rooted in Bitcoin block ownership.</div>
+        <div class="dir-card-url">twitter.com/_CRFTD_</div>
+      </a>
+      <a href="https://twitter.com/FZXX5216/status/1700125859603267743?s=20" class="dir-card" target="_blank" rel="noopener" data-search="bitmap punk prints FZXX5216 physical prints art">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Punk Prints by FZXX5216</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Physical prints of Bitmap Punks. FZXX5216 creates high-quality printed art of Bitmap Punk blocks, allowing collectors to display their on-chain assets in the physical world.</div>
+        <div class="dir-card-url">twitter.com/FZXX5216</div>
+      </a>
+      <a href="https://blix.wtf/" class="dir-card" target="_blank" rel="noopener" data-search="blix block9ine music thing building 9 bitmap">
+        <div class="dir-card-top"><div class="dir-card-name">Blix by block9ine</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">A music-focused project building on 9.bitmap. Blix explores the sonic dimension of Bitcoin blocks, creating an audio art experience rooted in the Bitmap protocol and block data.</div>
+        <div class="dir-card-url">blix.wtf</div>
+      </a>
+      <a href="https://twitter.com/KvoxStudio" class="dir-card" target="_blank" rel="noopener" data-search="kvox 3d concept art bitmaps studio">
+        <div class="dir-card-top"><div class="dir-card-name">Kvox</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">3D and concept art created for the Bitmap ecosystem. KvoxStudio produces architectural and character design concepts reimagined through the lens of Bitmap block ownership and metaverse building.</div>
+        <div class="dir-card-url">twitter.com/KvoxStudio</div>
+      </a>
+      <a href="https://twitter.com/3dOrdinalClub" class="dir-card" target="_blank" rel="noopener" data-search="3d ordinals club art bitcoin blockchain">
+        <div class="dir-card-top"><div class="dir-card-name">3D Ordinals Club</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">3D art created on the Bitcoin blockchain via Ordinals. The 3D Ordinals Club produces immersive three-dimensional inscriptions that push the boundaries of what's possible on Bitcoin.</div>
+        <div class="dir-card-url">twitter.com/3dOrdinalClub</div>
+      </a>
+      <a href="https://twitter.com/Davidgr38" class="dir-card" target="_blank" rel="noopener" data-search="david gregory AI art bitmap bitcoin">
+        <div class="dir-card-top"><div class="dir-card-name">David Gregory</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">AI-generated art in the Bitcoin Ordinals and Bitmap space. David Gregory creates striking AI artworks that explore themes of blockchain, Bitcoin history, and digital ownership.</div>
+        <div class="dir-card-url">twitter.com/Davidgr38</div>
+      </a>
+      <a href="https://murkymanes.notion.site/murky-bitmap-41c4daca15004d8ca9eaf78c69bc4506" class="dir-card" target="_blank" rel="noopener" data-search="murky bitmap murky manes backgrounds art">
+        <div class="dir-card-top"><div class="dir-card-name">murky.bitmap</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Bitmaps used as backgrounds for Murky Manes artwork. A creative fusion of two distinct Bitcoin Ordinals projects — Murky Manes characters placed within Bitmap block visualizations.</div>
+        <div class="dir-card-url">murkymanes.notion.site</div>
+      </a>
+      <a href="https://mybitmap.com/" class="dir-card" target="_blank" rel="noopener" data-search="bitmap merchandise store meta rush physical goods">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Merchandise Store</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">The first Bitmap merchandise store by The Meta Rush. Purchase physical Bitmap-branded merchandise including apparel, prints, and collectibles that represent your Bitcoin block ownership.</div>
+        <div class="dir-card-url">mybitmap.com</div>
+      </a>
+      <a href="https://www.ord.io/13382540" class="dir-card" target="_blank" rel="noopener" data-search="be the bitmap profile picture generation tool ordinal inscription">
+        <div class="dir-card-top"><div class="dir-card-name">Be the Bitmap</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Profile picture generation tool inscribed on Bitcoin via Ordinals. Turn yourself into a Bitmap-styled avatar — an on-chain PFP generator that celebrates the Bitmap aesthetic.</div>
+        <div class="dir-card-url">ord.io (inscription)</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── STANDARDS & PROTOCOLS ── -->
+  <div class="dir-section" id="sec-standards" data-cat="standards">
+    <div class="dir-section-header">
+      <h2>📐 Standards & Protocols</h2>
+      <span class="dir-section-count">Extensions and sub-protocols building on the Bitmap standard</span>
+    </div>
+    <div class="dir-grid">
+      <a href="https://ordinals-wallet.gitbook.io/api/bitmap-blocktributes#map" class="dir-card" target="_blank" rel="noopener" data-search="ordinals wallet blocktributes inscribe attributes bitmap block">
+        <div class="dir-card-top"><div class="dir-card-name">Ordinals Wallet "Blocktributes"</div><div class="dir-card-badges"><span class="badge badge-docs">DOCS</span></div></div>
+        <div class="dir-card-desc">Inscribe attributes directly to a Bitmap block using the Blocktributes standard. Pioneered by Ordinals Wallet, this protocol allows block owners to attach metadata and traits to their Bitmaps.</div>
+        <div class="dir-card-url">ordinals-wallet.gitbook.io</div>
+      </a>
+      <a href="https://8bit-1.gitbook.io/blocktributes/" class="dir-card" target="_blank" rel="noopener" data-search="blocktributes bitcoin block traits standard protocol">
+        <div class="dir-card-top"><div class="dir-card-name">Blocktributes</div><div class="dir-card-badges"><span class="badge badge-docs">DOCS</span></div></div>
+        <div class="dir-card-desc">The official Blocktributes documentation — a protocol for assigning Bitcoin block traits and attributes. Enables the creation of rarity systems and metadata layers on top of Bitmap blocks.</div>
+        <div class="dir-card-url">8bit-1.gitbook.io</div>
+      </a>
+      <a href="https://twitter.com/OxElProfessor" class="dir-card" target="_blank" rel="noopener" data-search="bitmapedia wiki objective attributes bitmap blocks">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmapedia</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">A wiki for associating objective attributes to Bitmap blocks. Bitmapedia aims to create a comprehensive, community-maintained knowledge base of verifiable block attributes and history.</div>
+        <div class="dir-card-url">twitter.com/OxElProfessor</div>
+      </a>
+      <a href="https://docs.bitplots.com/" class="dir-card" target="_blank" rel="noopener" data-search="bitplot PLOT tokens bitcoin blocks associates">
+        <div class="dir-card-top"><div class="dir-card-name">BITPLOT</div><div class="dir-card-badges"><span class="badge badge-docs">DOCS</span></div></div>
+        <div class="dir-card-desc">Associates $PLOT tokens with Bitcoin blocks. BITPLOT creates a tokenized layer on top of Bitmap, enabling fractional ownership and DeFi functionality tied to specific block numbers.</div>
+        <div class="dir-card-url">docs.bitplots.com</div>
+      </a>
+      <a href="https://bitmapcitizens.gitbook.io/untitled/group-1/bitmap-citizens" class="dir-card" target="_blank" rel="noopener" data-search="bitmap citizens designate parcels blocks metaverse">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Citizens</div><div class="dir-card-badges"><span class="badge badge-docs">DOCS</span></div></div>
+        <div class="dir-card-desc">A protocol to designate citizens within Bitmap block parcels. Bitmap Citizens creates a social layer on top of block ownership, enabling communities to form around specific Bitcoin blocks.</div>
+        <div class="dir-card-url">bitmapcitizens.gitbook.io</div>
+      </a>
+      <a href="https://blis.gitbook.io/bitmap-lot-inscription-standard" class="dir-card" target="_blank" rel="noopener" data-search="bitmap lot inscription standard BLIS unique identifiers fractionalized lots">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Lot Inscription Standard (BLIS)</div><div class="dir-card-badges"><span class="badge badge-docs">DOCS</span></div></div>
+        <div class="dir-card-desc">Unique identifiers for fractionalized lots in the Bitmap metaverse. BLIS defines the standard for subdividing Bitcoin blocks into smaller parcels, enabling granular land ownership within Bitmaps.</div>
+        <div class="dir-card-url">blis.gitbook.io</div>
+      </a>
+      <a href="http://bitearth.io" class="dir-card" target="_blank" rel="noopener" data-search="bitmap earth real world utility layered over earth">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Earth</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Bitmaps layered over the physical Earth for real-world utility. Bitmap Earth maps Bitcoin block ownership to geographic coordinates, creating a connection between on-chain assets and physical locations.</div>
+        <div class="dir-card-url">bitearth.io</div>
+      </a>
+      <a href="https://bitclub.gitbook.io/bitclub-protocol/" class="dir-card" target="_blank" rel="noopener" data-search="bitclub protocol membership clubs bitcoin blockchain">
+        <div class="dir-card-top"><div class="dir-card-name">.bitclub Protocol</div><div class="dir-card-badges"><span class="badge badge-docs">DOCS</span></div></div>
+        <div class="dir-card-desc">Membership protocol for clubs on Bitcoin. .bitclub enables the creation of exclusive membership clubs tied to Bitmap block ownership, creating verifiable community belonging on-chain.</div>
+        <div class="dir-card-url">bitclub.gitbook.io</div>
+      </a>
+      <a href="https://linktr.ee/pokebitmap" class="dir-card" target="_blank" rel="noopener" data-search="pokebitmap pokedex inscribing community pokemon bitmap">
+        <div class="dir-card-top"><div class="dir-card-name">Pokebitmap</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">A Pokédex inscribing community building on Bitmap. Pokebitmap connects Pokémon-themed inscriptions to Bitcoin blocks, creating a gaming layer that spans the Bitmap and Ordinals ecosystems.</div>
+        <div class="dir-card-url">linktr.ee/pokebitmap</div>
+      </a>
+      <a href="https://gulfstream-owners.gitbook.io/gulfstream-owners-club/gulfstream-owners-club" class="dir-card" target="_blank" rel="noopener" data-search="gulfstream owners club virtual private gulfstream bitmap bitverse">
+        <div class="dir-card-top"><div class="dir-card-name">Gulfstream Owners Club</div><div class="dir-card-badges"><span class="badge badge-docs">DOCS</span></div></div>
+        <div class="dir-card-desc">Own a virtual private Gulfstream jet in the Bitmap Bitverse. An exclusive club protocol for luxury aviation enthusiasts who hold Bitmap blocks, adding prestige-based assets to the metaverse.</div>
+        <div class="dir-card-url">gulfstream-owners.gitbook.io</div>
+      </a>
+      <a href="https://satoshi-yacht-club.gitbook.io/welcome-to-the-satoshi-yacht-club/" class="dir-card" target="_blank" rel="noopener" data-search="satoshi yacht club membership yacht inscription">
+        <div class="dir-card-top"><div class="dir-card-name">Satoshi Yacht Club</div><div class="dir-card-badges"><span class="badge badge-docs">DOCS</span></div></div>
+        <div class="dir-card-desc">Membership via inscribing a .yacht inscription tied to a Bitmap block. The Satoshi Yacht Club creates an exclusive on-chain membership for Bitcoin block holders who claim their virtual vessel.</div>
+        <div class="dir-card-url">satoshi-yacht-club.gitbook.io</div>
+      </a>
+      <a href="https://finneys-rock-in-the-bitmap-bitve.gitbook.io/finneys-rock/" class="dir-card" target="_blank" rel="noopener" data-search="finneys rock rock meme bitmap bitverse hal finney">
+        <div class="dir-card-top"><div class="dir-card-name">Finneys Rock</div><div class="dir-card-badges"><span class="badge badge-docs">DOCS</span></div></div>
+        <div class="dir-card-desc">A rock meme protocol on the Bitmap Bitverse, honoring Hal Finney — the first Bitcoin transaction recipient. Finneys Rock inscribes virtual rocks tied to historically significant Bitcoin blocks.</div>
+        <div class="dir-card-url">finneys-rock.gitbook.io</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── DEFI ── -->
+  <div class="dir-section" id="sec-defi" data-cat="defi">
+    <div class="dir-section-header">
+      <h2>💰 DeFi</h2>
+      <span class="dir-section-count">Decentralized finance protocols and tools for Bitmap assets</span>
+    </div>
+    <div class="dir-grid">
+      <a href="https://www.coingecko.com/en/nft/bitmap" class="dir-card" target="_blank" rel="noopener" data-search="coingecko floor price chart marketcap trading volume bitmap">
+        <div class="dir-card-top"><div class="dir-card-name">CoinGecko Bitmap Page</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Track Bitmap floor price, market cap, and trading volume data on CoinGecko. The go-to aggregator for Bitmap market metrics alongside traditional cryptocurrency data.</div>
+        <div class="dir-card-url">coingecko.com/en/nft/bitmap</div>
+      </a>
+      <a href="https://twitter.com/rcsvio/status/1724394554814845219?s=20" class="dir-card" target="_blank" rel="noopener" data-search="wrapped bitmap WMAP tokenized bitmap rcsv">
+        <div class="dir-card-top"><div class="dir-card-name">Wrapped Bitmap ($WMAP)</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Tokenized Bitmap — $WMAP wraps Bitmap blocks into fungible tokens, enabling DeFi participation for Bitmap holders. Unlocks liquidity and composability for an otherwise illiquid asset class.</div>
+        <div class="dir-card-url">twitter.com/rcsvio</div>
+      </a>
+      <a href="https://twitter.com/Bison_Labs" class="dir-card" target="_blank" rel="noopener" data-search="bison labs bitmap liquidity bridge swap defi">
+        <div class="dir-card-top"><div class="dir-card-name">Bison Labs</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Bitmap liquidity bridge and swap protocol. Bison Labs builds DeFi infrastructure for the Bitcoin Ordinals ecosystem, enabling cross-chain liquidity and swapping for Bitmap assets.</div>
+        <div class="dir-card-url">twitter.com/Bison_Labs</div>
+      </a>
+      <a href="https://liquidium.fi/" class="dir-card" target="_blank" rel="noopener" data-search="liquidium lending protocol bitmap compatible bitcoin ordinals">
+        <div class="dir-card-top"><div class="dir-card-name">Liquidium</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Bitcoin-native lending protocol compatible with Bitmap assets. Liquidium enables Bitmap holders to borrow Bitcoin against their blocks as collateral, unlocking capital without selling.</div>
+        <div class="dir-card-url">liquidium.fi</div>
+      </a>
+      <a href="https://github.com/BennyTheDev/tap-protocol-specs" class="dir-card" target="_blank" rel="noopener" data-search="trac tap protocol staking bitcoin ordinals benny dev">
+        <div class="dir-card-top"><div class="dir-card-name">Trac — TAP Protocol & Staking</div><div class="dir-card-badges"><span class="badge badge-github">GITHUB</span></div></div>
+        <div class="dir-card-desc">Trac Network's TAP Protocol specifications and staking infrastructure for Bitcoin Ordinals. Enables staking, token swaps, and DeFi primitives natively on Bitcoin for Bitmap and Ordinals assets.</div>
+        <div class="dir-card-url">github.com/BennyTheDev</div>
+      </a>
+      <a href="https://twitter.com/kilanyz/status/1684795571486261249?s=20" class="dir-card" target="_blank" rel="noopener" data-search="bank of bitcoin borrow btc bitmap lands collateral">
+        <div class="dir-card-top"><div class="dir-card-name">Bank of Bitcoin</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Borrow Bitcoin against Bitmap land holdings as collateral. The Bank of Bitcoin enables Bitmap holders to leverage their block assets for BTC loans without relinquishing ownership.</div>
+        <div class="dir-card-url">twitter.com/kilanyz</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── MARKETPLACES ── -->
+  <div class="dir-section" id="sec-marketplaces" data-cat="marketplaces">
+    <div class="dir-section-header">
+      <h2>🏪 Marketplaces</h2>
+      <span class="dir-section-count">Platforms to buy, sell, and trade Bitmap blocks</span>
+    </div>
+    <div class="dir-grid">
+      <a href="https://ordinalswallet.com/collection/bitmap" class="dir-card" target="_blank" rel="noopener" data-search="ordinals wallet marketplace bitmap digits filter">
+        <div class="dir-card-top"><div class="dir-card-name">Ordinals Wallet</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Trade Bitmaps on the Ordinals Wallet marketplace with filtering by number of digits. One of the original Bitmap marketplaces with deep ecosystem integration including Blocktributes support.</div>
+        <div class="dir-card-url">ordinalswallet.com</div>
+      </a>
+      <a href="https://unisat.io/market/names?dt=bitmap" class="dir-card" target="_blank" rel="noopener" data-search="unisat marketplace bitmap digits filter buy sell">
+        <div class="dir-card-top"><div class="dir-card-name">UniSat Marketplace</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">The leading Bitcoin Ordinals marketplace for Bitmap trading. Filter Bitmaps by number of digits, browse listings, and trade directly from your UniSat wallet with competitive fees.</div>
+        <div class="dir-card-url">unisat.io/market</div>
+      </a>
+      <a href="https://idclub.io/market/domain/bitmap" class="dir-card" target="_blank" rel="noopener" data-search="idclub marketplace bitmap digits letters emoji filter">
+        <div class="dir-card-top"><div class="dir-card-name">iDclub</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Bitmap marketplace with advanced filtering by number of digits, letters, and emoji patterns. iDclub specializes in named and patterned Bitmap blocks for collectors seeking specific number properties.</div>
+        <div class="dir-card-url">idclub.io</div>
+      </a>
+      <a href="https://ordyssey.com/collection/bitmap" class="dir-card" target="_blank" rel="noopener" data-search="ordyssey bitmap marketplace aggregator collection">
+        <div class="dir-card-top"><div class="dir-card-name">Ordyssey</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Bitmap marketplace aggregator that consolidates listings from across the ecosystem. Compare prices and find the best deals on Bitmap blocks from multiple sources in one place.</div>
+        <div class="dir-card-url">ordyssey.com</div>
+      </a>
+      <a href="https://teleordinal.xyz/collection/bitmap" class="dir-card" target="_blank" rel="noopener" data-search="teleordinal list bitmap bid listed marketplace">
+        <div class="dir-card-top"><div class="dir-card-name">TeleOrdinal</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">List your Bitmap or bid on listed ones through TeleOrdinal's marketplace. A community-driven trading platform offering an alternative venue for Bitmap buyers and sellers.</div>
+        <div class="dir-card-url">teleordinal.xyz</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── PODCASTS & TWITTER SPACES ── -->
+  <div class="dir-section" id="sec-podcasts" data-cat="podcasts">
+    <div class="dir-section-header">
+      <h2>🎙️ Podcasts & Twitter Spaces</h2>
+      <span class="dir-section-count">Audio content and live discussions about Bitmap and Bitcoin Ordinals</span>
+    </div>
+    <div class="dir-grid">
+      <a href="https://www.youtube.com/@TheBlockRunner" class="dir-card" target="_blank" rel="noopener" data-search="the block runner youtube podcast bitcoin ordinals bitmap">
+        <div class="dir-card-top"><div class="dir-card-name">The Block Runner</div><div class="dir-card-badges"><span class="badge badge-youtube">YOUTUBE</span></div></div>
+        <div class="dir-card-desc">YouTube podcast covering Bitcoin, Ordinals, and the Bitmap ecosystem. The Block Runner provides in-depth analysis, interviews, and news for serious Bitcoin NFT and Bitmap enthusiasts.</div>
+        <div class="dir-card-url">youtube.com/@TheBlockRunner</div>
+      </a>
+      <a href="https://twitter.com/SamSageWize" class="dir-card" target="_blank" rel="noopener" data-search="samsage twitter spaces bitmap bitcoin ordinals community">
+        <div class="dir-card-top"><div class="dir-card-name">SamSage.sats</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Regular Twitter Spaces hosted by SamSage covering Bitmap news, market updates, and ecosystem developments. A community staple for staying informed on the latest Bitmap happenings.</div>
+        <div class="dir-card-url">twitter.com/SamSageWize</div>
+      </a>
+      <a href="https://www.youtube.com/@TheMetaRush" class="dir-card" target="_blank" rel="noopener" data-search="the meta rush youtube podcast bitmap bitcoin metaverse">
+        <div class="dir-card-top"><div class="dir-card-name">The Meta Rush</div><div class="dir-card-badges"><span class="badge badge-youtube">YOUTUBE</span></div></div>
+        <div class="dir-card-desc">YouTube podcast focused on Bitcoin metaverse, Ordinals, and Bitmap ecosystem coverage. The Meta Rush dives deep into metaverse narratives and the future of Bitcoin-native virtual worlds.</div>
+        <div class="dir-card-url">youtube.com/@TheMetaRush</div>
+      </a>
+      <a href="https://twitter.com/liujackc/" class="dir-card" target="_blank" rel="noopener" data-search="jack liu show twitter spaces bitmap ordinals">
+        <div class="dir-card-top"><div class="dir-card-name">The Jack Liu Show</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Twitter Spaces hosted by Jack Liu featuring conversations about Bitcoin Ordinals and Bitmap. Jack brings together builders and community leaders for candid discussions on ecosystem development.</div>
+        <div class="dir-card-url">twitter.com/liujackc</div>
+      </a>
+      <a href="https://twitter.com/SeanyBitcoinz" class="dir-card" target="_blank" rel="noopener" data-search="mf.sats twitter spaces seany bitcoin bitmap ordinals">
+        <div class="dir-card-top"><div class="dir-card-name">mf.sats</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Twitter Spaces by SeanyBitcoinz covering Bitmap and Bitcoin Ordinals community topics. Regular live audio discussions that bring the community together around shared Bitcoin culture.</div>
+        <div class="dir-card-url">twitter.com/SeanyBitcoinz</div>
+      </a>
+      <a href="https://twitter.com/8bitsats" class="dir-card" target="_blank" rel="noopener" data-search="bitcoin after dark twitter spaces 8bitsats bitmap ordinals">
+        <div class="dir-card-top"><div class="dir-card-name">Bitcoin After Dark</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Late-night Twitter Spaces by 8bitsats covering the Bitmap and Bitcoin Ordinals ecosystem. Candid, unfiltered discussions about market trends, ecosystem drama, and community developments.</div>
+        <div class="dir-card-url">twitter.com/8bitsats</div>
+      </a>
+      <a href="https://www.youtube.com/@OrdinalRevolution" class="dir-card" target="_blank" rel="noopener" data-search="ordinal revolution youtube podcast bitcoin ordinals bitmap">
+        <div class="dir-card-top"><div class="dir-card-name">Ordinal Revolution</div><div class="dir-card-badges"><span class="badge badge-youtube">YOUTUBE</span></div></div>
+        <div class="dir-card-desc">YouTube podcast dedicated to the Bitcoin Ordinals revolution. Ordinal Revolution covers the latest projects, market movements, and technical developments across the Ordinals and Bitmap ecosystems.</div>
+        <div class="dir-card-url">youtube.com/@OrdinalRevolution</div>
+      </a>
+      <a href="https://www.youtube.com/@Bmanwildershow" class="dir-card" target="_blank" rel="noopener" data-search="bman wilder show youtube podcast bitcoin bitmap ordinals">
+        <div class="dir-card-top"><div class="dir-card-name">The Bman Wilder Show</div><div class="dir-card-badges"><span class="badge badge-youtube">YOUTUBE</span></div></div>
+        <div class="dir-card-desc">YouTube podcast by Bman Wilder exploring Bitcoin Ordinals and Bitmap culture. Known for entertaining and informative content that makes the Bitcoin NFT space accessible to newcomers and veterans alike.</div>
+        <div class="dir-card-url">youtube.com/@Bmanwildershow</div>
+      </a>
+      <a href="https://www.youtube.com/@CryptoVigilante" class="dir-card" target="_blank" rel="noopener" data-search="crypto vigilante youtube podcast bitcoin crypto ordinals">
+        <div class="dir-card-top"><div class="dir-card-name">Crypto Vigilante</div><div class="dir-card-badges"><span class="badge badge-youtube">YOUTUBE</span></div></div>
+        <div class="dir-card-desc">YouTube podcast covering broader crypto with Bitcoin Ordinals and Bitmap coverage. The Crypto Vigilante provides market analysis, investment perspectives, and ecosystem news for crypto enthusiasts.</div>
+        <div class="dir-card-url">youtube.com/@CryptoVigilante</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── COMMUNITY CHANNELS ── -->
+  <div class="dir-section" id="sec-community" data-cat="community">
+    <div class="dir-section-header">
+      <h2>👥 Community Channels</h2>
+      <span class="dir-section-count">Discord servers, Telegram groups, and community hubs</span>
+    </div>
+    <div class="dir-grid">
+      <a href="https://www.hodlocker.com/h/BITMAP" class="dir-card" target="_blank" rel="noopener" data-search="bitmap sublocker hodlocker lock signal top content">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Sublocker on Hodlocker</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">Lock Bitcoin to signal top Bitmap content on Hodlocker. A proof-of-work curation system where the best Bitmap content rises to the top based on community Bitcoin locks.</div>
+        <div class="dir-card-url">hodlocker.com/h/BITMAP</div>
+      </a>
+      <a href="https://t.me/bmpbrc" class="dir-card" target="_blank" rel="noopener" data-search="BMP telegram bitmap community ecosystem token brc">
+        <div class="dir-card-top"><div class="dir-card-name">$BMP Telegram</div><div class="dir-card-badges"><span class="badge badge-telegram">TELEGRAM</span></div></div>
+        <div class="dir-card-desc">Official Telegram community for the $BMP — the Bitmap ecosystem community token. Discussions on $BMP tokenomics, market activity, and integration with the broader Bitmap protocol.</div>
+        <div class="dir-card-url">t.me/bmpbrc</div>
+      </a>
+      <a href="https://discord.gg/bEaYeF758h" class="dir-card" target="_blank" rel="noopener" data-search="bitmap community discord 8bitsats server">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Community Discord</div><div class="dir-card-badges"><span class="badge badge-discord">DISCORD</span></div></div>
+        <div class="dir-card-desc">Official Bitmap Community Discord server launched by @8bitsats. The main gathering point for Bitmap enthusiasts, featuring channels for trading, building, art, and general community discussion.</div>
+        <div class="dir-card-url">discord.gg/bEaYeF758h</div>
+      </a>
+      <a href="https://discord.com/invite/pSHqRNDTde" class="dir-card" target="_blank" rel="noopener" data-search="bitmap core discord blockamoto official protocol server">
+        <div class="dir-card-top"><div class="dir-card-name">.bitmap core Discord</div><div class="dir-card-badges"><span class="badge badge-discord">DISCORD</span></div></div>
+        <div class="dir-card-desc">The core .bitmap Discord server launched by @blockamoto — creator of the Bitmap protocol. The primary official channel for protocol updates, governance discussions, and builder announcements.</div>
+        <div class="dir-card-url">discord.com/invite/pSHqRNDTde</div>
+      </a>
+      <a href="https://t.me/bitmapland" class="dir-card" target="_blank" rel="noopener" data-search="bitmap telegram bitmapland community group land">
+        <div class="dir-card-top"><div class="dir-card-name">.bitmap Telegram</div><div class="dir-card-badges"><span class="badge badge-telegram">TELEGRAM</span></div></div>
+        <div class="dir-card-desc">The official .bitmap Community Telegram group. Active discussions on Bitmap news, trading, project announcements, and ecosystem developments from the global Bitmap community.</div>
+        <div class="dir-card-url">t.me/bitmapland</div>
+      </a>
+      <a href="https://twitter.com/BitmapPizzaDay" class="dir-card" target="_blank" rel="noopener" data-search="bitmap pizza day club twitter blocktribute pizza">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Pizza Day Club</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Community club for holders of Pizza Day Bitmaps — blocks mined on Bitcoin Pizza Day (May 22, 2010). A Blocktribute club celebrating the most historically famous day in Bitcoin history.</div>
+        <div class="dir-card-url">twitter.com/BitmapPizzaDay</div>
+      </a>
+      <a href="https://twitter.com/66DAOBITMAP" class="dir-card" target="_blank" rel="noopener" data-search="bitmap 66 dao 10000 members 660000 669999 blocks">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap 66 DAO</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">A DAO of 10,000 members, exclusively for holders of Bitmaps between block 660,000 and 669,999. A tight-knit community organized around a historically significant range of Bitcoin blocks.</div>
+        <div class="dir-card-url">twitter.com/66DAOBITMAP</div>
+      </a>
+      <a href="https://discord.gg/eEyY5FH3TX" class="dir-card" target="_blank" rel="noopener" data-search="thoth block 656 discord server Thoth_11">
+        <div class="dir-card-top"><div class="dir-card-name">Thoth's Block 656 Discord</div><div class="dir-card-badges"><span class="badge badge-discord">DISCORD</span></div></div>
+        <div class="dir-card-desc">Discord community launched by @Thoth_11 centered around block 656 and early Bitcoin history. A focused community for enthusiasts of historically significant early-era Bitmap blocks.</div>
+        <div class="dir-card-url">discord.gg/eEyY5FH3TX</div>
+      </a>
+      <a href="https://twitter.com/Bitmap_CN" class="dir-card" target="_blank" rel="noopener" data-search="chinese language bitmap twitter CN community mandarin">
+        <div class="dir-card-top"><div class="dir-card-name">Chinese Language Bitmap Twitter</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Chinese language Bitmap Twitter account serving the Mandarin-speaking Bitcoin Ordinals community. News, updates, and community discussions about Bitmap in Chinese for the global Chinese crypto audience.</div>
+        <div class="dir-card-url">twitter.com/Bitmap_CN</div>
+      </a>
+      <a href="https://t.me/Bitmapbuilder" class="dir-card" target="_blank" rel="noopener" data-search="chinese language bitmap telegram builder mandarin community">
+        <div class="dir-card-top"><div class="dir-card-name">Chinese Language Bitmap Telegram</div><div class="dir-card-badges"><span class="badge badge-telegram">TELEGRAM</span></div></div>
+        <div class="dir-card-desc">Chinese Language Telegram group for Bitmap builders and enthusiasts. A dedicated space for Mandarin-speaking community members to discuss Bitmap development, trading, and ecosystem news.</div>
+        <div class="dir-card-url">t.me/Bitmapbuilder</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── DEVELOPER TOOLS ── -->
+  <div class="dir-section" id="sec-devtools" data-cat="devtools">
+    <div class="dir-section-header">
+      <h2>🛠️ Developer Tools</h2>
+      <span class="dir-section-count">Infrastructure, APIs, and tools for building on Bitmap</span>
+    </div>
+    <div class="dir-grid">
+      <a href="https://geniidata.com/" class="dir-card" target="_blank" rel="noopener" data-search="genii data self indexing ordinals bitcoin data">
+        <div class="dir-card-top"><div class="dir-card-name">Genii Data</div><div class="dir-card-badges"><span class="badge badge-live">LIVE</span></div></div>
+        <div class="dir-card-desc">Self-indexing infrastructure for Bitcoin Ordinals data. Genii Data powers many of the analytics dashboards in the Bitmap ecosystem with accurate, real-time on-chain data indexing.</div>
+        <div class="dir-card-url">geniidata.com</div>
+      </a>
+      <a href="https://twitter.com/trac_btc" class="dir-card" target="_blank" rel="noopener" data-search="trac ordinals indexing bitcoin infrastructure developer">
+        <div class="dir-card-top"><div class="dir-card-name">Trac Network</div><div class="dir-card-badges"><span class="badge badge-social">SOCIAL</span></div></div>
+        <div class="dir-card-desc">Ordinals indexing infrastructure for Bitcoin developers. Trac Network provides the indexing layer that powers Bitmap verification tools, TAP Protocol staking, and on-chain data retrieval.</div>
+        <div class="dir-card-url">twitter.com/trac_btc</div>
+      </a>
+      <a href="https://github.com/BennyTheDev/trac-bitmap-public-endpoint" class="dir-card" target="_blank" rel="noopener" data-search="github trac bitmap tracking indexed data public endpoint developer">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Tracking with Trac (GitHub)</div><div class="dir-card-badges"><span class="badge badge-github">GITHUB</span></div></div>
+        <div class="dir-card-desc">Open-source public endpoint for retrieving indexed and tracked Bitmap data via Trac. Developers can query Bitmap ownership, validation status, and block attributes from this REST API.</div>
+        <div class="dir-card-url">github.com/BennyTheDev</div>
+      </a>
+      <a href="https://github.com/bitmapland/ruleset/blob/beta/README.md" class="dir-card" target="_blank" rel="noopener" data-search="github bitmap ruleset parcel ruleset bitmapland beta">
+        <div class="dir-card-top"><div class="dir-card-name">Bitmap Ruleset (GitHub)</div><div class="dir-card-badges"><span class="badge badge-github">GITHUB</span></div></div>
+        <div class="dir-card-desc">The official Bitmap and parcel ruleset repository. Defines the technical rules governing what constitutes a valid Bitmap inscription and how parcels within blocks are defined and validated.</div>
+        <div class="dir-card-url">github.com/bitmapland</div>
+      </a>
+      <a href="https://developingzack.medium.com/visualizing-bitcoin-bitmap-transactions-with-html-and-javascript-f20393a9d378" class="dir-card" target="_blank" rel="noopener" data-search="bitmap viz zack visualize bitcoin transactions html javascript tutorial">
+        <div class="dir-card-top"><div class="dir-card-name">bitmap-viz by Zack</div><div class="dir-card-badges"></div></div>
+        <div class="dir-card-desc">A developer guide to visualizing Bitcoin and Bitmap transactions with HTML and JavaScript. An educational resource for developers looking to build their own Bitmap visualization tools from scratch.</div>
+        <div class="dir-card-url">developingzack.medium.com</div>
+      </a>
+    </div>
+  </div>
+
+  <div id="no-results" class="hidden" style="text-align:center;padding:3rem;font-family:'Space Mono',monospace;color:var(--muted);">
+    <h3 style="color:var(--orange);margin-bottom:0.5rem;">NO RESULTS</h3>
+    <p>No projects match your search. Try a different keyword.</p>
+  </div>
+
+</section>
+
+<footer style="padding:3rem 2rem;border-top:1px solid var(--border);margin-top:2rem;">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+    <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);">
+      Data sourced from <a href="https://bitmap-directory.gitbook.io/bitmap.directory" target="_blank" rel="noopener" style="color:var(--orange);">bitmap.directory</a> · Bitmap Hub is an independent reference site
+    </div>
+    <a href="index.html" style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--orange);">← BACK TO BITMAP HUB</a>
+  </div>
+</footer>
+
+<script>
+(function() {
+  'use strict';
+
+  var currentCat = 'all';
+
+  // ── Theme ────────────────────────────────────────────────────────────────
+  window.toggleTheme = function() {
+    var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    document.getElementById('toggleIcon').textContent = isDark ? '🌙' : '☀️';
+    document.getElementById('toggleLabel').textContent = isDark ? 'DARK' : 'LIGHT';
+    try { localStorage.setItem('bh-theme', isDark ? 'light' : 'dark'); } catch(e) {}
+  };
+  try {
+    var saved = localStorage.getItem('bh-theme');
+    if (saved) {
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('toggleIcon').textContent = saved === 'light' ? '🌙' : '☀️';
+      document.getElementById('toggleLabel').textContent = saved === 'light' ? 'DARK' : 'LIGHT';
+    }
+  } catch(e) {}
+
+  // ── Category filter ──────────────────────────────────────────────────────
+  window.filterCat = function(cat, btn) {
+    currentCat = cat;
+    // Update pill styles
+    document.querySelectorAll('.cat-pill').forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    // Show/hide sections
+    document.querySelectorAll('.dir-section').forEach(function(sec) {
+      if (cat === 'all' || sec.getAttribute('data-cat') === cat) {
+        sec.classList.remove('hidden');
+      } else {
+        sec.classList.add('hidden');
+      }
+    });
+    filterDir();
+  };
+
+  // ── Search filter ────────────────────────────────────────────────────────
+  window.filterDir = function() {
+    var q = document.getElementById('dir-search').value.toLowerCase().trim();
+    var totalShowing = 0;
+    var anyVisible = false;
+
+    document.querySelectorAll('.dir-section').forEach(function(sec) {
+      if (currentCat !== 'all' && sec.getAttribute('data-cat') !== currentCat) return;
+      var cards = sec.querySelectorAll('.dir-card');
+      var sectionVisible = 0;
+      cards.forEach(function(card) {
+        var haystack = (card.getAttribute('data-search') || '') + ' ' + (card.textContent || '');
+        var match = !q || haystack.toLowerCase().indexOf(q) !== -1;
+        card.style.display = match ? '' : 'none';
+        if (match) { sectionVisible++; totalShowing++; anyVisible = true; }
+      });
+      // Hide entire section header if no cards visible in search mode
+      sec.style.display = (q && sectionVisible === 0) ? 'none' : '';
+    });
+
+    var noRes = document.getElementById('no-results');
+    noRes.classList.toggle('hidden', anyVisible || !q);
+    document.getElementById('count-showing').textContent = q ? totalShowing : document.querySelectorAll('.dir-card').length;
+  };
+
+  // Init count
+  document.getElementById('count-total').textContent = document.querySelectorAll('.dir-card').length;
+  document.getElementById('count-showing').textContent = document.querySelectorAll('.dir-card').length;
+
+})();
+</script>
+</body>
+</html>

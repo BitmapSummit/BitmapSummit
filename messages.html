@@ -392,6 +392,7 @@
       <li><a href="rarity.html">RARITY</a></li>
       <li><a href="data.html">DATA</a></li>
       <li><a href="leaderboard.html">LEADERBOARD</a></li>
+      <li><a href="directory.html">DIRECTORY</a></li>
       <li><a href="messages.html" class="active">BLOCK MESSAGES</a></li>
       <li><a href="tools.html">TOOLS</a></li>
       <li><a href="marketplaces.html">MARKETS</a></li>
@@ -427,8 +428,8 @@
       <p>Enter <strong>any block number</strong> from block 0 to the latest tip. Each lookup fetches exactly that one block — fast, targeted, and API-friendly.</p>
     </div>
     <div class="hiw-card">
-      <h4>⚠️ FIRST 25 TXS ONLY</h4>
-      <p>mempool.space returns <strong>25 transactions per page</strong>. Each block may contain thousands of txs. We only scan the first 25, so some messages deeper in the block may not appear.</p>
+      <h4>✅ ALL TXS SCANNED</h4>
+      <p>mempool.space returns <strong>25 transactions per page</strong>. We fetch all pages automatically (up to 500 txs) so messages deep in any block are captured.</p>
     </div>
     <div class="hiw-card">
       <h4>🔎 WHAT WE READ</h4>
@@ -651,13 +652,28 @@
       .then(function (info) {
         if (!info) return null;
         ts = info.timestamp;
-        return fetch(API + '/block/' + hash + '/txs/0');
+        // Fetch ALL tx pages (mempool.space returns 25 per page)
+        var totalTxCount = info.tx_count || 0;
+        var allTxs = [];
+        var pageOffsets = [];
+        for (var off = 0; off < Math.max(totalTxCount, 25); off += 25) {
+          pageOffsets.push(off);
+          if (off > 0 && off >= totalTxCount) break;
+        }
+        // Always fetch at least page 0; cap at 500 txs (20 pages) to stay reasonable
+        pageOffsets = pageOffsets.slice(0, 20);
+        return Promise.all(pageOffsets.map(function(offset) {
+          return fetch(API + '/block/' + hash + '/txs/' + offset)
+            .then(function(r) { return (r && r.ok) ? r.json() : []; })
+            .catch(function() { return []; });
+        }));
       })
-      .then(function (r) { return (r && r.ok) ? r.json() : null; })
-      .then(function (txs) {
-        if (!txs) return null;
+      .then(function (pages) {
+        if (!pages) return null;
+        var allTxs = [];
+        pages.forEach(function(page) { if (Array.isArray(page)) allTxs = allTxs.concat(page); });
         var msgs = [];
-        txs.forEach(function (tx, txIndex) {
+        allTxs.forEach(function (tx, txIndex) {
           // ── Coinbase scriptSig (first tx of every block) ─────────────────
           if (txIndex === 0 && tx.vin && tx.vin[0] && tx.vin[0].scriptsig) {
             var cbHex = tx.vin[0].scriptsig;
@@ -698,7 +714,7 @@
             msgs.push({ block: height, blockHash: hash, blockTs: ts, txid: tx.txid, raw: hex, decoded: dec, type: type, source: 'op_return' });
           });
         });
-        return { msgs: msgs, txCount: txs.length, blockTs: ts, blockHash: hash };
+        return { msgs: msgs, txCount: allTxs.length, blockTs: ts, blockHash: hash };
       })
       .catch(function (e) { console.warn('Block', height, e.message); return null; });
   }
@@ -781,7 +797,7 @@
     if (!list.length) {
       wrap.innerHTML = '<div class="state-box"><h3>NO MESSAGES</h3><p>' +
         (S.msgs.length === 0
-          ? 'No OP_RETURN outputs found in the first 25 transactions of block ' + S.blockNum.toLocaleString() + '.'
+          ? 'No OP_RETURN outputs found in any of the ' + (S.txCount || 'scanned') + ' transactions of block ' + S.blockNum.toLocaleString() + '.'
           : 'No ' + (S.filter !== 'all' ? S.filter + ' ' : '') + 'messages' + (S.search ? ' matching "' + esc(S.search) + '"' : '') + ' in this block.') +
         '</p></div>';
       return;
