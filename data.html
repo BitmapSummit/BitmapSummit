@@ -30,6 +30,8 @@
     <li><a href="projects.html">PROJECTS</a></li>
     <li><a href="future.html">FUTURE</a></li>
     <li><a href="founders.html">FOUNDERS</a></li>
+    <li><a href="leaderboard.html">LEADERBOARD</a></li>
+    <li><a href="messages.html">BLOCK MESSAGES</a></li>
     <li><a href="dashboard.html">MY BITMAP</a></li>
   </ul>
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">
@@ -80,37 +82,65 @@
   </div>
 
   <script>
-  // Fetch live floor price from Coinbase (BTC price) + Magic Eden (floor)
+  // Fetch live BTC price + Bitmap floor from Ordinals Wallet API
   (function() {
-    var btcUsd = 0;
-    fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot')
-      .then(function(r){ return r.json(); })
-      .then(function(d){
-        btcUsd = parseFloat(d.data.amount);
-        // Try Magic Eden public API for Bitmap floor
-        return fetch('https://api-mainnet.magiceden.dev/v2/ord/btc/collections/bitmap/stats');
-      })
-      .then(function(r){ return r.json(); })
-      .then(function(d){
-        var floorSats = d.floorPrice;
-        if (floorSats) {
-          var floorBtc = (floorSats / 1e8).toFixed(5);
-          document.getElementById('stat-floor').textContent = floorBtc + ' BTC';
-          if (btcUsd) {
-            var usd = (floorSats / 1e8 * btcUsd).toFixed(2);
-            document.getElementById('stat-floor-usd').textContent = '$' + parseFloat(usd).toLocaleString();
-          }
-        }
-      })
-      .catch(function(){
-        // Fallback to CoinGecko known data
-        document.getElementById('stat-floor').textContent = '~0.000035 BTC';
-        if (btcUsd) {
-          document.getElementById('stat-floor-usd').textContent = '~$' + (0.000035 * btcUsd).toFixed(2);
-        } else {
-          document.getElementById('stat-floor-usd').textContent = '~$3.60';
-        }
+    var FALLBACK_FLOOR_BTC = 0.00009;
+    var FALLBACK_FLOOR_USD = 8.50;
+
+    function updateFloorUSD(floorBtc, btcUsd) {
+      var usd = floorBtc * btcUsd;
+      document.getElementById('stat-floor-usd').textContent = '$' + usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Fetch BTC price and Bitmap stats in parallel, then combine
+    var btcPricePromise = fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot')
+      .then(function(r) { return r.json(); })
+      .then(function(d) { return parseFloat(d.data.amount); })
+      .catch(function() {
+        // CoinGecko fallback
+        return fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd')
+          .then(function(r) { return r.json(); })
+          .then(function(d) { return d.bitcoin.usd; })
+          .catch(function() { return 0; });
       });
+
+    var bitmapStatsPromise = fetch('https://turbo.ordinalswallet.com/collection/bitmap/stats')
+      .then(function(r) { return r.json(); })
+      .catch(function() {
+        // Fallback: try escrows endpoint for floor
+        return fetch('https://turbo.ordinalswallet.com/collection/bitmap/escrows?limit=1&sort=price_asc')
+          .then(function(r) { return r.json(); })
+          .then(function(d) {
+            var item = Array.isArray(d) ? d[0] : (d.results && d.results[0]);
+            return item ? { floor_price: item.price } : null;
+          })
+          .catch(function() { return null; });
+      });
+
+    Promise.all([btcPricePromise, bitmapStatsPromise]).then(function(results) {
+      var btcUsd   = results[0] || 0;
+      var stats    = results[1];
+
+      var floorSats = stats && (stats.floor_price || stats.floorPrice);
+      var holders   = stats && (stats.owners || stats.holder_count || stats.holderCount);
+
+      if (floorSats) {
+        var floorBtc = floorSats / 1e8;
+        document.getElementById('stat-floor').textContent = floorBtc.toFixed(6) + ' BTC';
+        if (btcUsd) {
+          updateFloorUSD(floorBtc, btcUsd);
+        } else {
+          document.getElementById('stat-floor-usd').textContent = '~$' + (FALLBACK_FLOOR_USD).toFixed(2);
+        }
+      } else {
+        document.getElementById('stat-floor').textContent = '~' + FALLBACK_FLOOR_BTC + ' BTC';
+        document.getElementById('stat-floor-usd').textContent = btcUsd ? '$' + (FALLBACK_FLOOR_BTC * btcUsd).toFixed(2) : '~$' + FALLBACK_FLOOR_USD.toFixed(2);
+      }
+
+      if (holders) {
+        document.getElementById('stat-holders').textContent = parseInt(holders).toLocaleString() + '+';
+      }
+    });
   })();
   </script>
 

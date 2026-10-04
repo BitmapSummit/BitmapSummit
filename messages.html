@@ -622,7 +622,7 @@
         updateStats();
         setPill('ready', 'BLOCK ' + height.toLocaleString());
         var dt = r.blockTs ? new Date(r.blockTs * 1000).toLocaleDateString('en-MY', { timeZone: 'Asia/Kuala_Lumpur', year:'numeric', month:'short', day:'numeric' }) : '';
-        setText('status-text', 'Block ' + height.toLocaleString() + (dt ? ' · mined ' + dt : '') + ' · ' + r.txCount + ' txs scanned · ' + r.msgs.length + ' OP_RETURN found');
+        setText('status-text', 'Block ' + height.toLocaleString() + (dt ? ' · mined ' + dt : '') + ' · ' + r.txCount + ' txs scanned · ' + r.msgs.length + ' message' + (r.msgs.length !== 1 ? 's' : '') + ' found');
         render();
       })
       .catch(function (err) {
@@ -670,10 +670,29 @@
           // ── OP_RETURN outputs (all txs) ──────────────────────────────────
           if (!tx.vout) return;
           tx.vout.forEach(function (out) {
-            if (out.scriptpubkey_type !== 'op_return') return;
-            var asm = out.scriptpubkey_asm || '';
-            var hex = asm.replace(/^OP_RETURN\s*/i, '').replace(/\s+/g, '');
-            if (!hex) return;
+            var hex = '';
+
+            // Method 1: standard type field (modern mempool.space)
+            if (out.scriptpubkey_type === 'op_return') {
+              var asm1 = out.scriptpubkey_asm || '';
+              hex = asm1.replace(/^OP_RETURN\s*/i, '').replace(/\s+/g, '');
+              // If asm didn't yield hex, try raw scriptpubkey (strip 6a + length prefix)
+              if (!hex && out.scriptpubkey && out.scriptpubkey.slice(0,2) === '6a') {
+                hex = stripOpReturnPrefix(out.scriptpubkey);
+              }
+            }
+
+            // Method 2: early/nonstandard — raw scriptpubkey starts with 6a (OP_RETURN opcode)
+            if (!hex && out.scriptpubkey && out.scriptpubkey.slice(0,2) === '6a') {
+              hex = stripOpReturnPrefix(out.scriptpubkey);
+            }
+
+            // Method 3: scriptpubkey_asm contains OP_RETURN regardless of type field
+            if (!hex && out.scriptpubkey_asm && /^OP_RETURN/i.test(out.scriptpubkey_asm.trim())) {
+              hex = out.scriptpubkey_asm.replace(/^OP_RETURN\s*/i, '').replace(/\s+/g, '');
+            }
+
+            if (!hex || hex.length < 2) return;
             var dec  = hexToUtf8(hex);
             var type = classify(dec);
             msgs.push({ block: height, blockHash: hash, blockTs: ts, txid: tx.txid, raw: hex, decoded: dec, type: type, source: 'op_return' });
@@ -699,6 +718,20 @@
       for (var j = 0; j < b.length; j++) s += (b[j] >= 32 && b[j] < 127) ? String.fromCharCode(b[j]) : (b[j] === 0 ? '' : '·');
       return s;
     } catch (e) { return ''; }
+  }
+
+  // Strip OP_RETURN opcode (6a) and length byte(s) from raw scriptpubkey hex
+  // Handles: 6a<len><data>, 6a4c<len><data> (OP_PUSHDATA1), 6a4d<len2><data> (OP_PUSHDATA2)
+  function stripOpReturnPrefix(scriptHex) {
+    if (!scriptHex || scriptHex.length < 4) return '';
+    var s = scriptHex.toLowerCase();
+    if (s.slice(0,2) !== '6a') return '';
+    var pos = 2;
+    var next = s.slice(pos, pos+2);
+    if (next === '4c') { pos += 4; }       // OP_PUSHDATA1: skip opcode + 1-byte length
+    else if (next === '4d') { pos += 6; }  // OP_PUSHDATA2: skip opcode + 2-byte length
+    else { pos += 2; }                     // standard: skip 1-byte length
+    return s.slice(pos);
   }
 
   function isPrintable(s) {
