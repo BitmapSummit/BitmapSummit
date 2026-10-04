@@ -431,8 +431,8 @@
       <p>mempool.space returns <strong>25 transactions per page</strong>. Each block may contain thousands of txs. We only scan the first 25, so some messages deeper in the block may not appear.</p>
     </div>
     <div class="hiw-card">
-      <h4>🔎 OP_RETURN ONLY</h4>
-      <p>This page reads <strong>OP_RETURN outputs</strong> — the standard Bitcoin data field. Modern Ordinals inscriptions use Taproot witness data instead and will <em>not</em> appear here.</p>
+      <h4>🔎 WHAT WE READ</h4>
+      <p>We read <strong>OP_RETURN outputs</strong> (standard data field) <em>and</em> the <strong>coinbase scriptSig</strong> (miner's message in the first tx of every block). Taproot/Ordinals witness data is not included.</p>
     </div>
     <div class="hiw-card">
       <h4>🏷️ MESSAGE TYPES</h4>
@@ -486,7 +486,7 @@
 <div class="stats-strip">
   <div class="stat-cell"><div class="stat-num" id="s-block">—</div><div class="stat-lbl">BLOCK</div></div>
   <div class="stat-cell"><div class="stat-num" id="s-txs">—</div><div class="stat-lbl">TXS SCANNED</div></div>
-  <div class="stat-cell"><div class="stat-num" id="s-msgs">—</div><div class="stat-lbl">OP_RETURN</div></div>
+  <div class="stat-cell"><div class="stat-num" id="s-msgs">—</div><div class="stat-lbl">MESSAGES</div></div>
   <div class="stat-cell"><div class="stat-num" id="s-readable">—</div><div class="stat-lbl">READABLE</div></div>
   <div class="stat-cell"><div class="stat-num" id="s-date">—</div><div class="stat-lbl">BLOCK DATE</div></div>
 </div>
@@ -516,15 +516,48 @@
     search   : ''
   };
 
-  // ── Public bindings ───────────────────────────────────────────────────
-  window.doScan       = doScan;
-  window.onBlockInput = onBlockInput;
-  window.setFilter    = setFilter;
-  window.onSearch     = onSearch;
-  window.toggleHIW    = toggleHIW;
-  window.toggleExpand = toggleExpand;
-  window.toggleHex    = toggleHex;
-  window.copyMsg      = copyMsg;
+  // ── Public bindings (defined inline so available immediately) ────────
+  window.doScan       = function() { doScan(); };
+  window.onBlockInput = function() { onBlockInput(); };
+  window.setFilter    = function(f) { setFilter(f); };
+  window.onSearch     = function() { onSearch(); };
+  window.toggleHIW    = function() { toggleHIW(); };
+
+  window.toggleExpand = function (uid) {
+    var body = document.getElementById('body-' + uid);
+    var btn  = document.getElementById('exp-' + uid);
+    if (!body) return;
+    var ex = body.classList.toggle('expanded');
+    if (btn) btn.textContent = ex ? '▲ COLLAPSE' : '▼ EXPAND';
+  };
+
+  window.toggleHex = function (uid) {
+    var body = document.getElementById('body-' + uid);
+    var rawV = document.getElementById('raw-' + uid);
+    var decV = document.getElementById('dec-' + uid);
+    var btn  = document.getElementById('hx-' + uid);
+    if (!body) return;
+    var toHex = body.classList.toggle('hex-display');
+    body.textContent = toHex
+      ? (rawV ? rawV.value.match(/.{1,64}/g).join('\n') : '')
+      : (decV ? decV.value : '');
+    if (btn) btn.textContent = toHex ? 'TEXT' : '{ HEX }';
+  };
+
+  window.copyMsg = function (uid) {
+    var decV = document.getElementById('dec-' + uid);
+    var rawV = document.getElementById('raw-' + uid);
+    var btn  = document.getElementById('cp-' + uid);
+    var text = (decV && decV.value) ? decV.value : (rawV ? rawV.value : '');
+    if (!text) return;
+    function markCopied() {
+      if (btn) { btn.textContent = '✓ COPIED'; btn.classList.add('copied'); }
+      setTimeout(function () { if (btn) { btn.textContent = '⧉ COPY'; btn.classList.remove('copied'); } }, 2000);
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(markCopied).catch(function () { fallbackCopy(text); markCopied(); });
+    } else { fallbackCopy(text); markCopied(); }
+  };
 
   // ── How-it-works panel ────────────────────────────────────────────────
   function toggleHIW() {
@@ -624,7 +657,17 @@
       .then(function (txs) {
         if (!txs) return null;
         var msgs = [];
-        txs.forEach(function (tx) {
+        txs.forEach(function (tx, txIndex) {
+          // ── Coinbase scriptSig (first tx of every block) ─────────────────
+          if (txIndex === 0 && tx.vin && tx.vin[0] && tx.vin[0].scriptsig) {
+            var cbHex = tx.vin[0].scriptsig;
+            var cbDec = hexToUtf8(cbHex);
+            if (cbDec && isPrintable(cbDec)) {
+              msgs.push({ block: height, blockHash: hash, blockTs: ts, txid: tx.txid, raw: cbHex, decoded: cbDec, type: classify(cbDec), source: 'coinbase' });
+            }
+          }
+
+          // ── OP_RETURN outputs (all txs) ──────────────────────────────────
           if (!tx.vout) return;
           tx.vout.forEach(function (out) {
             if (out.scriptpubkey_type !== 'op_return') return;
@@ -633,7 +676,7 @@
             if (!hex) return;
             var dec  = hexToUtf8(hex);
             var type = classify(dec);
-            msgs.push({ block: height, blockHash: hash, blockTs: ts, txid: tx.txid, raw: hex, decoded: dec, type: type });
+            msgs.push({ block: height, blockHash: hash, blockTs: ts, txid: tx.txid, raw: hex, decoded: dec, type: type, source: 'op_return' });
           });
         });
         return { msgs: msgs, txCount: txs.length, blockTs: ts, blockHash: hash };
@@ -741,6 +784,7 @@
         html += '<a class="msg-txid" href="https://mempool.space/tx/' + m.txid + '" target="_blank" rel="noopener">' +
           m.txid.slice(0, 14) + '…' + m.txid.slice(-10) + '</a>';
         html += '<span class="msg-tag tag-' + m.type + '">' + m.type.toUpperCase() + '</span>';
+        if (m.source === 'coinbase') html += '<span class="msg-tag" style="background:#1a1a2a;color:#8888cc;border:1px solid #3333aa44;">COINBASE</span>';
         html += '</div>';
 
         html += '<div class="msg-body' + (isHex ? ' hex-display' : '') + '" id="body-' + uid + '">';
@@ -762,43 +806,6 @@
 
     wrap.innerHTML = html;
   }
-
-  // ── Card actions ──────────────────────────────────────────────────────
-  window.toggleExpand = function (uid) {
-    var body = document.getElementById('body-' + uid);
-    var btn  = document.getElementById('exp-' + uid);
-    if (!body) return;
-    var ex = body.classList.toggle('expanded');
-    if (btn) btn.textContent = ex ? '▲ COLLAPSE' : '▼ EXPAND';
-  };
-
-  window.toggleHex = function (uid) {
-    var body = document.getElementById('body-' + uid);
-    var rawV = document.getElementById('raw-' + uid);
-    var decV = document.getElementById('dec-' + uid);
-    var btn  = document.getElementById('hx-' + uid);
-    if (!body) return;
-    var toHex = body.classList.toggle('hex-display');
-    body.textContent = toHex
-      ? (rawV ? rawV.value.match(/.{1,64}/g).join('\n') : '')
-      : (decV ? decV.value : '');
-    if (btn) btn.textContent = toHex ? 'TEXT' : '{ HEX }';
-  };
-
-  window.copyMsg = function (uid) {
-    var decV = document.getElementById('dec-' + uid);
-    var rawV = document.getElementById('raw-' + uid);
-    var btn  = document.getElementById('cp-' + uid);
-    var text = (decV && decV.value) ? decV.value : (rawV ? rawV.value : '');
-    if (!text) return;
-    function markCopied() {
-      if (btn) { btn.textContent = '✓ COPIED'; btn.classList.add('copied'); }
-      setTimeout(function () { if (btn) { btn.textContent = '⧉ COPY'; btn.classList.remove('copied'); } }, 2000);
-    }
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text).then(markCopied).catch(function () { fallbackCopy(text); markCopied(); });
-    } else { fallbackCopy(text); markCopied(); }
-  };
 
   function fallbackCopy(text) {
     var ta = document.createElement('textarea');
