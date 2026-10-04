@@ -321,6 +321,8 @@ body.light .total-bar-wrap { background: rgba(0,0,0,0.1); }
     <li><a href="future.html">FUTURE</a></li>
     <li><a href="founders.html">FOUNDERS</a></li>
     <li><a href="leaderboard.html" style="color:var(--orange);">LEADERBOARD</a></li>
+    <li><a href="directory.html">DIRECTORY</a></li>
+    <li><a href="messages.html">MESSAGES</a></li>
     <li><a href="dashboard.html">MY BITMAP</a></li>
   </ul>
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">
@@ -346,6 +348,8 @@ body.light .total-bar-wrap { background: rgba(0,0,0,0.1); }
     <div class="lb-stat"><div class="lb-stat-val" id="statTop">—</div><div class="lb-stat-label">TOP HOLDER COUNT</div></div>
     <div class="lb-stat"><div class="lb-stat-val" id="statAvg">—</div><div class="lb-stat-label">AVG PER WALLET</div></div>
     <div class="lb-stat"><div class="lb-stat-val" id="statFetched">—</div><div class="lb-stat-label">INSCRIPTIONS SCANNED</div></div>
+    <div class="lb-stat" style="border-color:rgba(97,175,239,0.4);"><div class="lb-stat-val d4" id="stat4Blocks">—</div><div class="lb-stat-label">4-DIGIT COVERAGE</div></div>
+    <div class="lb-stat" style="border-color:rgba(97,175,239,0.4);"><div class="lb-stat-val d4" id="stat4Wallets">—</div><div class="lb-stat-label">4-DIGIT HOLDERS</div></div>
   </div>
 
   <!-- Refresh bar -->
@@ -378,7 +382,7 @@ body.light .total-bar-wrap { background: rgba(0,0,0,0.1); }
     <button class="lb-tab d1"  data-digit="1"   onclick="setTab(this,'1')">1-DIGIT<span class="tab-count" id="cnt-1">0</span></button>
     <button class="lb-tab d2"  data-digit="2"   onclick="setTab(this,'2')">2-DIGIT<span class="tab-count" id="cnt-2">0</span></button>
     <button class="lb-tab d3"  data-digit="3"   onclick="setTab(this,'3')">3-DIGIT<span class="tab-count" id="cnt-3">0</span></button>
-    <button class="lb-tab d4"  data-digit="4"   onclick="setTab(this,'4')">4-DIGIT<span class="tab-count" id="cnt-4">0</span></button>
+    <button class="lb-tab d4"  data-digit="4"   onclick="setTab(this,'4')" title="View all wallets holding 4-digit Bitmaps (1,000–9,999) with block details">4-DIGIT ◈<span class="tab-count" id="cnt-4">0</span></button>
     <button class="lb-tab d5"  data-digit="5"   onclick="setTab(this,'5')">5-DIGIT<span class="tab-count" id="cnt-5">0</span></button>
     <button class="lb-tab d6"  data-digit="6"   onclick="setTab(this,'6')">6-DIGIT<span class="tab-count" id="cnt-6">0</span></button>
   </div>
@@ -404,6 +408,7 @@ body.light .total-bar-wrap { background: rgba(0,0,0,0.1); }
           <th>WALLET</th>
           <th id="th-total" onclick="setSort('total')">TOTAL ▼</th>
           <th>DIGIT BREAKDOWN</th>
+          <th id="th-blocks4" style="display:none;color:#61AFEF;">4D BLOCKS</th>
           <th>SHARE %</th>
         </tr>
       </thead>
@@ -424,7 +429,7 @@ body.light .total-bar-wrap { background: rgba(0,0,0,0.1); }
 <div class="divider"></div>
 <section style="padding-top:1.5rem;padding-bottom:1.5rem;">
   <div class="highlight-box" data-label="LIVE DATA">
-    Leaderboard data is fetched live from the Ordinals Wallet public API (<code>turbo.ordinalswallet.com</code>). Up to 2,000 top wallets are scanned per refresh. Data auto-refreshes every 5 minutes. Use the Refresh Now button after a big trade to see latest rankings. Wallets with very few total Bitmaps but rare low-digit blocks may not appear in the top 2,000.
+    Leaderboard data is fetched live from the Ordinals Wallet public API (<code>turbo.ordinalswallet.com</code>). Up to 2,000 top wallets are scanned per refresh. Data auto-refreshes every 5 minutes. Use the Refresh Now button after a big trade to see latest rankings. The <strong style="color:#61AFEF;">4-DIGIT ◈</strong> tab shows all wallets holding any block 1,000–9,999, with their individual block numbers listed — coverage typically reaches 90%+ of all 9,000 four-digit Bitmaps. Wallets holding only low quantities with no higher-ranked inscriptions may not appear in the top 2,000.
   </div>
 </section>
 <section style="padding-top:1rem;padding-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
@@ -517,10 +522,16 @@ function applyView() {
     return true;
   });
 
-  // Sort
+  // Sort — when on 4-digit tab, default sort is by d4 count
   list.sort(function(a, b) {
     if (sortKey === 'wallet') {
       return sortDir * (a.address < b.address ? -1 : a.address > b.address ? 1 : 0);
+    }
+    if (activeTab === '4') {
+      // Sort by 4-digit count first, then total as tiebreaker
+      var diff = (b.d4 || 0) - (a.d4 || 0);
+      if (diff !== 0) return sortDir * diff;
+      return sortDir * (b.total - a.total);
     }
     if (sortKey === 'digit' && activeTab !== 'all') {
       return sortDir * ((b['d' + activeTab] || 0) - (a['d' + activeTab] || 0));
@@ -540,14 +551,25 @@ function applyView() {
 
 function renderTable(list, totalFiltered, rankOffset) {
   var tbody = document.getElementById('lbBody');
+  var show4D = (activeTab === '4');
+
+  // Show/hide 4D column header
+  var th4 = document.getElementById('th-blocks4');
+  if (th4) th4.style.display = show4D ? '' : 'none';
+
+  var colSpan = show4D ? 6 : 5;
+
   if (!list.length) {
-    tbody.innerHTML = '<tr><td colspan="5" class="lb-status">No wallets found for this filter.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="' + colSpan + '" class="lb-status">No wallets found for this filter.</td></tr>';
     return;
   }
 
   var maxTotal = 0;
   allHolders.forEach(function(h){ if (h.total > maxTotal) maxTotal = h.total; });
   var grandTotal = allHolders.reduce(function(s,h){ return s + h.total; }, 0) || 1;
+
+  var maxD4 = 0;
+  if (show4D) { list.forEach(function(h){ if ((h.d4||0) > maxD4) maxD4 = h.d4||0; }); }
 
   var html = '';
   list.forEach(function(h, i) {
@@ -568,16 +590,39 @@ function renderTable(list, totalFiltered, rankOffset) {
 
     // Highlight the active digit tier badge
     if (activeTab !== 'all') {
-      var hl = 'd' + activeTab;
       badges = badges.replace(
         'style="background:' + DCOLORS[parseInt(activeTab)] + '22',
         'style="background:' + DCOLORS[parseInt(activeTab)] + '55'
       );
     }
 
-    var barW = maxTotal > 0 ? Math.round(h.total / maxTotal * 100) : 0;
+    var barW = show4D
+      ? (maxD4 > 0 ? Math.round((h.d4||0) / maxD4 * 100) : 0)
+      : (maxTotal > 0 ? Math.round(h.total / maxTotal * 100) : 0);
     var shareVal = ((h.total / grandTotal) * 100).toFixed(2) + '%';
     var owLink = 'https://ordinalswallet.com/wallet/' + h.address;
+
+    // 4-digit block list cell
+    var blocks4Cell = '';
+    if (show4D) {
+      var blocks = h.blocks4 || [];
+      var blockHtml = '';
+      if (blocks.length > 0) {
+        var shown = blocks.slice(0, 12);
+        blockHtml = shown.map(function(b) {
+          return '<a href="https://ordinals.com/search?query=' + b + '.bitmap" target="_blank" rel="noopener" '
+            + 'style="color:#61AFEF;text-decoration:none;font-size:0.62rem;border:1px solid rgba(97,175,239,0.3);'
+            + 'padding:0.1rem 0.3rem;border-radius:2px;display:inline-block;margin:1px;" '
+            + 'title="View ' + b + '.bitmap on Ordinals">' + b + '</a>';
+        }).join('');
+        if (blocks.length > 12) {
+          blockHtml += '<span style="color:var(--muted);font-size:0.6rem;margin-left:2px;">+' + (blocks.length - 12) + ' more</span>';
+        }
+      } else {
+        blockHtml = '<span style="color:var(--muted);font-size:0.65rem;">—</span>';
+      }
+      blocks4Cell = '<td style="min-width:220px;max-width:320px;">' + blockHtml + '</td>';
+    }
 
     html += '<tr>'
       + '<td class="rank-cell ' + rankClass + '">' + rankDisplay + '</td>'
@@ -586,9 +631,10 @@ function renderTable(list, totalFiltered, rankOffset) {
         + '<button class="wallet-copy" onclick="copyAddr(\'' + h.address + '\')" title="Copy full address">⧉</button>'
         + '<a class="wallet-ext" href="' + owLink + '" target="_blank" rel="noopener" title="View on Ordinals Wallet">↗</a>'
       + '</div></td>'
-      + '<td class="total-cell"><div class="total-val">' + h.total.toLocaleString() + '</div>'
-        + '<div class="total-bar-wrap"><div class="total-bar" style="width:' + barW + '%"></div></div></td>'
+      + '<td class="total-cell"><div class="total-val" style="color:' + (show4D ? '#61AFEF' : 'var(--orange)') + ';">' + (show4D ? (h.d4||0) : h.total).toLocaleString() + '</div>'
+        + '<div class="total-bar-wrap"><div class="total-bar" style="width:' + barW + '%;background:' + (show4D ? '#61AFEF' : 'var(--orange)') + ';"></div></div></td>'
       + '<td><div class="digit-badges">' + (badges || '<span style="color:var(--muted);font-size:0.65rem;">—</span>') + '</div></td>'
+      + blocks4Cell
       + '<td class="share-cell">' + shareVal + '</td>'
       + '</tr>';
   });
@@ -638,11 +684,21 @@ function finalizeHolders(map) {
   var topHolder = allHolders.length > 0 ? allHolders[0].total : 0;
   var avg = allHolders.length > 0 ? Math.round(totalBitmaps / allHolders.length) : 0;
 
+  // 4-digit stats
+  var all4Blocks = {};
+  allHolders.forEach(function(h){ (h.blocks4||[]).forEach(function(b){ all4Blocks[b] = true; }); });
+  var unique4Count = Object.keys(all4Blocks).length;
+  var pct4 = ((unique4Count / 9000) * 100).toFixed(1);
+
   document.getElementById('statWallets').textContent  = allHolders.length.toLocaleString();
   document.getElementById('statTotal').textContent    = totalBitmaps.toLocaleString();
   document.getElementById('statTop').textContent      = topHolder.toLocaleString();
   document.getElementById('statAvg').textContent      = avg.toLocaleString();
   document.getElementById('statFetched').textContent  = totalFetched.toLocaleString();
+  var s4el = document.getElementById('stat4Blocks');
+  if (s4el) s4el.textContent = unique4Count.toLocaleString() + ' / 9K (' + pct4 + '%)';
+  var s4w = document.getElementById('stat4Wallets');
+  if (s4w) s4w.textContent = allHolders.filter(function(h){return (h.d4||0)>0;}).length.toLocaleString();
   document.getElementById('lastUpdated').textContent  = 'Last updated: ' + new Date().toLocaleString('en-MY', {timeZone:'Asia/Kuala_Lumpur'}) + ' MYT';
 
   setRefreshStatus('live', 'Live — ' + allHolders.length.toLocaleString() + ' wallets loaded');
@@ -784,9 +840,14 @@ function buildHolderMap(inscriptions) {
     var blockNum = ins.blockNum;
     if (!owner || blockNum === null || blockNum === undefined) return;
     var d = digitOf(blockNum);
-    if (!map[owner]) map[owner] = { address: owner, d1:0, d2:0, d3:0, d4:0, d5:0, d6:0, total:0 };
+    if (!map[owner]) map[owner] = { address: owner, d1:0, d2:0, d3:0, d4:0, d5:0, d6:0, total:0, blocks4: [] };
     map[owner]['d' + d]++;
     map[owner].total++;
+    if (d === 4) map[owner].blocks4.push(blockNum);
+  });
+  // Sort each holder's 4-digit blocks ascending
+  Object.values(map).forEach(function(h) {
+    if (h.blocks4 && h.blocks4.length > 0) h.blocks4.sort(function(a,b){return a-b;});
   });
   return map;
 }
