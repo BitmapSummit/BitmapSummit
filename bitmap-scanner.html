@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitmap Scanner — Bitmap Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d14; --surface: #12121e; --card: #1a1a2e; --border: #2a2a40;
+  --orange: #F7931A; --blue: #61AFEF; --green: #98C379; --red: #E06C75;
+  --purple: #C678DD; --yellow: #E5C07B;
+  --text: #cdd6f4; --muted: #6b7280;
+  --font-head: 'Orbitron', monospace;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-space: 'Space Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-mono); min-height: 100vh; }
+
+/* NAV */
+nav { display:flex; justify-content:space-between; align-items:center; padding:0.75rem 2rem; border-bottom:1px solid var(--border); background:var(--surface); position:sticky; top:0; z-index:100; }
+.nav-brand { font-family:var(--font-head); font-size:0.8rem; font-weight:700; color:var(--orange); text-decoration:none; letter-spacing:0.1em; }
+.nav-links { display:flex; gap:1.5rem; }
+.nav-links a { color:var(--muted); text-decoration:none; font-size:0.7rem; letter-spacing:0.08em; text-transform:uppercase; transition:color 0.2s; }
+.nav-links a:hover, .nav-links a.active { color:var(--blue); }
+
+/* HERO */
+.hero { text-align:center; padding:2rem 2rem 1.5rem; border-bottom:1px solid var(--border); }
+.hero h1 { font-family:var(--font-head); font-size:clamp(1.2rem,3vw,1.8rem); font-weight:900; color:var(--orange); letter-spacing:0.08em; margin-bottom:0.4rem; }
+.hero h1 span { color:var(--blue); }
+.hero p { color:var(--muted); font-size:0.75rem; max-width:600px; margin:0 auto; line-height:1.6; }
+
+/* TIER SELECTOR */
+.tier-section { padding:1.25rem 2rem; border-bottom:1px solid var(--border); background:var(--surface); }
+.tier-label { font-family:var(--font-head); font-size:0.6rem; color:var(--muted); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:0.75rem; }
+.tier-btns { display:flex; gap:0.5rem; flex-wrap:wrap; }
+.tier-btn {
+  font-family:var(--font-head); font-size:0.72rem; font-weight:700;
+  padding:0.6rem 1.2rem; border:2px solid var(--border); background:var(--card);
+  color:var(--muted); cursor:pointer; border-radius:4px; transition:all 0.2s;
+  display:flex; flex-direction:column; align-items:center; gap:0.2rem; min-width:90px;
+}
+.tier-btn:hover { border-color:var(--orange); color:var(--orange); }
+.tier-btn.active { border-color:var(--orange); background:rgba(247,147,26,0.1); color:var(--orange); }
+.tier-btn .tier-range { font-family:var(--font-mono); font-size:0.58rem; color:var(--muted); font-weight:400; }
+.tier-btn.active .tier-range { color:var(--orange); opacity:0.7; }
+.tier-btn .tier-count { font-size:0.6rem; }
+.tier-2d.active { border-color:var(--green); background:rgba(152,195,121,0.1); color:var(--green); }
+.tier-3d.active { border-color:var(--yellow); background:rgba(229,192,123,0.1); color:var(--yellow); }
+.tier-4d.active { border-color:var(--orange); background:rgba(247,147,26,0.1); color:var(--orange); }
+.tier-5d.active { border-color:var(--blue); background:rgba(97,175,239,0.1); color:var(--blue); }
+.tier-6d.active { border-color:var(--purple); background:rgba(198,120,221,0.1); color:var(--purple); }
+.tier-warn { font-size:0.68rem; color:var(--red); margin-top:0.6rem; display:none; }
+
+/* CONTROLS */
+.controls { display:flex; align-items:center; gap:1rem; padding:1rem 2rem; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.range-group { display:flex; align-items:center; gap:0.4rem; font-size:0.72rem; color:var(--muted); }
+.range-input { width:90px; background:var(--card); border:1px solid var(--border); color:var(--text); font-family:var(--font-mono); font-size:0.75rem; padding:0.4rem 0.5rem; border-radius:3px; outline:none; }
+.range-input:focus { border-color:var(--orange); }
+select.ctrl-select { background:var(--card); border:1px solid var(--border); color:var(--text); font-family:var(--font-mono); font-size:0.72rem; padding:0.4rem 0.5rem; border-radius:3px; cursor:pointer; outline:none; }
+.btn { font-family:var(--font-head); font-size:0.68rem; font-weight:700; padding:0.5rem 1.1rem; border:2px solid; cursor:pointer; border-radius:3px; transition:all 0.15s; letter-spacing:0.05em; }
+.btn-start { border-color:var(--green); color:var(--green); background:rgba(152,195,121,0.08); }
+.btn-start:hover:not(:disabled) { background:rgba(152,195,121,0.2); }
+.btn-stop { border-color:var(--red); color:var(--red); background:rgba(224,108,117,0.08); }
+.btn-stop:hover:not(:disabled) { background:rgba(224,108,117,0.2); }
+.btn-clear { border-color:var(--muted); color:var(--muted); background:none; }
+.btn-clear:hover { border-color:var(--text); color:var(--text); }
+.btn-export { border-color:var(--blue); color:var(--blue); background:rgba(97,175,239,0.08); font-family:var(--font-mono); font-size:0.68rem; }
+.btn-export:hover:not(:disabled) { background:rgba(97,175,239,0.2); }
+.btn:disabled { opacity:0.35; cursor:not-allowed; }
+.save-status { font-size:0.68rem; color:var(--green); margin-left:auto; }
+
+/* PROGRESS */
+.progress-section { padding:0.75rem 2rem; border-bottom:1px solid var(--border); background:var(--surface); }
+.progress-bar-wrap { height:6px; background:var(--border); border-radius:3px; margin-bottom:0.5rem; overflow:hidden; }
+.progress-bar { height:100%; background:linear-gradient(90deg,var(--orange),var(--yellow)); border-radius:3px; width:0%; transition:width 0.3s; }
+.progress-row { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; }
+.progress-status { font-size:0.72rem; color:var(--muted); }
+.progress-status.ok { color:var(--green); }
+.progress-status.err { color:var(--red); }
+.progress-pct { font-family:var(--font-head); font-size:0.8rem; font-weight:700; color:var(--orange); }
+.stats-row { display:flex; gap:2rem; padding:0.6rem 0 0; flex-wrap:wrap; }
+.stat-item { display:flex; flex-direction:column; }
+.stat-item .sv { font-family:var(--font-head); font-size:0.95rem; font-weight:700; }
+.stat-item .sk { font-size:0.58rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; }
+.sv-claimed { color:var(--green); }
+.sv-unclaimed { color:var(--red); }
+.sv-pct { color:var(--orange); }
+.sv-eta { color:var(--blue); }
+
+/* MINIMAP */
+.minimap-section { padding:1rem 2rem; border-bottom:1px solid var(--border); }
+.minimap-title { font-size:0.65rem; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:0.5rem; }
+#minimapGrid { display:flex; flex-wrap:wrap; gap:1px; }
+.minimap-cell { width:4px; height:4px; background:var(--border); border-radius:1px; transition:background 0.1s; }
+.minimap-cell.claimed { background:var(--green); }
+.minimap-cell.unclaimed { background:var(--red); }
+.minimap-cell.scanning { background:var(--orange); animation:pulse 0.5s infinite alternate; }
+@keyframes pulse { from{opacity:0.5} to{opacity:1} }
+
+/* TABS */
+.tab-row { display:flex; border-bottom:2px solid var(--border); }
+.tab-btn { font-family:var(--font-head); font-size:0.65rem; font-weight:700; padding:0.65rem 1.4rem; border:none; background:none; color:var(--muted); cursor:pointer; letter-spacing:0.08em; border-bottom:2px solid transparent; margin-bottom:-2px; transition:all 0.15s; }
+.tab-btn:hover { color:var(--text); }
+.tab-btn.active { color:var(--orange); border-bottom-color:var(--orange); }
+
+/* TABLE */
+.panel { padding:1rem 2rem 2rem; }
+.table-controls { display:flex; gap:0.75rem; margin-bottom:0.75rem; align-items:center; flex-wrap:wrap; }
+.filter-pill { font-family:var(--font-mono); font-size:0.68rem; padding:0.3rem 0.75rem; border:1px solid var(--border); background:var(--card); color:var(--muted); cursor:pointer; border-radius:20px; transition:all 0.15s; }
+.filter-pill:hover, .filter-pill.active { border-color:var(--orange); color:var(--orange); }
+.search-input { background:var(--card); border:1px solid var(--border); color:var(--text); font-family:var(--font-mono); font-size:0.72rem; padding:0.35rem 0.6rem; border-radius:3px; outline:none; width:200px; }
+.search-input:focus { border-color:var(--blue); }
+.table-count { font-size:0.65rem; color:var(--muted); margin-left:auto; }
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:0.75rem; }
+thead th { font-family:var(--font-head); font-size:0.58rem; color:var(--muted); padding:0.5rem 0.6rem; border-bottom:1px solid var(--border); text-align:left; white-space:nowrap; text-transform:uppercase; letter-spacing:0.08em; }
+tbody tr { border-bottom:1px solid rgba(42,42,64,0.5); transition:background 0.1s; }
+tbody tr:hover { background:var(--surface); }
+tbody td { padding:0.45rem 0.6rem; vertical-align:middle; }
+.block-cell { font-family:var(--font-head); font-size:0.78rem; font-weight:700; color:var(--orange); }
+.addr-cell { font-family:var(--font-mono); font-size:0.68rem; color:var(--blue); max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ins-cell a { color:var(--muted); text-decoration:none; font-size:0.65rem; }
+.ins-cell a:hover { color:var(--blue); }
+.badge-claimed { background:rgba(152,195,121,0.15); color:var(--green); font-size:0.6rem; padding:0.15rem 0.4rem; border-radius:2px; font-family:var(--font-head); letter-spacing:0.05em; }
+.badge-unclaimed { background:rgba(224,108,117,0.15); color:var(--red); font-size:0.6rem; padding:0.15rem 0.4rem; border-radius:2px; font-family:var(--font-head); }
+.badge-error { background:rgba(229,192,123,0.15); color:var(--yellow); font-size:0.6rem; padding:0.15rem 0.4rem; border-radius:2px; font-family:var(--font-head); }
+
+/* LEADERBOARD PANEL */
+.lb-status { font-size:0.72rem; color:var(--muted); margin-bottom:0.75rem; }
+.lb-count { font-size:0.65rem; color:var(--muted); margin-left:auto; }
+.lb-bar-wrap { height:3px; background:var(--border); border-radius:2px; margin-top:3px; width:120px; }
+.lb-bar { height:100%; background:var(--orange); border-radius:2px; }
+.lb-rank { font-family:var(--font-head); font-size:0.8rem; font-weight:700; }
+.lb-pagination { display:flex; gap:0.4rem; padding:1rem 0 0; align-items:center; flex-wrap:wrap; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">BITMAP HUB</a>
+  <div class="nav-links">
+    <a href="index.html">INTRO</a>
+    <a href="directory.html">DIRECTORY</a>
+    <a href="leaderboard-4d.html">LEADERBOARD</a>
+    <a href="messages.html">MESSAGES</a>
+    <a href="dashboard.html">MY BITMAP</a>
+    <a href="bitmap-scanner.html" class="active">SCANNER</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>◈ BITMAP <span>SCANNER</span></h1>
+  <p>Select a digit tier, then scan to fetch live ownership data directly from the Bitcoin blockchain via the ordinals.com recursive API. No API key required.</p>
+</div>
+
+<!-- TIER SELECTOR -->
+<div class="tier-section">
+  <div class="tier-label">Select Digit Tier</div>
+  <div class="tier-btns">
+    <button class="tier-btn tier-2d" onclick="selectTier(2)" id="tier-btn-2">
+      <span>2-DIGIT</span>
+      <span class="tier-range">10 – 99</span>
+      <span class="tier-count" style="color:var(--green)">90 bitmaps</span>
+    </button>
+    <button class="tier-btn tier-3d" onclick="selectTier(3)" id="tier-btn-3">
+      <span>3-DIGIT</span>
+      <span class="tier-range">100 – 999</span>
+      <span class="tier-count" style="color:var(--yellow)">900 bitmaps</span>
+    </button>
+    <button class="tier-btn tier-4d active" onclick="selectTier(4)" id="tier-btn-4">
+      <span>4-DIGIT</span>
+      <span class="tier-range">1,000 – 9,999</span>
+      <span class="tier-count" style="color:var(--orange)">9,000 bitmaps</span>
+    </button>
+    <button class="tier-btn tier-5d" onclick="selectTier(5)" id="tier-btn-5">
+      <span>5-DIGIT</span>
+      <span class="tier-range">10,000 – 99,999</span>
+      <span class="tier-count" style="color:var(--blue)">90,000 bitmaps</span>
+    </button>
+    <button class="tier-btn tier-6d" onclick="selectTier(6)" id="tier-btn-6">
+      <span>6-DIGIT</span>
+      <span class="tier-range">100,000 – 999,999</span>
+      <span class="tier-count" style="color:var(--purple)">900,000 bitmaps</span>
+    </button>
+  </div>
+  <div class="tier-warn" id="tier-warn">
+    ⚠ Large range — scanning will take a very long time. Use a narrow custom range or run overnight.
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="range-group">
+    FROM <input type="number" class="range-input" id="rangeFrom" value="1000">
+    TO   <input type="number" class="range-input" id="rangeTo"   value="9999">
+  </div>
+  <select class="ctrl-select" id="speedSelect" title="Delay between requests">
+    <option value="100">Fast (100ms)</option>
+    <option value="300" selected>Normal (300ms)</option>
+    <option value="600">Safe (600ms)</option>
+    <option value="1200">Slow (1.2s)</option>
+  </select>
+  <select class="ctrl-select" id="concSelect" title="Concurrent workers">
+    <option value="1">1 worker</option>
+    <option value="3" selected>3 workers</option>
+    <option value="5">5 workers</option>
+  </select>
+  <button class="btn btn-start" id="btnStart" onclick="startScan()">▶ START SCAN</button>
+  <button class="btn btn-stop"  id="btnStop"  onclick="stopScan()" disabled>■ STOP</button>
+  <button class="btn btn-clear" onclick="clearResults()">✕ CLEAR</button>
+  <button class="btn btn-export" id="btnExportCSV" onclick="exportCSV()" disabled>↓ CSV</button>
+  <button class="btn btn-export" id="btnExportJSON" onclick="exportJSON()" disabled>↓ JSON</button>
+  <span class="save-status" id="saveStatus"></span>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-section">
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="progress-row">
+    <span class="progress-status" id="progressStatus">Select a tier and press START SCAN.</span>
+    <span class="progress-pct" id="progressPct">0%</span>
+  </div>
+  <div class="stats-row">
+    <div class="stat-item"><span class="sv" id="statScanned">0</span><span class="sk">Scanned</span></div>
+    <div class="stat-item"><span class="sv sv-claimed" id="statClaimed">0</span><span class="sk">Claimed</span></div>
+    <div class="stat-item"><span class="sv sv-unclaimed" id="statUnclaimed">0</span><span class="sk">Unclaimed</span></div>
+    <div class="stat-item"><span class="sv sv-pct" id="statPct">0%</span><span class="sk">Coverage</span></div>
+    <div class="stat-item"><span class="sv sv-eta" id="statETA">—</span><span class="sk">ETA</span></div>
+    <div class="stat-item"><span class="sv" id="statTier" style="color:var(--orange)">4D</span><span class="sk">Active Tier</span></div>
+  </div>
+</div>
+
+<!-- MINIMAP -->
+<div class="minimap-section">
+  <div class="minimap-title" id="minimapTitle">📡 Block Map (1,000–9,999) — each cell = one 4-digit bitmap</div>
+  <div id="minimapGrid"></div>
+</div>
+
+<!-- TABS -->
+<div class="tab-row">
+  <button class="tab-btn active" id="tab-results" onclick="switchTab('results')">📋 SCAN RESULTS</button>
+  <button class="tab-btn" id="tab-leaderboard" onclick="switchTab('leaderboard')">🏆 LEADERBOARD</button>
+</div>
+
+<!-- RESULTS PANEL -->
+<div id="panel-results" class="panel">
+  <div class="table-controls">
+    <button class="filter-pill active" onclick="setFilter('all',this)">ALL</button>
+    <button class="filter-pill" onclick="setFilter('claimed',this)">CLAIMED</button>
+    <button class="filter-pill" onclick="setFilter('unclaimed',this)">UNCLAIMED</button>
+    <button class="filter-pill" onclick="setFilter('error',this)">ERROR</button>
+    <input class="search-input" id="filterSearch" placeholder="Search block / address…" oninput="renderTable()">
+    <span class="table-count" id="tableCount">0 rows</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>#</th><th>BLOCK</th><th>BITMAP</th><th>STATUS</th>
+        <th>OWNER ADDRESS</th><th>INSCRIPTION ID</th><th>BLK HEIGHT</th><th>TIMESTAMP</th>
+      </tr></thead>
+      <tbody id="resultsBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- LEADERBOARD PANEL -->
+<div id="panel-leaderboard" class="panel" style="display:none">
+  <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;">
+    <div class="lb-status" id="lb-status">Run a scan first to build the leaderboard.</div>
+    <button class="btn btn-export" onclick="buildLeaderboard()" style="font-size:0.65rem;padding:0.3rem 0.75rem;">↻ REFRESH</button>
+    <button class="btn btn-export" id="btnLBExport" onclick="exportLBCSV()" disabled style="font-size:0.65rem;padding:0.3rem 0.75rem;">↓ EXPORT CSV</button>
+    <input class="search-input" id="lb-search" placeholder="Search address…" oninput="renderLB()" style="margin-left:auto;">
+    <span class="lb-count" id="lb-count"></span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th style="width:50px">#</th>
+        <th>WALLET ADDRESS</th>
+        <th>BITMAPS HELD</th>
+        <th>% OF SCANNED</th>
+        <th>PREVIEW</th>
+      </tr></thead>
+      <tbody id="lb-body"></tbody>
+    </table>
+  </div>
+  <div class="lb-pagination" id="lb-pagination"></div>
+</div>
+
+<script>
+// ── PASSWORD GATE ──
+(function() {
+  var PASS = 'Hf%Gn25@Rg3';
+  var KEY = 'bitmapScannerAuth';
+  if (sessionStorage.getItem(KEY) === '1') return;
+  var o = document.createElement('div');
+  o.style.cssText = 'position:fixed;inset:0;background:#0d0d14;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;font-family:"Share Tech Mono",monospace;';
+  o.innerHTML =
+    '<div style="font-family:Orbitron,sans-serif;font-size:1.1rem;font-weight:700;color:#61AFEF;letter-spacing:3px;margin-bottom:0.5rem;">🔒 RESTRICTED ACCESS</div>' +
+    '<div style="color:#6b7280;font-size:0.75rem;margin-bottom:0.5rem;">Bitmap Scanner — Authorised Users Only</div>' +
+    '<input id="gate-input" type="password" placeholder="Enter password…" style="background:#12121e;border:1px solid #2a2a40;color:#cdd6f4;font-family:inherit;font-size:0.9rem;padding:0.6rem 1rem;border-radius:4px;width:260px;outline:none;text-align:center;">' +
+    '<button id="gate-btn" style="background:none;border:2px solid #61AFEF;color:#61AFEF;font-family:Orbitron,sans-serif;font-size:0.75rem;font-weight:700;padding:0.5rem 2rem;cursor:pointer;border-radius:4px;letter-spacing:2px;">ENTER</button>' +
+    '<div id="gate-err" style="color:#E06C75;font-size:0.72rem;min-height:1rem;"></div>';
+  document.body.appendChild(o);
+  function attempt() {
+    if (document.getElementById('gate-input').value === PASS) {
+      sessionStorage.setItem(KEY, '1');
+      o.remove();
+    } else {
+      document.getElementById('gate-err').textContent = '✗ Incorrect password.';
+      document.getElementById('gate-input').value = '';
+      document.getElementById('gate-input').focus();
+    }
+  }
+  document.getElementById('gate-btn').addEventListener('click', attempt);
+  document.getElementById('gate-input').addEventListener('keydown', function(e){ if(e.key==='Enter') attempt(); });
+  setTimeout(function(){ document.getElementById('gate-input').focus(); }, 100);
+})();
+
+// ── TIER CONFIG ──
+var TIERS = {
+  2: { label:'2D', min:10,    max:99,     total:90,     name:'2-Digit', storageKey:'bitmap2d_results' },
+  3: { label:'3D', min:100,   max:999,    total:900,    name:'3-Digit', storageKey:'bitmap3d_results' },
+  4: { label:'4D', min:1000,  max:9999,   total:9000,   name:'4-Digit', storageKey:'bitmap4d_results' },
+  5: { label:'5D', min:10000, max:99999,  total:90000,  name:'5-Digit', storageKey:'bitmap5d_results' },
+  6: { label:'6D', min:100000,max:999999, total:900000, name:'6-Digit', storageKey:'bitmap6d_results' }
+};
+var activeTier = 4;
+
+// ── CONSTANTS ──
+var BASE = 'https://ordinals.com';
+var OCI_ID = '01bba6c58af39d7f199aa2bceeaaba1ba91b23d2663bc4ef079a4b5e442dbf74i0';
+
+// ── STATE (per-tier, keyed by tier number) ──
+var tierResults  = { 2:{}, 3:{}, 4:{}, 5:{}, 6:{} };
+var ociSats      = null;   // loaded once, covers all bitmaps
+var ociLoaded    = false;
+var isScanning   = false;
+var shouldStop   = false;
+var currentFilter = 'all';
+var scanStartTime = null;
+var scannedCount  = 0;
+var claimedCount  = 0;
+var tableData     = [];    // for active tier display
+
+// ── TIER SELECTOR ──
+function selectTier(n) {
+  if (isScanning) { alert('Stop the current scan first.'); return; }
+  activeTier = n;
+  var t = TIERS[n];
+  document.querySelectorAll('.tier-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('tier-btn-' + n).classList.add('active');
+  document.getElementById('rangeFrom').value = t.min;
+  document.getElementById('rangeTo').value   = t.max;
+  document.getElementById('rangeFrom').min   = t.min;
+  document.getElementById('rangeFrom').max   = t.max;
+  document.getElementById('rangeTo').min     = t.min;
+  document.getElementById('rangeTo').max     = t.max;
+  document.getElementById('statTier').textContent = t.label;
+  document.getElementById('tier-warn').style.display = (n >= 5) ? 'block' : 'none';
+  document.getElementById('minimapTitle').textContent =
+    '📡 Block Map (' + t.min.toLocaleString() + '–' + t.max.toLocaleString() + ') — each cell = one ' + t.name + ' bitmap';
+
+  // Reset display
+  results = tierResults[n];
+  tableData = Object.values(results).sort(function(a,b){ return a.blockNum - b.blockNum; });
+  scannedCount  = tableData.length;
+  claimedCount  = tableData.filter(function(r){ return r.status==='claimed'; }).length;
+  buildMinimap();
+  // Restore minimap state
+  tableData.forEach(function(r){
+    setMM(r.blockNum, r.status === 'claimed' ? 'claimed' : 'unclaimed');
+  });
+  updateStats(t.total, t.min);
+  renderTable();
+  var statusEl = document.getElementById('progressStatus');
+  if (tableData.length > 0) {
+    statusEl.textContent = '↩ Loaded ' + tableData.length + ' saved results for ' + t.name + ' tier. Press START to continue.';
+  } else {
+    statusEl.textContent = 'Ready to scan ' + t.name + ' bitmaps (' + t.total.toLocaleString() + ' blocks). Press START.';
+  }
+}
+
+// Shorthand for active tier's results object
+var results = tierResults[4];
+
+// ── MINIMAP ──
+var mmCells = {};
+function buildMinimap() {
+  var t = TIERS[activeTier];
+  var g = document.getElementById('minimapGrid');
+  g.innerHTML = '';
+  mmCells = {};
+  var total = t.max - t.min + 1;
+  // For large tiers, use bigger cells so minimap doesn't blow up
+  var cellSize = total <= 1000 ? 6 : total <= 10000 ? 4 : total <= 100000 ? 2 : 1;
+  for (var b = t.min; b <= t.max; b++) {
+    var c = document.createElement('div');
+    c.className = 'minimap-cell';
+    c.title = b + '.bitmap';
+    c.style.width = cellSize + 'px';
+    c.style.height = cellSize + 'px';
+    g.appendChild(c);
+    mmCells[b] = c;
+  }
+}
+function setMM(b, s) { if (mmCells[b]) mmCells[b].className = 'minimap-cell ' + s; }
+
+// ── OCI LOADER ──
+async function loadOCI() {
+  setStatus('Loading OCI sat index… (one-time load, large file ~10–30s)', '');
+  var url = BASE + '/content/' + OCI_ID;
+  try {
+    var resp = await fetch(url, { cache: 'force-cache' });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    var text = await resp.text();
+    console.log('[OCI] fetched', text.length, 'chars');
+    var data = JSON.parse(text);
+    if (typeof data === 'string') {
+      console.log('[OCI] double-encoded, parsing inner…');
+      data = JSON.parse(data);
+    }
+    var map = parseOCI(data);
+    var count = Object.keys(map).length;
+    console.log('[OCI] mapped', count, 'total bitmaps');
+    if (count === 0) throw new Error('0 bitmaps found in OCI');
+    setStatus('✓ OCI loaded — ' + count.toLocaleString() + ' bitmaps indexed. Starting scan…', 'ok');
+    return map;
+  } catch(e) {
+    console.error('[OCI] error:', e);
+    setStatus('✗ OCI failed: ' + e.message, 'err');
+    return null;
+  }
+}
+
+function parseOCI(data) {
+  var map = {};
+  // Format A: [[deltas...], [indices...]]
+  if (Array.isArray(data) && data.length === 2 && Array.isArray(data[0]) && Array.isArray(data[1])) {
+    var deltas = data[0], indices = data[1];
+    var sat = 0;
+    for (var i = 0; i < deltas.length; i++) {
+      sat += deltas[i];
+      map[indices[i]] = sat;
+    }
+    return map;
+  }
+  // Format B: [[interleaved pairs]]
+  if (Array.isArray(data) && data.length === 1 && Array.isArray(data[0])) {
+    var arr = data[0];
+    var sat = 0;
+    for (var i = 0; i < arr.length; i += 2) {
+      sat += arr[i];
+      if (typeof arr[i+1] === 'number') map[arr[i+1]] = sat;
+    }
+    if (Object.keys(map).length > 0) return map;
+  }
+  // Format C: flat alternating
+  if (Array.isArray(data) && data.length > 2 && typeof data[0] === 'number') {
+    var sat = 0;
+    for (var i = 0; i < data.length; i += 2) {
+      sat += data[i];
+      if (typeof data[i+1] === 'number') map[data[i+1]] = sat;
+    }
+    if (Object.keys(map).length > 0) return map;
+  }
+  // Format D: object
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    Object.keys(data).forEach(function(k){ map[parseInt(k)] = data[k]; });
+    return map;
+  }
+  return map;
+}
+
+// ── SCAN ENGINE ──
+async function scanBlock(blockNum) {
+  var sat = ociSats ? ociSats[blockNum] : null;
+  if (!sat) return { blockNum:blockNum, status:'error', sat:'', owner:'', inscriptionId:'', height:'', timestamp:'', error:'No sat in OCI' };
+
+  var satData = await fetchJSON(BASE + '/r/sat/' + sat);
+  if (!satData || !satData.ids || satData.ids.length === 0) {
+    var atData = await fetchJSON(BASE + '/r/sat/' + sat + '/at/0');
+    if (!atData || !atData.id) return { blockNum:blockNum, status:'unclaimed', sat:sat, owner:'', inscriptionId:'', height:'', timestamp:'' };
+    satData = { ids: [atData.id] };
+  }
+  var inscriptionId = satData.ids[0];
+  var meta = await fetchJSON(BASE + '/r/inscription/' + inscriptionId);
+  if (meta && meta.address) {
+    return { blockNum:blockNum, status:'claimed', sat:meta.sat||sat, owner:meta.address, inscriptionId:inscriptionId, height:meta.height||'', timestamp:meta.timestamp?new Date(meta.timestamp*1000).toISOString().replace('T',' ').slice(0,19):'' };
+  }
+  return { blockNum:blockNum, status:'claimed', sat:sat, owner:'(lookup failed)', inscriptionId:inscriptionId, height:'', timestamp:'' };
+}
+
+async function fetchJSON(url) {
+  for (var i = 0; i < 3; i++) {
+    try {
+      var r = await fetch(url, { cache: 'no-store' });
+      if (r.status === 429) { await sleep(5000 + i * 3000); continue; }
+      if (r.ok) { try { return await r.json(); } catch(e) { return null; } }
+      if (r.status === 404) return null;
+      if (r.status >= 500) { await sleep(2000 * (i+1)); continue; }
+      return null;
+    } catch(e) { if (i < 2) await sleep(1000); }
+  }
+  return null;
+}
+
+function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
+
+async function startScan() {
+  if (isScanning) return;
+  var t = TIERS[activeTier];
+  var from = Math.max(t.min, Math.min(t.max, parseInt(document.getElementById('rangeFrom').value) || t.min));
+  var to   = Math.max(from,  Math.min(t.max, parseInt(document.getElementById('rangeTo').value)   || t.max));
+
+  isScanning = true; shouldStop = false;
+  scanStartTime = Date.now();
+  // Don't reset counters — continue from where we left off
+  scannedCount = Object.keys(results).length;
+  claimedCount = Object.values(results).filter(function(r){ return r.status==='claimed'; }).length;
+
+  document.getElementById('btnStart').disabled = true;
+  document.getElementById('btnStop').disabled  = false;
+  document.getElementById('rangeFrom').disabled = true;
+  document.getElementById('rangeTo').disabled   = true;
+
+  if (!ociLoaded) {
+    ociSats = await loadOCI();
+    ociLoaded = true;
+    if (!ociSats) { setStatus('✗ OCI failed.', 'err'); finishScan(); return; }
+  }
+
+  var delay = parseInt(document.getElementById('speedSelect').value) || 300;
+  var conc  = parseInt(document.getElementById('concSelect').value)  || 3;
+  var total = to - from + 1;
+  var queue = [];
+  for (var b = from; b <= to; b++) { if (!results[b]) queue.push(b); }
+
+  if (!queue.length) { setStatus('All blocks in range already scanned.', 'ok'); finishScan(); return; }
+  setStatus('Scanning ' + from.toLocaleString() + '–' + to.toLocaleString() + ' (' + queue.length.toLocaleString() + ' blocks)…', '');
+
+  var qi = 0;
+  async function worker() {
+    while (qi < queue.length && !shouldStop) {
+      var bn = queue[qi++];
+      setMM(bn, 'scanning');
+      var result;
+      try { result = await scanBlock(bn); }
+      catch(e) { result = {blockNum:bn, status:'error', sat:'', owner:'', inscriptionId:'', height:'', timestamp:'', error:e.message}; }
+      results[bn] = result;
+      setMM(bn, result.status === 'claimed' ? 'claimed' : result.status === 'unclaimed' ? 'unclaimed' : 'unclaimed');
+      scannedCount++;
+      if (result.status === 'claimed') claimedCount++;
+      updateStats(total, from);
+      addRow(result);
+      await sleep(delay);
+    }
+  }
+
+  var workers = [];
+  for (var w = 0; w < conc; w++) workers.push(worker());
+  await Promise.all(workers);
+  finishScan();
+}
+
+function stopScan() { shouldStop = true; setStatus('⏸ Paused. Press START to resume.', ''); }
+
+function finishScan() {
+  isScanning = false;
+  document.getElementById('btnStart').disabled  = false;
+  document.getElementById('btnStop').disabled   = true;
+  document.getElementById('rangeFrom').disabled = false;
+  document.getElementById('rangeTo').disabled   = false;
+  document.getElementById('btnExportCSV').disabled  = false;
+  document.getElementById('btnExportJSON').disabled = false;
+  document.getElementById('statETA').textContent = 'Done';
+  renderTable();
+  autoSave();
+}
+
+function updateStats(total, from) {
+  var t = TIERS[activeTier];
+  document.getElementById('statScanned').textContent  = scannedCount.toLocaleString();
+  document.getElementById('statClaimed').textContent  = claimedCount.toLocaleString();
+  document.getElementById('statUnclaimed').textContent = (scannedCount - claimedCount).toLocaleString();
+  var pctScanned = total > 0 ? Math.round(scannedCount / total * 100) : 0;
+  var pctOfAll   = t.total > 0 ? Math.round(claimedCount / t.total * 100) : 0;
+  document.getElementById('statPct').textContent = pctOfAll + '%';
+  document.getElementById('progressPct').textContent = pctScanned + '%';
+  document.getElementById('progressBar').style.width = pctScanned + '%';
+  if (scannedCount > 2 && scanStartTime) {
+    var elapsed   = (Date.now() - scanStartTime) / 1000;
+    var remaining = (total - scannedCount) / (scannedCount / elapsed);
+    document.getElementById('statETA').textContent = fmtTime(remaining);
+  }
+  if (scannedCount > 0) {
+    document.getElementById('btnExportCSV').disabled  = false;
+    document.getElementById('btnExportJSON').disabled = false;
+  }
+}
+
+function fmtTime(s) {
+  if (s < 60) return Math.round(s) + 's';
+  if (s < 3600) return Math.round(s/60) + 'm ' + Math.round(s%60) + 's';
+  return Math.floor(s/3600) + 'h ' + Math.round((s%3600)/60) + 'm';
+}
+
+function setStatus(msg, cls) {
+  var el = document.getElementById('progressStatus');
+  el.innerHTML = msg;
+  el.className = 'progress-status' + (cls ? ' '+cls : '');
+}
+
+// ── TABLE ──
+function addRow(r) {
+  var idx = tableData.findIndex(function(x){ return x.blockNum === r.blockNum; });
+  if (idx >= 0) tableData[idx] = r;
+  else { tableData.push(r); tableData.sort(function(a,b){ return a.blockNum - b.blockNum; }); }
+  if (scannedCount % 10 === 0 || scannedCount < 15) renderTable();
+}
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-pill').forEach(function(p){ p.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  renderTable();
+}
+
+function renderTable() {
+  var q = (document.getElementById('filterSearch').value || '').toLowerCase().trim();
+  var filtered = tableData.filter(function(r) {
+    if (currentFilter !== 'all' && r.status !== currentFilter) return false;
+    if (q) return String(r.blockNum).includes(q) || (r.owner||'').toLowerCase().includes(q) || (r.inscriptionId||'').toLowerCase().includes(q);
+    return true;
+  });
+  document.getElementById('tableCount').textContent = filtered.length.toLocaleString() + ' rows';
+  if (!filtered.length) {
+    document.getElementById('resultsBody').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--muted);">' + (tableData.length ? 'No results match filter.' : 'No results yet. Press START SCAN to begin.') + '</td></tr>';
+    return;
+  }
+  var html = '';
+  filtered.slice(0, 500).forEach(function(r, i) {
+    var badge = r.status==='claimed'   ? '<span class="badge-claimed">CLAIMED</span>'
+              : r.status==='unclaimed' ? '<span class="badge-unclaimed">UNCLAIMED</span>'
+              : '<span class="badge-error">ERROR</span>';
+    var ins = r.inscriptionId
+      ? '<a href="https://ordinals.com/inscription/'+r.inscriptionId+'" target="_blank" rel="noopener">'+r.inscriptionId.slice(0,10)+'…'+r.inscriptionId.slice(-4)+'</a>'
+      : '—';
+    html += '<tr>'
+      + '<td style="color:var(--muted)">' + (i+1) + '</td>'
+      + '<td class="block-cell">' + r.blockNum + '</td>'
+      + '<td style="color:var(--muted)">' + r.blockNum + '.bitmap</td>'
+      + '<td>' + badge + '</td>'
+      + '<td class="addr-cell" title="'+(r.owner||'')+'">' + (r.owner ? r.owner.slice(0,8)+'…'+r.owner.slice(-6) : '—') + '</td>'
+      + '<td class="ins-cell">' + ins + '</td>'
+      + '<td style="color:var(--muted)">' + (r.height||'—') + '</td>'
+      + '<td style="color:var(--muted)">' + (r.timestamp||'—') + '</td>'
+      + '</tr>';
+  });
+  if (filtered.length > 500) html += '<tr><td colspan="8" style="text-align:center;padding:0.5rem;color:var(--muted);font-size:0.65rem;">Showing 500 of ' + filtered.length + ' — export CSV for full data</td></tr>';
+  document.getElementById('resultsBody').innerHTML = html;
+}
+
+// ── EXPORT ──
+function exportCSV() {
+  var rows = Object.values(results).sort(function(a,b){ return a.blockNum - b.blockNum; });
+  if (!rows.length) { alert('No data to export.'); return; }
+  var t = TIERS[activeTier];
+  var lines = [['Block Number','Bitmap Name','Status','Owner Address','Inscription ID','Inscribed at Block','Timestamp (UTC)','Sat Number'].join(',')];
+  rows.forEach(function(r) {
+    lines.push([r.blockNum, r.blockNum+'.bitmap', r.status, r.owner||'', r.inscriptionId||'', r.height||'', r.timestamp||'', r.sat||'']
+      .map(function(v){ return '"' + String(v).replace(/"/g,'""') + '"'; }).join(','));
+  });
+  dl(lines.join('\n'), 'text/csv', activeTier + 'digit-bitmap-owners-' + now() + '.csv');
+  showSave('✓ CSV downloaded (' + rows.length + ' rows)');
+}
+
+function exportJSON() {
+  var rows = Object.values(results).sort(function(a,b){ return a.blockNum - b.blockNum; });
+  if (!rows.length) { alert('No data to export.'); return; }
+  dl(JSON.stringify(rows, null, 2), 'application/json', activeTier + 'digit-bitmap-owners-' + now() + '.json');
+  showSave('✓ JSON downloaded (' + rows.length + ' rows)');
+}
+
+function dl(content, type, filename) {
+  var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([content], {type:type})); a.download = filename; a.click();
+}
+function now() { return new Date().toISOString().slice(0, 10); }
+function showSave(m) { document.getElementById('saveStatus').textContent = m; setTimeout(function(){ document.getElementById('saveStatus').textContent = ''; }, 4000); }
+
+// ── PERSIST (per tier) ──
+function autoSave() {
+  try {
+    var key = TIERS[activeTier].storageKey;
+    var rows = Object.values(results);
+    localStorage.setItem(key, JSON.stringify(rows));
+    localStorage.setItem(key + '_saved', new Date().toISOString());
+    showSave('✓ Auto-saved ' + rows.length + ' results');
+  } catch(e) {}
+}
+
+function clearResults() {
+  if (isScanning) { alert('Stop first.'); return; }
+  if (!confirm('Clear all results for ' + TIERS[activeTier].name + ' tier?')) return;
+  tierResults[activeTier] = {};
+  results = tierResults[activeTier];
+  tableData = []; scannedCount = 0; claimedCount = 0;
+  buildMinimap(); renderTable();
+  ['statScanned','statClaimed','statUnclaimed'].forEach(function(id){ document.getElementById(id).textContent = '0'; });
+  document.getElementById('statPct').textContent = '0%';
+  document.getElementById('statETA').textContent = '—';
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('progressPct').textContent = '0%';
+  document.getElementById('progressStatus').textContent = 'Cleared. Press START SCAN to begin.';
+  document.getElementById('btnExportCSV').disabled  = true;
+  document.getElementById('btnExportJSON').disabled = true;
+  try { localStorage.removeItem(TIERS[activeTier].storageKey); } catch(e) {}
+}
+
+function restoreFromStorage() {
+  // Restore all tiers from localStorage
+  [2, 3, 4, 5, 6].forEach(function(n) {
+    try {
+      var saved = localStorage.getItem(TIERS[n].storageKey);
+      if (!saved) return;
+      var rows = JSON.parse(saved);
+      if (!rows || !rows.length) return;
+      rows.forEach(function(r) { tierResults[n][r.blockNum] = r; });
+    } catch(e) {}
+  });
+  // Display active tier (4D default)
+  results = tierResults[activeTier];
+  tableData = Object.values(results).sort(function(a,b){ return a.blockNum - b.blockNum; });
+  scannedCount = tableData.length;
+  claimedCount = tableData.filter(function(r){ return r.status==='claimed'; }).length;
+  var t = TIERS[activeTier];
+  tableData.forEach(function(r){ setMM(r.blockNum, r.status==='claimed'?'claimed':'unclaimed'); });
+  if (tableData.length > 0) {
+    updateStats(t.total, t.min);
+    renderTable();
+    document.getElementById('progressStatus').textContent = '↩ Restored ' + tableData.length + ' results for ' + t.name + ' tier. Press START to continue.';
+    document.getElementById('btnExportCSV').disabled  = false;
+    document.getElementById('btnExportJSON').disabled = false;
+  }
+}
+
+// ── TABS ──
+function switchTab(name) {
+  ['results','leaderboard'].forEach(function(t) {
+    document.getElementById('panel-'+t).style.display = t===name ? '' : 'none';
+    document.getElementById('tab-'+t).classList.toggle('active', t===name);
+  });
+  if (name === 'leaderboard') buildLeaderboard();
+}
+
+// ── LEADERBOARD ──
+var lbData = [], lbFiltered = [], lbPage = 1, LB_PAGE_SIZE = 100;
+
+function buildLeaderboard() {
+  var allResults = Object.values(results);
+  var claimed = allResults.filter(function(r){ return r.status==='claimed' && r.owner && r.owner !== '(lookup failed)'; });
+  if (!claimed.length) {
+    document.getElementById('lb-status').textContent = 'No claimed results yet. Run scan first.';
+    document.getElementById('lb-body').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--muted)">Scan blocks first, then click REFRESH.</td></tr>';
+    return;
+  }
+  var groups = {};
+  claimed.forEach(function(r) {
+    if (!groups[r.owner]) groups[r.owner] = [];
+    groups[r.owner].push(r.blockNum);
+  });
+  lbData = Object.keys(groups).map(function(addr) {
+    return { addr:addr, blocks:groups[addr].sort(function(a,b){return a-b;}), count:groups[addr].length };
+  }).sort(function(a,b){ return b.count - a.count; });
+  document.getElementById('lb-status').textContent = lbData.length.toLocaleString() + ' unique owners · ' + claimed.length.toLocaleString() + ' claimed bitmaps · ' + TIERS[activeTier].name + ' tier';
+  document.getElementById('btnLBExport').disabled = false;
+  lbPage = 1;
+  renderLB();
+}
+
+var lbMaxCount = 1;
+function renderLB() {
+  var q = (document.getElementById('lb-search').value || '').trim().toLowerCase();
+  lbFiltered = lbData.filter(function(row){ return !q || row.addr.toLowerCase().includes(q); });
+  lbMaxCount = lbData.length > 0 ? lbData[0].count : 1;
+  var total = Math.ceil(lbFiltered.length / LB_PAGE_SIZE);
+  if (lbPage > total) lbPage = 1;
+  var start = (lbPage - 1) * LB_PAGE_SIZE;
+  var rows  = lbFiltered.slice(start, start + LB_PAGE_SIZE);
+  document.getElementById('lb-count').textContent = lbFiltered.length.toLocaleString() + ' owners';
+  if (!rows.length) {
+    document.getElementById('lb-body').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--muted)">No results.</td></tr>';
+    document.getElementById('lb-pagination').innerHTML = '';
+    return;
+  }
+  var totalClaimed = Object.values(results).filter(function(r){ return r.status==='claimed'; }).length || 1;
+  document.getElementById('lb-body').innerHTML = rows.map(function(row) {
+    var globalRank = lbData.indexOf(row) + 1;
+    var medal = globalRank===1?'🥇':globalRank===2?'🥈':globalRank===3?'🥉':'';
+    var rankColor = globalRank===1?'var(--orange)':globalRank===2?'#C0C0C0':globalRank===3?'#CD7F32':'var(--muted)';
+    var pct = (row.count / totalClaimed * 100).toFixed(2);
+    var barW = Math.round(row.count / lbMaxCount * 100);
+    var addrShort = row.addr.slice(0,10) + '…' + row.addr.slice(-6);
+    var preview = row.blocks.slice(0,10).map(function(b){ return b+'.bmp'; }).join('  ');
+    if (row.blocks.length > 10) preview += '  +' + (row.blocks.length-10) + ' more';
+    return '<tr>'
+      + '<td class="lb-rank" style="color:'+rankColor+'">' + (medal||'#'+globalRank) + '</td>'
+      + '<td class="addr-cell"><a href="https://ordinals.com/address/'+row.addr+'" target="_blank" rel="noopener" style="color:#61AFEF;text-decoration:none;">'+addrShort+'</a></td>'
+      + '<td><span style="font-family:\'Orbitron\',sans-serif;font-size:0.85rem;font-weight:700;color:#98C379;">'+row.count.toLocaleString()+'</span>'
+      + '<div class="lb-bar-wrap"><div class="lb-bar" style="width:'+barW+'%"></div></div></td>'
+      + '<td style="color:var(--muted);font-size:0.72rem;">'+pct+'%</td>'
+      + '<td style="color:var(--muted);font-size:0.65rem;max-width:280px;overflow:hidden;text-overflow:ellipsis;">'+preview+'</td>'
+      + '</tr>';
+  }).join('');
+
+  var pag = '';
+  if (total > 1) {
+    pag += '<button class="filter-pill" onclick="lbGoPage('+Math.max(1,lbPage-1)+')" '+(lbPage===1?'disabled':'')+'>‹ PREV</button>';
+    for (var p = Math.max(1,lbPage-2); p <= Math.min(total,lbPage+2); p++) {
+      pag += '<button class="filter-pill'+(p===lbPage?' active':'')+'" onclick="lbGoPage('+p+')">'+p+'</button>';
+    }
+    pag += '<button class="filter-pill" onclick="lbGoPage('+Math.min(total,lbPage+1)+')" '+(lbPage===total?'disabled':'')+'>NEXT ›</button>';
+    pag += '<span style="font-size:0.65rem;color:var(--muted);margin-left:0.5rem;">Page '+lbPage+' of '+total+' · Showing '+Math.min(lbPage*LB_PAGE_SIZE,lbFiltered.length)+' of '+lbFiltered.length+'</span>';
+  }
+  document.getElementById('lb-pagination').innerHTML = pag;
+}
+
+function lbGoPage(p) { lbPage = p; renderLB(); }
+
+function exportLBCSV() {
+  if (!lbData.length) { alert('No leaderboard data.'); return; }
+  var rows = [['rank','address','bitmaps_held','bitmap_numbers']];
+  lbData.forEach(function(row, i) {
+    rows.push([i+1, row.addr, row.count, '"' + row.blocks.join(',') + '"']);
+  });
+  dl(rows.map(function(r){ return r.join(','); }).join('\n'), 'text/csv', activeTier + 'digit-bitmap-leaderboard-' + now() + '.csv');
+}
+
+// ── INIT ──
+buildMinimap();
+restoreFromStorage();
+</script>
+</body>
+</html>
