@@ -117,21 +117,31 @@ td{padding:9px 12px;vertical-align:middle;}
 <nav>
   <a class="nav-logo" href="index.html">⬡ BITMAP HUB</a>
   <ul>
-    <li><a href="index.html">INTRO</a></li>
-    <li><a href="directory.html">DIRECTORY</a></li>
-    <li><a href="leaderboard.html" class="active">LEADERBOARD</a></li>
-    <li><a href="messages.html">MESSAGES</a></li>
-    <li><a href="dashboard.html">MY BITMAP</a></li>
-    <li><a href="bitmap-scanner.html">SCANNER</a></li>
+    <li><a href="introduction.html" data-en="INTRO" data-zh="简介">INTRO</a></li>
+    <li><a href="history.html" data-en="HISTORY" data-zh="历史">HISTORY</a></li>
+    <li><a href="metaverse.html" data-en="METAVERSE" data-zh="元宇宙">METAVERSE</a></li>
+    <li><a href="rarity.html" data-en="RARITY" data-zh="稀有度">RARITY</a></li>
+    <li><a href="data.html" data-en="DATA" data-zh="数据">DATA</a></li>
+    <li><a href="tools.html" data-en="TOOLS" data-zh="工具">TOOLS</a></li>
+    <li><a href="marketplaces.html" data-en="MARKETS" data-zh="市场">MARKETS</a></li>
+    <li><a href="projects.html" data-en="PROJECTS" data-zh="项目">PROJECTS</a></li>
+    <li><a href="future.html" data-en="FUTURE" data-zh="未来">FUTURE</a></li>
+    <li><a href="founders.html" data-en="FOUNDERS" data-zh="创始人">FOUNDERS</a></li>
+    <li><a href="leaderboard.html" class="active" data-en="LEADERBOARD" data-zh="排行榜">LEADERBOARD</a></li>
+    <li><a href="directory.html" data-en="DIRECTORY" data-zh="名录">DIRECTORY</a></li>
+    <li><a href="messages.html" data-en="BLOCK MESSAGES" data-zh="区块留言">BLOCK MESSAGES</a></li>
+    <li><a href="dashboard.html" data-en="MY BITMAP" data-zh="我的 Bitmap">MY BITMAP</a></li>
+    <li><a href="bitmap-scanner.html" data-en="SCANNER" data-zh="扫描器">SCANNER</a></li>
   </ul>
+  <button class="theme-toggle" id="langToggle" onclick="toggleLang()" title="切换语言 / Toggle Language" style="min-width:48px;">中文</button>
 </nav>
 
 <main>
-  <h1>⬡ BITMAP LEADERBOARD</h1>
-  <p class="subtitle">Top bitmap holders by tier — sorted by collection size</p>
+  <h1 data-en="⬡ BITMAP LEADERBOARD" data-zh="⬡ Bitmap 排行榜">⬡ BITMAP LEADERBOARD</h1>
+  <p class="subtitle" data-en="Top bitmap holders by tier — sorted by collection size" data-zh="各维度 Bitmap 持有量排行 — 按持仓数量排序">Top bitmap holders by tier — sorted by collection size</p>
   <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(247,147,26,0.07);border:1px solid rgba(247,147,26,0.25);border-radius:3px;padding:8px 14px;margin-bottom:20px;font-size:.7rem;color:#888880;">
     <span style="color:#F7931A;font-size:.9rem;">⏱</span>
-    <span>Data is updated <strong style="color:#E8E8E0;">manually on a bi-weekly basis</strong>. Rankings may not reflect the most recent on-chain activity.</span>
+    <span data-en-html='Data is updated <strong style="color:#E8E8E0;">manually on a bi-weekly basis</strong>. Rankings may not reflect the most recent on-chain activity.' data-zh-html='数据每两周<strong style="color:#E8E8E0;">人工更新一次</strong>。排名可能未反映最新链上动态。'>Data is updated <strong style="color:#E8E8E0;">manually on a bi-weekly basis</strong>. Rankings may not reflect the most recent on-chain activity.</span>
   </div>
 
   <div class="tier-tabs">
@@ -143,26 +153,26 @@ td{padding:9px 12px;vertical-align:middle;}
   </div>
 
   <div class="stats-bar">
-    <div class="stat"><div class="stat-val" id="stat-owners">—</div><div class="stat-lbl">UNIQUE OWNERS</div></div>
-    <div class="stat"><div class="stat-val" id="stat-bitmaps">—</div><div class="stat-lbl">TOTAL BITMAPS</div></div>
-    <div class="stat"><div class="stat-val" id="stat-claimed">—</div><div class="stat-lbl">CLAIMED</div></div>
-    <div class="stat"><div class="stat-val" id="stat-top">—</div><div class="stat-lbl">TOP HOLDER</div></div>
+    <div class="stat"><div class="stat-val" id="stat-owners">—</div><div class="stat-lbl" data-en="UNIQUE OWNERS" data-zh="独立持有者">UNIQUE OWNERS</div></div>
+    <div class="stat"><div class="stat-val" id="stat-bitmaps">—</div><div class="stat-lbl" data-en="TOTAL BITMAPS" data-zh="Bitmap 总量">TOTAL BITMAPS</div></div>
+    <div class="stat"><div class="stat-val" id="stat-claimed">—</div><div class="stat-lbl" data-en="CLAIMED" data-zh="已被铭刻">CLAIMED</div></div>
+    <div class="stat"><div class="stat-val" id="stat-top">—</div><div class="stat-lbl" data-en="TOP HOLDER" data-zh="最多持有">TOP HOLDER</div></div>
   </div>
 
   <div class="controls">
     <input class="search-box" id="searchBox" type="text" placeholder="Search wallet address..." oninput="onSearch()">
-    <button class="btn primary" onclick="exportCSV()">⬇ CSV</button>
+    <button class="btn primary" onclick="exportCSV()" data-en="⬇ CSV" data-zh="⬇ 导出">⬇ CSV</button>
   </div>
 
   <div class="table-wrap">
     <table>
       <thead>
         <tr>
-          <th onclick="sortBy('rank')" id="th-rank">#</th>
-          <th onclick="sortBy('addr')" id="th-addr">WALLET</th>
-          <th onclick="sortBy('count')" id="th-count" class="sorted">BITMAPS ▼</th>
+          <th onclick="sortBy('rank')" id="th-rank" data-en="#" data-zh="#">#</th>
+          <th onclick="sortBy('addr')" id="th-addr" data-en="WALLET" data-zh="钱包地址">WALLET</th>
+          <th onclick="sortBy('count')" id="th-count" class="sorted" data-en="BITMAPS ▼" data-zh="持有量 ▼">BITMAPS ▼</th>
           <th>SHARE</th>
-          <th>PREVIEW</th>
+          <th data-en="PREVIEW" data-zh="区块预览">PREVIEW</th>
           <th></th>
         </tr>
       </thead>
@@ -390,6 +400,33 @@ function exportCSV() {
   a.download = tier.label + '-bitmap-leaderboard.csv';
   a.click();
 }
+</script>
+
+<script>
+// ── LANGUAGE TOGGLE ──
+function applyLang(lang) {
+  document.querySelectorAll('[data-en]').forEach(function(el) {
+    el.textContent = lang === 'zh' ? el.getAttribute('data-zh') : el.getAttribute('data-en');
+  });
+  document.querySelectorAll('[data-en-html]').forEach(function(el) {
+    el.innerHTML = lang === 'zh' ? el.getAttribute('data-zh-html') : el.getAttribute('data-en-html');
+  });
+  // placeholder for search box
+  var sb = document.getElementById('searchBox');
+  if (sb) sb.placeholder = lang === 'zh' ? '搜索钱包地址...' : 'Search wallet address...';
+  var btn = document.getElementById('langToggle');
+  if (btn) btn.textContent = lang === 'zh' ? 'EN' : '中文';
+  document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : 'en';
+  localStorage.setItem('bitmapLang', lang);
+}
+function toggleLang() {
+  var cur = localStorage.getItem('bitmapLang') || 'en';
+  applyLang(cur === 'zh' ? 'en' : 'zh');
+}
+(function() {
+  var saved = localStorage.getItem('bitmapLang') || 'en';
+  applyLang(saved);
+})();
 </script>
 </body>
 </html>

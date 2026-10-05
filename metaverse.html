@@ -29,22 +29,23 @@
     BITMAP HUB
   </a>
   <ul class="nav-links">
-    <li><a href="introduction.html">INTRO</a></li>
-    <li><a href="history.html">HISTORY</a></li>
-    <li><a href="metaverse.html" style="color:var(--orange);">METAVERSE</a></li>
-    <li><a href="rarity.html">RARITY</a></li>
-    <li><a href="data.html">DATA</a></li>
-    <li><a href="tools.html">TOOLS</a></li>
-    <li><a href="marketplaces.html">MARKETS</a></li>
-    <li><a href="projects.html">PROJECTS</a></li>
-    <li><a href="future.html">FUTURE</a></li>
-    <li><a href="founders.html">FOUNDERS</a></li>
-    <li><a href="leaderboard.html">LEADERBOARD</a></li>
-    <li><a href="directory.html">DIRECTORY</a></li>
-    <li><a href="messages.html">BLOCK MESSAGES</a></li>
-    <li><a href="dashboard.html">MY BITMAP</a></li>
-    <li><a href="bitmap-scanner.html">SCANNER</a></li>
+    <li><a href="introduction.html" data-en="INTRO" data-zh="简介">INTRO</a></li>
+    <li><a href="history.html" data-en="HISTORY" data-zh="历史">HISTORY</a></li>
+    <li><a href="metaverse.html" style="color:var(--orange);" data-en="METAVERSE" data-zh="元宇宙">METAVERSE</a></li>
+    <li><a href="rarity.html" data-en="RARITY" data-zh="稀有度">RARITY</a></li>
+    <li><a href="data.html" data-en="DATA" data-zh="数据">DATA</a></li>
+    <li><a href="tools.html" data-en="TOOLS" data-zh="工具">TOOLS</a></li>
+    <li><a href="marketplaces.html" data-en="MARKETS" data-zh="市场">MARKETS</a></li>
+    <li><a href="projects.html" data-en="PROJECTS" data-zh="项目">PROJECTS</a></li>
+    <li><a href="future.html" data-en="FUTURE" data-zh="未来">FUTURE</a></li>
+    <li><a href="founders.html" data-en="FOUNDERS" data-zh="创始人">FOUNDERS</a></li>
+    <li><a href="leaderboard.html" data-en="LEADERBOARD" data-zh="排行榜">LEADERBOARD</a></li>
+    <li><a href="directory.html" data-en="DIRECTORY" data-zh="名录">DIRECTORY</a></li>
+    <li><a href="messages.html" data-en="BLOCK MESSAGES" data-zh="区块留言">BLOCK MESSAGES</a></li>
+    <li><a href="dashboard.html" data-en="MY BITMAP" data-zh="我的 Bitmap">MY BITMAP</a></li>
+    <li><a href="bitmap-scanner.html" data-en="SCANNER" data-zh="扫描器">SCANNER</a></li>
   </ul>
+  <button class="theme-toggle" id="langToggle" onclick="toggleLang()" title="切换语言 / Toggle Language" style="min-width:48px;">中文</button>
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">
     <span class="toggle-icon" id="toggleIcon">☀️</span>
     <span id="toggleLabel">LIGHT</span>
@@ -52,17 +53,17 @@
 </nav>
 
 <div class="page-header">
-  <div class="section-label">03 / 10 — METAVERSE</div>
+  <div class="section-label" data-en="03 / 10 — METAVERSE" data-zh="03 / 10 — 元宇宙">03 / 10 — METAVERSE</div>
   <h1 class="section-title" style="font-size:clamp(2rem,5vw,3.5rem);">Bitmap<br><span style="color:var(--orange)">Metaverse</span></h1>
-  <p class="section-desc">How Bitcoin block data becomes digital land. The mechanics, concept, logic, purpose, vision, mission, and goals of the Bitmap Metaverse.</p>
+  <p class="section-desc" data-en="How Bitcoin block data becomes digital land. The mechanics, concept, logic, purpose, vision, mission, and goals of the Bitmap Metaverse." data-zh="比特币区块数据如何转化为数字土地。Bitmap 元宇宙的运作机制、概念逻辑、使命愿景与发展目标。">How Bitcoin block data becomes digital land. The mechanics, concept, logic, purpose, vision, mission, and goals of the Bitmap Metaverse.</p>
 </div>
 
 <div class="divider"></div>
 
 <!-- HOW IT WORKS -->
 <section>
-  <div class="section-label">MECHANICS</div>
-  <h2 class="section-title">How It Works</h2>
+  <div class="section-label" data-en="MECHANICS" data-zh="运作机制">MECHANICS</div>
+  <h2 class="section-title" data-en="How It Works" data-zh="运作原理">How It Works</h2>
 
   <div class="two-col" style="margin-bottom:3rem;">
     <div>
@@ -100,7 +101,7 @@
     </div>
   </div>
 
-  <h3 style="font-family:'Orbitron',monospace;font-size:1rem;color:#fff;margin-bottom:1.5rem;">The District-Parcel System</h3>
+  <h3 style="font-family:'Orbitron',monospace;font-size:1rem;color:#fff;margin-bottom:1.5rem;" data-en="The District-Parcel System" data-zh="地区与地块体系">The District-Parcel System</h3>
   <div class="card-grid">
     <div class="card">
       <div class="card-icon">🏙️</div>
@@ -129,8 +130,8 @@
 
 <!-- THE CONCEPT -->
 <section>
-  <div class="section-label">THE CONCEPT</div>
-  <h2 class="section-title">Digital Matter Theory</h2>
+  <div class="section-label" data-en="THE CONCEPT" data-zh="核心概念">THE CONCEPT</div>
+  <h2 class="section-title" data-en="Digital Matter Theory" data-zh="数字物质理论">Digital Matter Theory</h2>
   <div class="two-col">
     <div>
       <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;margin-bottom:1.2rem;">
@@ -145,11 +146,11 @@
     </div>
     <div>
       <div class="highlight-box" data-label="BITMAP THEORY PRINCIPLE">
-        "Bitmap Theory represents the mapping of Bitcoin's data landscape to spatial analogues, bringing to light the base substrate of a persistent Metaverse."
+        <span data-en="&quot;Bitmap Theory represents the mapping of Bitcoin's data landscape to spatial analogues, bringing to light the base substrate of a persistent Metaverse.&quot;" data-zh="&quot;Bitmap 理论代表着将比特币数据景观映射为空间类比，揭示了持久元宇宙底层基质的本质。&quot;">"Bitmap Theory represents the mapping of Bitcoin's data landscape to spatial analogues, bringing to light the base substrate of a persistent Metaverse."</span>
         <span class="quote-attr">— Bitmap Gitbook</span>
       </div>
       <div style="margin-top:1.5rem;" class="highlight-box" data-label="NON-ARBITRARY ASSET">
-        Unlike NFTs with randomized traits or arbitrary art, every property of a Bitmap is derived from real, immutable, verifiable Bitcoin blockchain data. The blockchain is the artist.
+        <span data-en="Unlike NFTs with randomized traits or arbitrary art, every property of a Bitmap is derived from real, immutable, verifiable Bitcoin blockchain data. The blockchain is the artist." data-zh="与具有随机属性或任意艺术创作的 NFT 不同，Bitmap 的每一项属性均源自真实、不可篡改且可验证的比特币区块链数据。区块链本身即是艺术家。">Unlike NFTs with randomized traits or arbitrary art, every property of a Bitmap is derived from real, immutable, verifiable Bitcoin blockchain data. The blockchain is the artist.</span>
       </div>
     </div>
   </div>
@@ -159,8 +160,8 @@
 
 <!-- PURPOSE, VISION, MISSION, GOAL -->
 <section>
-  <div class="section-label">FOUNDATION</div>
-  <h2 class="section-title">Purpose, Vision, Mission & Goal</h2>
+  <div class="section-label" data-en="FOUNDATION" data-zh="基础原则">FOUNDATION</div>
+  <h2 class="section-title" data-en="Purpose, Vision, Mission & Goal" data-zh="使命、愿景、任务与目标">Purpose, Vision, Mission & Goal</h2>
   <div class="analysis-grid">
 
     <div class="analysis-card">
@@ -218,9 +219,9 @@
 
 <!-- BRC-420 LAYER -->
 <section>
-  <div class="section-label">ECOSYSTEM PROTOCOL</div>
-  <h2 class="section-title">BRC-420 — The Asset Layer</h2>
-  <p class="section-desc">Built on top of Bitmap by the RCSV/Recursiverse team, BRC-420 is the asset management protocol that brings the metaverse to life.</p>
+  <div class="section-label" data-en="ECOSYSTEM PROTOCOL" data-zh="生态协议">ECOSYSTEM PROTOCOL</div>
+  <h2 class="section-title" data-en="BRC-420 — The Asset Layer" data-zh="BRC-420 — 资产层协议">BRC-420 — The Asset Layer</h2>
+  <p class="section-desc" data-en="Built on top of Bitmap by the RCSV/Recursiverse team, BRC-420 is the asset management protocol that brings the metaverse to life." data-zh="BRC-420 由 RCSV/Recursiverse 团队构建于 Bitmap 之上，是将元宇宙带入现实的资产管理协议。">Built on top of Bitmap by the RCSV/Recursiverse team, BRC-420 is the asset management protocol that brings the metaverse to life.</p>
 
   <div class="two-col">
     <div>
@@ -256,14 +257,14 @@
 
 <div class="divider"></div>
 <section style="padding-top:2rem;padding-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
-  <a href="history.html" class="btn btn-ghost">← HISTORY</a>
-  <a href="rarity.html" class="btn btn-primary">BITMAP RARITY →</a>
+  <a href="history.html" class="btn btn-ghost" data-en="← HISTORY" data-zh="← 历史">← HISTORY</a>
+  <a href="rarity.html" class="btn btn-primary" data-en="BITMAP RARITY →" data-zh="Bitmap 稀有度 →">BITMAP RARITY →</a>
 </section>
 
 <footer>
   <div class="footer-logo">▮ BITMAP HUB</div>
   <div style="margin:0.5rem 0;"><a href="https://x.com/BitmapSummit" target="_blank" rel="noopener" style="color:var(--orange);text-decoration:none;font-family:'Share Tech Mono',monospace;font-size:0.7rem;letter-spacing:1px;">𝕏 @BitmapSummit</a></div>
-  <p class="footer-text">Community reference site. Not financial advice.</p>
+  <p class="footer-text" data-en="Community reference site. Not financial advice." data-zh="社区参考网站，内容不构成财务建议。">Community reference site. Not financial advice.</p>
 </footer>
 <script>
 // ── THEME TOGGLE ──
@@ -283,6 +284,28 @@ function toggleTheme() {
 (function() {
   const saved = localStorage.getItem('bitmapTheme') || 'dark';
   applyTheme(saved);
+})();
+</script>
+<script>
+function applyLang(lang) {
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.textContent = lang === 'zh' ? el.getAttribute('data-zh') : el.getAttribute('data-en');
+  });
+  document.querySelectorAll('[data-en-html]').forEach(el => {
+    el.innerHTML = lang === 'zh' ? el.getAttribute('data-zh-html') : el.getAttribute('data-en-html');
+  });
+  const btn = document.getElementById('langToggle');
+  if (btn) btn.textContent = lang === 'zh' ? 'EN' : '中文';
+  document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : 'en';
+  localStorage.setItem('bitmapLang', lang);
+}
+function toggleLang() {
+  const cur = localStorage.getItem('bitmapLang') || 'en';
+  applyLang(cur === 'zh' ? 'en' : 'zh');
+}
+(function() {
+  const saved = localStorage.getItem('bitmapLang') || 'en';
+  applyLang(saved);
 })();
 </script>
 </body>

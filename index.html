@@ -1369,22 +1369,23 @@
     BITMAP HUB
   </a>
   <ul class="nav-links">
-    <li><a href="introduction.html">INTRO</a></li>
-    <li><a href="history.html">HISTORY</a></li>
-    <li><a href="metaverse.html">METAVERSE</a></li>
-    <li><a href="rarity.html">RARITY</a></li>
-    <li><a href="data.html">DATA</a></li>
-    <li><a href="tools.html">TOOLS</a></li>
-    <li><a href="marketplaces.html">MARKETS</a></li>
-    <li><a href="projects.html">PROJECTS</a></li>
-    <li><a href="future.html">FUTURE</a></li>
-    <li><a href="founders.html">FOUNDERS</a></li>
-    <li><a href="leaderboard.html">LEADERBOARD</a></li>
-    <li><a href="directory.html">DIRECTORY</a></li>
-    <li><a href="messages.html">BLOCK MESSAGES</a></li>
-    <li><a href="dashboard.html">MY BITMAP</a></li>
-    <li><a href="bitmap-scanner.html">SCANNER</a></li>
+    <li><a href="introduction.html" data-en="INTRO" data-zh="简介">INTRO</a></li>
+    <li><a href="history.html" data-en="HISTORY" data-zh="历史">HISTORY</a></li>
+    <li><a href="metaverse.html" data-en="METAVERSE" data-zh="元宇宙">METAVERSE</a></li>
+    <li><a href="rarity.html" data-en="RARITY" data-zh="稀有度">RARITY</a></li>
+    <li><a href="data.html" data-en="DATA" data-zh="数据">DATA</a></li>
+    <li><a href="tools.html" data-en="TOOLS" data-zh="工具">TOOLS</a></li>
+    <li><a href="marketplaces.html" data-en="MARKETS" data-zh="市场">MARKETS</a></li>
+    <li><a href="projects.html" data-en="PROJECTS" data-zh="项目">PROJECTS</a></li>
+    <li><a href="future.html" data-en="FUTURE" data-zh="未来">FUTURE</a></li>
+    <li><a href="founders.html" data-en="FOUNDERS" data-zh="创始人">FOUNDERS</a></li>
+    <li><a href="leaderboard.html" data-en="LEADERBOARD" data-zh="排行榜">LEADERBOARD</a></li>
+    <li><a href="directory.html" data-en="DIRECTORY" data-zh="名录">DIRECTORY</a></li>
+    <li><a href="messages.html" data-en="BLOCK MESSAGES" data-zh="区块留言">BLOCK MESSAGES</a></li>
+    <li><a href="dashboard.html" data-en="MY BITMAP" data-zh="我的 Bitmap">MY BITMAP</a></li>
+    <li><a href="bitmap-scanner.html" data-en="SCANNER" data-zh="扫描器">SCANNER</a></li>
   </ul>
+  <button class="theme-toggle" id="langToggle" onclick="toggleLang()" title="切换语言 / Toggle Language" style="min-width:48px;">中文</button>
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">
     <span class="toggle-icon" id="toggleIcon">☀️</span>
     <span id="toggleLabel">LIGHT</span>
@@ -1416,13 +1417,13 @@
   <div class="price-tracker-inner">
     <div class="price-tracker-label">
       <span class="live-dot"></span>
-      LIVE PRICES
+      <span data-en="LIVE PRICES" data-zh="实时价格">LIVE PRICES</span>
     </div>
     <div class="price-cards">
 
       <!-- BTC Price -->
       <div class="price-card btc-card">
-        <div class="price-card-label">₿ BITCOIN</div>
+        <div class="price-card-label" data-en="₿ BITCOIN" data-zh="₿ BITCOIN">₿ BITCOIN</div>
         <div class="price-card-btc" id="btc-price"><span class="price-loading">LOADING...</span></div>
         <div class="price-card-change neutral" id="btc-change">—</div>
       </div>
@@ -1471,34 +1472,34 @@
 <!-- ── HERO ── -->
 <div class="hero">
   <div class="hero-bitmap-bg" id="heroBg"></div>
-  <div class="hero-tag">// THE COMPLETE BITCOIN METAVERSE ENCYCLOPEDIA</div>
+  <div class="hero-tag" data-en="// THE COMPLETE BITCOIN METAVERSE ENCYCLOPEDIA" data-zh="// Bitcoin 元宇宙完全百科全书">// THE COMPLETE BITCOIN METAVERSE ENCYCLOPEDIA</div>
   <h1>BITMAP <span>HUB</span></h1>
-  <p class="hero-sub">Your definitive resource for everything in the Bitmap ecosystem — from Ordinals theory to metaverse districts, rarity tiers, tools, projects, and the future of Bitcoin's digital real estate.</p>
+  <p class="hero-sub" data-en="Your definitive resource for everything in the Bitmap ecosystem — from Ordinals theory to metaverse districts, rarity tiers, tools, projects, and the future of Bitcoin's digital real estate." data-zh="Bitmap 生态系统全方位权威参考资源 — 涵盖 Ordinals 理论、元宇宙区块、稀有度等级、工具、项目，以及 Bitcoin 数字土地的未来发展。">Your definitive resource for everything in the Bitmap ecosystem — from Ordinals theory to metaverse districts, rarity tiers, tools, projects, and the future of Bitcoin's digital real estate.</p>
 
   <div class="hero-stats">
     <div class="stat">
       <div class="stat-num">949K+</div>
-      <div class="stat-label">Total Bitmaps</div>
+      <div class="stat-label" data-en="Total Bitmaps" data-zh="Bitmap 总量">Total Bitmaps</div>
     </div>
     <div class="stat">
       <div class="stat-num">45,700+</div>
-      <div class="stat-label">Holders</div>
+      <div class="stat-label" data-en="Holders" data-zh="持有者">Holders</div>
     </div>
     <div class="stat">
       <div class="stat-num" id="hero-floor">LIVE ▸</div>
-      <div class="stat-label">Floor Price</div>
+      <div class="stat-label" data-en="Floor Price" data-zh="地板价">Floor Price</div>
     </div>
     <div class="stat">
       <div class="stat-num">2023</div>
-      <div class="stat-label">Genesis Year</div>
+      <div class="stat-label" data-en="Genesis Year" data-zh="创世年份">Genesis Year</div>
     </div>
   </div>
 
   <div class="hero-cta">
-    <a href="introduction.html" class="btn btn-primary">EXPLORE THE ECOSYSTEM →</a>
-    <a href="metaverse.html" class="btn btn-ghost">METAVERSE THEORY</a>
+    <a href="introduction.html" class="btn btn-primary" data-en="EXPLORE THE ECOSYSTEM →" data-zh="探索生态系统 →">EXPLORE THE ECOSYSTEM →</a>
+    <a href="metaverse.html" class="btn btn-ghost" data-en="METAVERSE THEORY" data-zh="元宇宙理论">METAVERSE THEORY</a>
     <div class="hero-buy-wrap">
-      <button class="btn btn-buy" onclick="toggleHeroBuy(event)">🛒 BUY BITMAP ▼</button>
+      <button class="btn btn-buy" onclick="toggleHeroBuy(event)" data-en="🛒 BUY BITMAP ▼" data-zh="🛒 购买 Bitmap ▼">🛒 BUY BITMAP ▼</button>
       <div class="hero-buy-dropdown" id="heroBuyDropdown">
         <a href="https://www.satflow.com/ordinals/bitmap" target="_blank" rel="noopener">
           <span class="hbd-icon">💧</span>
@@ -1517,78 +1518,78 @@
 
 <!-- ── SECTION NAV ── -->
 <section style="padding-top:0; padding-bottom:0;">
-  <div class="section-label">NAVIGATE</div>
-  <h2 class="section-title" style="margin-bottom:2rem;">All Sections</h2>
+  <div class="section-label" data-en="NAVIGATE" data-zh="导航">NAVIGATE</div>
+  <h2 class="section-title" style="margin-bottom:2rem;" data-en="All Sections" data-zh="全部章节">All Sections</h2>
   <div class="nav-grid">
     <a href="introduction.html" class="nav-card">
       <span class="nav-card-arrow">→</span>
       <div class="nav-card-num">01 / 10</div>
       <span class="nav-card-emoji">₿</span>
-      <div class="nav-card-title">Ordinals & Bitmap Introduction</div>
-      <div class="nav-card-desc">What are Bitcoin Ordinals? What is Bitmap? Core concepts explained.</div>
+      <div class="nav-card-title" data-en="Ordinals & Bitmap Introduction" data-zh="Bitcoin Ordinals 与 Bitmap 简介">Ordinals & Bitmap Introduction</div>
+      <div class="nav-card-desc" data-en="What are Bitcoin Ordinals? What is Bitmap? Core concepts explained." data-zh="什么是 Bitcoin Ordinals？什么是 Bitmap？核心概念解析。">What are Bitcoin Ordinals? What is Bitmap? Core concepts explained.</div>
     </a>
     <a href="history.html" class="nav-card">
       <span class="nav-card-arrow">→</span>
       <div class="nav-card-num">02 / 10</div>
       <span class="nav-card-emoji">📜</span>
-      <div class="nav-card-title">Bitmap History</div>
-      <div class="nav-card-desc">Genesis on June 13, 2023. The full timeline of milestones and evolution.</div>
+      <div class="nav-card-title" data-en="Bitmap History" data-zh="Bitmap 历史">Bitmap History</div>
+      <div class="nav-card-desc" data-en="Genesis on June 13, 2023. The full timeline of milestones and evolution." data-zh="创世于 2023 年 6 月 13 日。完整发展历程与里程碑时间线。">Genesis on June 13, 2023. The full timeline of milestones and evolution.</div>
     </a>
     <a href="metaverse.html" class="nav-card">
       <span class="nav-card-arrow">→</span>
       <div class="nav-card-num">03 / 10</div>
       <span class="nav-card-emoji">🌐</span>
-      <div class="nav-card-title">Bitmap Metaverse</div>
-      <div class="nav-card-desc">How it works, Districts, Parcels, Blocktributes. The vision and mission.</div>
+      <div class="nav-card-title" data-en="Bitmap Metaverse" data-zh="Bitmap 元宇宙">Bitmap Metaverse</div>
+      <div class="nav-card-desc" data-en="How it works, Districts, Parcels, Blocktributes. The vision and mission." data-zh="运作机制、District、Parcel、Blocktribute。愿景与使命解读。">How it works, Districts, Parcels, Blocktributes. The vision and mission.</div>
     </a>
     <a href="rarity.html" class="nav-card">
       <span class="nav-card-arrow">→</span>
       <div class="nav-card-num">04 / 10</div>
       <span class="nav-card-emoji">💎</span>
-      <div class="nav-card-title">Bitmap Rarity</div>
-      <div class="nav-card-desc">Sub-1k, palindromes, historical blocks, Punk-shaped lands & more.</div>
+      <div class="nav-card-title" data-en="Bitmap Rarity" data-zh="Bitmap 稀有度">Bitmap Rarity</div>
+      <div class="nav-card-desc" data-en="Sub-1k, palindromes, historical blocks, Punk-shaped lands & more." data-zh="千以内编号、回文数、历史区块、朋克形状地块等稀有类型。">Sub-1k, palindromes, historical blocks, Punk-shaped lands & more.</div>
     </a>
     <a href="data.html" class="nav-card">
       <span class="nav-card-arrow">→</span>
       <div class="nav-card-num">05 / 10</div>
       <span class="nav-card-emoji">📊</span>
-      <div class="nav-card-title">Bitmap Data</div>
-      <div class="nav-card-desc">On-chain stats, holder distribution, supply, inscriptions, volume data.</div>
+      <div class="nav-card-title" data-en="Bitmap Data" data-zh="Bitmap 数据">Bitmap Data</div>
+      <div class="nav-card-desc" data-en="On-chain stats, holder distribution, supply, inscriptions, volume data." data-zh="链上数据统计、持有者分布、供应量、铭刻数量及交易量。">On-chain stats, holder distribution, supply, inscriptions, volume data.</div>
     </a>
     <a href="tools.html" class="nav-card">
       <span class="nav-card-arrow">→</span>
       <div class="nav-card-num">06 / 10</div>
       <span class="nav-card-emoji">🔧</span>
-      <div class="nav-card-title">Bitmap Tools</div>
-      <div class="nav-card-desc">Explorers, wallets, inscription tools, indexers, and developer resources.</div>
+      <div class="nav-card-title" data-en="Bitmap Tools" data-zh="Bitmap 工具">Bitmap Tools</div>
+      <div class="nav-card-desc" data-en="Explorers, wallets, inscription tools, indexers, and developer resources." data-zh="浏览器、钱包、铭刻工具、索引器及开发者资源。">Explorers, wallets, inscription tools, indexers, and developer resources.</div>
     </a>
     <a href="marketplaces.html" class="nav-card">
       <span class="nav-card-arrow">→</span>
       <div class="nav-card-num">07 / 10</div>
       <span class="nav-card-emoji">🏪</span>
-      <div class="nav-card-title">Bitmap Marketplaces</div>
-      <div class="nav-card-desc">Where to buy, sell, and trade Bitmaps — Satflow, OKX, Ordinals Wallet, and more.</div>
+      <div class="nav-card-title" data-en="Bitmap Marketplaces" data-zh="Bitmap 交易市场">Bitmap Marketplaces</div>
+      <div class="nav-card-desc" data-en="Where to buy, sell, and trade Bitmaps — Satflow, OKX, Ordinals Wallet, and more." data-zh="购买、出售与交易 Bitmap 的平台 — Satflow、OKX、Ordinals Wallet 等。">Where to buy, sell, and trade Bitmaps — Satflow, OKX, Ordinals Wallet, and more.</div>
     </a>
     <a href="projects.html" class="nav-card">
       <span class="nav-card-arrow">→</span>
       <div class="nav-card-num">08 / 10</div>
       <span class="nav-card-emoji">🚀</span>
-      <div class="nav-card-title">Bitmap Projects</div>
-      <div class="nav-card-desc">Active builders and sunset projects across the entire ecosystem.</div>
+      <div class="nav-card-title" data-en="Bitmap Projects" data-zh="Bitmap 项目">Bitmap Projects</div>
+      <div class="nav-card-desc" data-en="Active builders and sunset projects across the entire ecosystem." data-zh="生态系统中活跃中的开发者项目与已停运项目概览。">Active builders and sunset projects across the entire ecosystem.</div>
     </a>
     <a href="future.html" class="nav-card">
       <span class="nav-card-arrow">→</span>
       <div class="nav-card-num">09 / 10</div>
       <span class="nav-card-emoji">🔮</span>
-      <div class="nav-card-title">Future Potential & Value</div>
-      <div class="nav-card-desc">Analysis of growth catalysts, value drivers, and long-term thesis.</div>
+      <div class="nav-card-title" data-en="Future Potential & Value" data-zh="未来潜力与价值">Future Potential & Value</div>
+      <div class="nav-card-desc" data-en="Analysis of growth catalysts, value drivers, and long-term thesis." data-zh="增长驱动因素、价值来源与长期投资论据分析。">Analysis of growth catalysts, value drivers, and long-term thesis.</div>
     </a>
     <a href="founders.html" class="nav-card">
       <span class="nav-card-arrow">→</span>
       <div class="nav-card-num">10 / 10</div>
       <span class="nav-card-emoji">👤</span>
-      <div class="nav-card-title">Bitmap Founders</div>
-      <div class="nav-card-desc">Bitoshi Blockamoto, RCSV team, and the key builders behind the protocol.</div>
+      <div class="nav-card-title" data-en="Bitmap Founders" data-zh="Bitmap 创始人">Bitmap Founders</div>
+      <div class="nav-card-desc" data-en="Bitoshi Blockamoto, RCSV team, and the key builders behind the protocol." data-zh="Bitoshi Blockamoto、RCSV 团队以及协议背后的核心建设者。">Bitoshi Blockamoto, RCSV team, and the key builders behind the protocol.</div>
     </a>
   </div>
 </section>
@@ -1598,16 +1599,16 @@
   <div class="divider" style="margin-bottom:4rem;"></div>
   <div class="two-col">
     <div>
-      <div class="section-label">CORE CONCEPT</div>
-      <h2 class="section-title">What Is Bitmap?</h2>
+      <div class="section-label" data-en="CORE CONCEPT" data-zh="核心概念">CORE CONCEPT</div>
+      <h2 class="section-title" data-en="What Is Bitmap?" data-zh="什么是 Bitmap？">What Is Bitmap?</h2>
       <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;margin-bottom:1.5rem;">
-        Bitmap is an open-source consensus standard built on Bitcoin's Ordinals protocol. Proposed by <span style="color:var(--orange)">Bitoshi Blockamoto</span> on June 13, 2023, it allows anyone to claim ownership of a Bitcoin block by inscribing <code style="color:var(--orange);font-family:'Share Tech Mono';">{block-height}.bitmap</code> onto a satoshi.
+        <span data-en-html="Bitmap is an open-source consensus standard built on Bitcoin's Ordinals protocol. Proposed by <span style='color:var(--orange)'>Bitoshi Blockamoto</span> on June 13, 2023, it allows anyone to claim ownership of a Bitcoin block by inscribing <code style='color:var(--orange);font-family:Share Tech Mono;'>{block-height}.bitmap</code> onto a satoshi." data-zh-html="Bitmap 是建立在 Bitcoin Ordinals 协议之上的开源共识标准。由 <span style='color:var(--orange)'>Bitoshi Blockamoto</span> 于 2023 年 6 月 13 日提出，任何人均可通过将 <code style='color:var(--orange);font-family:Share Tech Mono;'>{block-height}.bitmap</code> 铭刻至一枚 satoshi，来声明对该 Bitcoin 区块的所有权。">Bitmap is an open-source consensus standard built on Bitcoin's Ordinals protocol. Proposed by <span style="color:var(--orange)">Bitoshi Blockamoto</span> on June 13, 2023, it allows anyone to claim ownership of a Bitcoin block by inscribing <code style="color:var(--orange);font-family:'Share Tech Mono';">{block-height}.bitmap</code> onto a satoshi.</span>
       </p>
       <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;margin-bottom:1.5rem;">
-        Each Bitcoin block becomes a <strong style="color:#fff">District</strong> — a parcel of digital real estate in the metaverse. Each transaction within that block maps to a <strong style="color:#fff">Parcel</strong> of land, making every Bitmap unique based on real blockchain data.
+        <span data-en-html="Each Bitcoin block becomes a <strong style='color:#fff'>District</strong> — a parcel of digital real estate in the metaverse. Each transaction within that block maps to a <strong style='color:#fff'>Parcel</strong> of land, making every Bitmap unique based on real blockchain data." data-zh-html="每个 Bitcoin 区块对应一个 <strong style='color:#fff'>District（区块地块）</strong> — 即元宇宙中的一块数字不动产。该区块内的每笔交易则映射为一块 <strong style='color:#fff'>Parcel（地产单元）</strong>，令每个 Bitmap 均由真实链上数据赋予独特属性。">Each Bitcoin block becomes a <strong style="color:#fff">District</strong> — a parcel of digital real estate in the metaverse. Each transaction within that block maps to a <strong style="color:#fff">Parcel</strong> of land, making every Bitmap unique based on real blockchain data.</span>
       </p>
       <div class="highlight-box" data-label="BITMAP MOTTO">
-        "Some inventions are more like discoveries." — Bitoshi Blockamoto
+        <span data-en='"Some inventions are more like discoveries." — Bitoshi Blockamoto' data-zh='"有些发明，更像是一种发现。" — Bitoshi Blockamoto'>"Some inventions are more like discoveries." — Bitoshi Blockamoto</span>
       </div>
     </div>
     <div>
@@ -1636,21 +1637,21 @@
   <div class="footer-logo">▮ BITMAP HUB</div>
   <div style="margin:0.5rem 0;"><a href="https://x.com/BitmapSummit" target="_blank" rel="noopener" style="color:var(--orange);text-decoration:none;font-family:'Share Tech Mono',monospace;font-size:0.7rem;letter-spacing:1px;">𝕏 @BitmapSummit</a></div>
   <div class="footer-links">
-    <a href="introduction.html">Introduction</a>
-    <a href="history.html">History</a>
-    <a href="metaverse.html">Metaverse</a>
-    <a href="rarity.html">Rarity</a>
-    <a href="data.html">Data</a>
-    <a href="tools.html">Tools</a>
-    <a href="marketplaces.html">Marketplaces</a>
-    <a href="projects.html">Projects</a>
-    <a href="future.html">Future</a>
-    <a href="founders.html">Founders</a>
+    <a href="introduction.html" data-en="Introduction" data-zh="简介">Introduction</a>
+    <a href="history.html" data-en="History" data-zh="历史">History</a>
+    <a href="metaverse.html" data-en="Metaverse" data-zh="元宇宙">Metaverse</a>
+    <a href="rarity.html" data-en="Rarity" data-zh="稀有度">Rarity</a>
+    <a href="data.html" data-en="Data" data-zh="数据">Data</a>
+    <a href="tools.html" data-en="Tools" data-zh="工具">Tools</a>
+    <a href="marketplaces.html" data-en="Marketplaces" data-zh="交易市场">Marketplaces</a>
+    <a href="projects.html" data-en="Projects" data-zh="项目">Projects</a>
+    <a href="future.html" data-en="Future" data-zh="未来">Future</a>
+    <a href="founders.html" data-en="Founders" data-zh="创始人">Founders</a>
   </div>
   <p class="footer-text">
-    Bitmap Hub is a community reference site. Not financial advice.<br>
+    <span data-en-html="Bitmap Hub is a community reference site. Not financial advice.<br>Data sourced from on-chain records, bitmap.land, and ecosystem contributors.<br>Bitcoin Block 0 → ∞ — Every block is a world." data-zh-html="Bitmap Hub 是社区参考资讯网站，内容不构成任何财务建议。<br>数据来源：链上记录、bitmap.land 及生态贡献者。<br>Bitcoin 区块 0 → ∞ — 每个区块，皆是一个世界。">Bitmap Hub is a community reference site. Not financial advice.<br>
     Data sourced from on-chain records, bitmap.land, and ecosystem contributors.<br>
-    Bitcoin Block 0 → ∞ — Every block is a world.
+    Bitcoin Block 0 → ∞ — Every block is a world.</span>
   </p>
 </footer>
 
@@ -1893,6 +1894,30 @@ function toggleTheme() {
 (function() {
   const saved = localStorage.getItem('bitmapTheme') || 'dark';
   applyTheme(saved);
+})();
+</script>
+
+<script>
+// ── LANGUAGE TOGGLE ──
+function applyLang(lang) {
+  document.querySelectorAll('[data-en]').forEach(function(el) {
+    el.textContent = lang === 'zh' ? el.getAttribute('data-zh') : el.getAttribute('data-en');
+  });
+  document.querySelectorAll('[data-en-html]').forEach(function(el) {
+    el.innerHTML = lang === 'zh' ? el.getAttribute('data-zh-html') : el.getAttribute('data-en-html');
+  });
+  var btn = document.getElementById('langToggle');
+  if (btn) btn.textContent = lang === 'zh' ? 'EN' : '中文';
+  document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : 'en';
+  localStorage.setItem('bitmapLang', lang);
+}
+function toggleLang() {
+  var cur = localStorage.getItem('bitmapLang') || 'en';
+  applyLang(cur === 'zh' ? 'en' : 'zh');
+}
+(function() {
+  var saved = localStorage.getItem('bitmapLang') || 'en';
+  applyLang(saved);
 })();
 </script>
 </body>
