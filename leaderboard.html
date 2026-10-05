@@ -103,6 +103,14 @@ td{padding:9px 12px;vertical-align:middle;}
 .block-chip:hover{border-color:var(--orange);color:var(--orange);cursor:pointer;}
 .modal-tier-badge{display:inline-block;font-family:'Orbitron',sans-serif;font-size:.6rem;padding:2px 8px;border-radius:2px;margin-bottom:12px;}
 </style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NY3DZDZC78"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-NY3DZDZC78");
+</script>
 </head>
 <body>
 
@@ -121,6 +129,10 @@ td{padding:9px 12px;vertical-align:middle;}
 <main>
   <h1>⬡ BITMAP LEADERBOARD</h1>
   <p class="subtitle">Top bitmap holders by tier — sorted by collection size</p>
+  <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(247,147,26,0.07);border:1px solid rgba(247,147,26,0.25);border-radius:3px;padding:8px 14px;margin-bottom:20px;font-size:.7rem;color:#888880;">
+    <span style="color:#F7931A;font-size:.9rem;">⏱</span>
+    <span>Data is updated <strong style="color:#E8E8E0;">manually on a bi-weekly basis</strong>. Rankings may not reflect the most recent on-chain activity.</span>
+  </div>
 
   <div class="tier-tabs">
     <button class="tier-btn t2" onclick="selectTier(2)">2D <span style="font-size:.6rem;opacity:.7;">(90)</span></button>
@@ -361,6 +373,11 @@ function closeModal() {
 }
 
 function exportCSV() {
+  var pw = prompt('Enter password to download CSV:');
+  if (pw !== 'Hf%Gn25@Rg3') {
+    alert('Incorrect password.');
+    return;
+  }
   var raw = DATA[activeTier];
   var tier = TIERS[activeTier];
   var lines = ['Rank,Wallet,Bitmap Count,Bitmaps'];

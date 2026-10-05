@@ -147,6 +147,14 @@ body.light .bcard-actions{background:rgba(245,240,232,0.9);}
 ::-webkit-scrollbar-thumb{background:var(--orange-dim);}
 @media(max-width:720px){.dash-wrap{flex-direction:column;}.sidebar{width:100%;height:auto;position:relative;top:0;}.bitmap-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}.cw-grid{grid-template-columns:repeat(3,1fr);}}
 </style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NY3DZDZC78"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-NY3DZDZC78");
+</script>
 </head>
 <body>
 <nav>
@@ -156,13 +164,30 @@ body.light .bcard-actions{background:rgba(245,240,232,0.9);}
       <span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span>
       <span style="background:#F7931A"></span><span style="background:#0A0A0A"></span><span style="background:#0A0A0A"></span><span style="background:#F7931A"></span>
       <span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span><span style="background:#F7931A"></span>
-    </div>BITMAP HUB
+    </div>
+    BITMAP HUB
   </a>
   <ul class="nav-links">
-    <li><a href="introduction.html">INTRO</a></li><li><a href="history.html">HISTORY</a></li><li><a href="metaverse.html">METAVERSE</a></li><li><a href="rarity.html">RARITY</a></li><li><a href="data.html">DATA</a></li><li><a href="tools.html">TOOLS</a></li><li><a href="marketplaces.html">MARKETS</a></li><li><a href="projects.html">PROJECTS</a></li><li><a href="future.html">FUTURE</a></li><li><a href="founders.html">FOUNDERS</a></li>
-    <li><a href="dashboard.html" style="color:var(--orange)">MY BITMAP</a></li>
+    <li><a href="introduction.html">INTRO</a></li>
+    <li><a href="history.html">HISTORY</a></li>
+    <li><a href="metaverse.html">METAVERSE</a></li>
+    <li><a href="rarity.html">RARITY</a></li>
+    <li><a href="data.html">DATA</a></li>
+    <li><a href="tools.html">TOOLS</a></li>
+    <li><a href="marketplaces.html">MARKETS</a></li>
+    <li><a href="projects.html">PROJECTS</a></li>
+    <li><a href="future.html">FUTURE</a></li>
+    <li><a href="founders.html">FOUNDERS</a></li>
+    <li><a href="leaderboard.html">LEADERBOARD</a></li>
+    <li><a href="directory.html">DIRECTORY</a></li>
+    <li><a href="messages.html">BLOCK MESSAGES</a></li>
+    <li><a href="dashboard.html" style="color:var(--orange);">MY BITMAP</a></li>
+    <li><a href="bitmap-scanner.html">SCANNER</a></li>
   </ul>
-  <button class="theme-toggle" onclick="toggleTheme()"><span id="toggleIcon">&#9728;</span><span id="toggleLabel">LIGHT</span></button>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+    <span class="toggle-icon" id="toggleIcon">☀️</span>
+    <span id="toggleLabel">LIGHT</span>
+  </button>
 </nav>
 <div id="bh-toast"></div>
 <div class="dash-wrap">
