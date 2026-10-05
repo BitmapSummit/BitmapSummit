@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/png" href="favicon.png">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4-Digit Bitmap Scanner — Bitmap Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.scan-hero { text-align:center; padding:2.5rem 1rem 2rem; border-bottom:1px solid var(--border); margin-bottom:2rem; }
+.scan-hero h1 { font-family:'Orbitron',sans-serif; font-size:clamp(1.4rem,4vw,2.2rem); font-weight:900; letter-spacing:2px; color:#61AFEF; margin-bottom:0.5rem; }
+.scan-hero p { font-family:'Space Mono',monospace; font-size:0.8rem; color:var(--muted); max-width:560px; margin:0 auto; line-height:1.6; }
+.stat-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1rem; margin-bottom:2rem; }
+.stat-card { background:var(--card); border:1px solid var(--border); padding:1rem 1.25rem; text-align:center; }
+.stat-card .stat-val { font-family:'Orbitron',sans-serif; font-size:1.5rem; font-weight:700; color:#61AFEF; display:block; }
+.stat-card .stat-lbl { font-family:'Share Tech Mono',monospace; font-size:0.65rem; color:var(--muted); letter-spacing:1px; margin-top:0.25rem; display:block; }
+.stat-card.orange .stat-val { color:var(--orange); }
+.stat-card.green .stat-val { color:#98C379; }
+.stat-card.red .stat-val { color:#FF6B6B; }
+.progress-wrap { background:var(--card); border:1px solid var(--border); padding:1.5rem; margin-bottom:1.5rem; }
+.progress-label { display:flex; justify-content:space-between; font-family:'Share Tech Mono',monospace; font-size:0.7rem; color:var(--muted); margin-bottom:0.6rem; }
+.progress-bar-outer { width:100%; height:12px; background:var(--bg2); border:1px solid var(--border); border-radius:2px; overflow:hidden; }
+.progress-bar-inner { height:100%; width:0%; background:linear-gradient(90deg,#3A7BD5,#61AFEF); transition:width 0.3s ease; }
+.progress-status { font-family:'Share Tech Mono',monospace; font-size:0.7rem; color:var(--muted); margin-top:0.6rem; min-height:1.2em; }
+.progress-status .ok { color:#98C379; }
+.progress-status .err { color:#FF6B6B; }
+.ctrl-row { display:flex; flex-wrap:wrap; gap:0.75rem; margin-bottom:1.5rem; align-items:center; }
+.btn { font-family:'Orbitron',sans-serif; font-size:0.65rem; font-weight:700; letter-spacing:1px; padding:0.65rem 1.4rem; border:1px solid; cursor:pointer; transition:all 0.18s; border-radius:2px; }
+.btn-start { background:#61AFEF; border-color:#61AFEF; color:#000; }
+.btn-start:hover { background:#89C4F4; }
+.btn-start:disabled { opacity:0.4; cursor:not-allowed; }
+.btn-stop { background:transparent; border-color:#FF6B6B; color:#FF6B6B; }
+.btn-stop:hover { background:#FF6B6B22; }
+.btn-stop:disabled { opacity:0.4; cursor:not-allowed; }
+.btn-export { background:var(--orange); border-color:var(--orange); color:#000; }
+.btn-export:hover { background:#e0841a; }
+.btn-export:disabled { opacity:0.4; cursor:not-allowed; }
+.btn-clear { background:transparent; border-color:var(--border); color:var(--muted); }
+.btn-clear:hover { border-color:var(--muted); color:var(--text); }
+.range-row { display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center; margin-bottom:1.5rem; padding:1rem; background:var(--card); border:1px solid var(--border); font-family:'Space Mono',monospace; font-size:0.75rem; }
+.range-row label { color:var(--muted); }
+.range-input { width:80px; padding:0.35rem 0.6rem; background:var(--bg2); border:1px solid var(--border); color:var(--text); font-family:'Space Mono',monospace; font-size:0.75rem; outline:none; }
+.range-input:focus { border-color:#61AFEF; }
+.speed-select { padding:0.35rem 0.6rem; background:var(--bg2); border:1px solid var(--border); color:var(--text); font-family:'Space Mono',monospace; font-size:0.75rem; outline:none; cursor:pointer; }
+.table-wrap { overflow-x:auto; border:1px solid var(--border); background:var(--card); }
+.results-table { width:100%; border-collapse:collapse; font-family:'Share Tech Mono',monospace; font-size:0.72rem; }
+.results-table th { background:var(--bg2); padding:0.6rem 0.8rem; text-align:left; color:var(--muted); font-size:0.62rem; text-transform:uppercase; border-bottom:1px solid var(--border); white-space:nowrap; position:sticky; top:0; z-index:2; }
+.results-table td { padding:0.45rem 0.8rem; border-bottom:1px solid var(--border)33; vertical-align:middle; white-space:nowrap; }
+.results-table tr:hover td { background:var(--bg2)88; }
+.badge-claimed { display:inline-block; padding:0.1rem 0.5rem; background:#98C37922; border:1px solid #98C37966; color:#98C379; font-size:0.6rem; border-radius:2px; }
+.badge-unclaimed { display:inline-block; padding:0.1rem 0.5rem; background:#FF6B6B22; border:1px solid #FF6B6B66; color:#FF6B6B; font-size:0.6rem; border-radius:2px; }
+.badge-error { display:inline-block; padding:0.1rem 0.5rem; background:#FFD70022; border:1px solid #FFD70066; color:#FFD700; font-size:0.6rem; border-radius:2px; }
+.addr-cell { max-width:220px; overflow:hidden; text-overflow:ellipsis; color:#61AFEF; }
+.block-cell { color:var(--orange); font-weight:bold; }
+.ins-cell { max-width:160px; overflow:hidden; text-overflow:ellipsis; }
+.ins-cell a { color:var(--muted); text-decoration:none; }
+.ins-cell a:hover { color:#61AFEF; }
+.filter-row { display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center; }
+.filter-pill { font-family:'Space Mono',monospace; font-size:0.68rem; padding:0.3rem 0.8rem; border:1px solid var(--border); background:var(--bg2); color:var(--muted); cursor:pointer; transition:all 0.15s; }
+.filter-pill:hover { border-color:#61AFEF; color:#61AFEF; }
+.filter-pill.active { background:#61AFEF22; border-color:#61AFEF; color:#61AFEF; }
+.filter-search { flex:1; min-width:180px; max-width:300px; padding:0.3rem 0.7rem; background:var(--bg2); border:1px solid var(--border); color:var(--text); font-family:'Space Mono',monospace; font-size:0.72rem; outline:none; }
+.filter-search:focus { border-color:#61AFEF; }
+.table-count { font-family:'Share Tech Mono',monospace; font-size:0.65rem; color:var(--muted); margin-left:auto; }
+.info-box { background:#61AFEF11; border:1px solid #61AFEF44; padding:1rem 1.25rem; margin-bottom:1.5rem; font-family:'Space Mono',monospace; font-size:0.72rem; color:var(--muted); line-height:1.7; }
+.info-box strong { color:#61AFEF; }
+.info-box .warn { color:var(--orange); }
+.minimap-wrap { background:var(--card); border:1px solid var(--border); padding:1rem; margin-bottom:1.5rem; }
+.minimap-title { font-family:'Orbitron',sans-serif; font-size:0.65rem; font-weight:700; letter-spacing:1px; color:var(--muted); margin-bottom:0.75rem; text-transform:uppercase; }
+.minimap-grid { display:flex; flex-wrap:wrap; gap:2px; }
+.minimap-cell { width:8px; height:8px; background:var(--bg2); border-radius:1px; transition:background 0.2s; cursor:pointer; }
+.minimap-cell.claimed { background:#61AFEF; }
+.minimap-cell.unclaimed { background:#FF6B6B44; }
+.minimap-cell.scanning { background:var(--orange); animation:pulse 0.8s ease infinite; }
+.minimap-legend { display:flex; gap:1.25rem; margin-top:0.6rem; font-family:'Share Tech Mono',monospace; font-size:0.6rem; color:var(--muted); }
+.minimap-legend span { display:flex; align-items:center; gap:0.35rem; }
+.leg-dot { width:8px; height:8px; border-radius:1px; flex-shrink:0; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+nav { display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem; border-bottom:1px solid var(--border); gap:1rem; flex-wrap:wrap; }
+.nav-logo { display:flex; align-items:center; gap:0.75rem; text-decoration:none; color:var(--text); font-family:'Orbitron',sans-serif; font-size:0.85rem; font-weight:700; letter-spacing:2px; white-space:nowrap; }
+.pixel-icon { display:grid; grid-template-columns:repeat(5,4px); grid-template-rows:repeat(5,4px); gap:1px; }
+.pixel-icon .p { background:var(--orange); }
+.pixel-icon .e { background:transparent; }
+nav ul.nav-links { display:flex; list-style:none; gap:1.5rem; margin:0; padding:0; flex-wrap:wrap; }
+nav ul.nav-links a { font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--muted); text-decoration:none; letter-spacing:0.08em; transition:color 0.15s; }
+nav ul.nav-links a:hover { color:var(--orange); }
+.theme-toggle { background:transparent; border:1px solid var(--border); color:var(--muted); padding:0.3rem 0.7rem; font-family:'Space Mono',monospace; font-size:0.65rem; cursor:pointer; display:flex; align-items:center; gap:0.4rem; transition:all 0.15s; }
+.theme-toggle:hover { border-color:var(--orange); color:var(--orange); }
+.tab-btn { font-family:'Orbitron',sans-serif; font-size:0.62rem; font-weight:700; letter-spacing:1px; padding:0.7rem 1.4rem; background:var(--bg2); border:1px solid var(--border); border-bottom:none; color:var(--muted); cursor:pointer; transition:all 0.15s; margin-right:2px; }
+.tab-btn:hover { color:var(--text); }
+.tab-btn.active { background:var(--card); border-color:var(--border); color:#61AFEF; position:relative; bottom:-2px; border-bottom:2px solid var(--card); }
+.lb-rank { font-family:'Orbitron',sans-serif; font-weight:700; font-size:0.85rem; text-align:center; }
+.lb-bar-wrap { background:var(--bg2); border-radius:2px; height:3px; width:100px; margin-top:3px; }
+.lb-bar { height:3px; border-radius:2px; background:linear-gradient(90deg,#98C379,#61AFEF); }
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="pixel-icon">
+      <div class="p"></div><div class="p"></div><div class="p"></div><div class="p"></div><div class="e"></div>
+      <div class="p"></div><div class="e"></div><div class="p"></div><div class="e"></div><div class="e"></div>
+      <div class="p"></div><div class="p"></div><div class="p"></div><div class="e"></div><div class="e"></div>
+      <div class="p"></div><div class="e"></div><div class="e"></div><div class="e"></div><div class="e"></div>
+      <div class="p"></div><div class="e"></div><div class="e"></div><div class="e"></div><div class="e"></div>
+    </div>
+    BITMAP HUB
+  </a>
+  <ul class="nav-links">
+    <li><a href="introduction.html">INTRO</a></li>
+    <li><a href="directory.html">DIRECTORY</a></li>
+    <li><a href="leaderboard.html">LEADERBOARD</a></li>
+    <li><a href="messages.html">MESSAGES</a></li>
+    <li><a href="dashboard.html">MY BITMAP</a></li>
+    <li><a href="bitmap4d-scanner.html" style="color:#61AFEF;">4D SCANNER</a></li>
+  </ul>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+    <span id="toggleIcon">☀️</span><span id="toggleLabel">LIGHT</span>
+  </button>
+</nav>
+
+<div class="container" style="max-width:1200px;margin:0 auto;padding:1.5rem;">
+
+  <div class="scan-hero">
+    <h1>◈ 4-DIGIT BITMAP SCANNER</h1>
+    <p>Scans all <strong style="color:#61AFEF">9,000 blocks</strong> from <strong style="color:var(--orange)">1000.bitmap</strong> to <strong style="color:var(--orange)">9999.bitmap</strong> — fetching inscription IDs and owner addresses directly from the Bitcoin blockchain via the ordinals.com recursive API. No API key required.</p>
+  </div>
+
+  <div class="info-box">
+    <strong>How it works:</strong> The OCI (On-Chain Index) maps each bitmap number to the exact sat it was inscribed on. For each block, the scanner fetches <code>/r/sat/{sat}</code> to get the inscription ID, then <code>/r/inscription/{id}</code> for the owner address. All data is live from the Bitcoin blockchain — no third-party APIs, no API key needed.<br><br>
+    <span class="warn">⚠ Run from a local web server: in PowerShell → <code>cd "G:\ANDREW PROJECTS\BITMAP SUMMIT DEV"</code> then <code>python -m http.server 8080</code> → open <code>http://localhost:8080/bitmap4d-scanner.html</code></span>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-card">
+      <span class="stat-val" id="statTotal">9,000</span>
+      <span class="stat-lbl">TOTAL 4D BLOCKS</span>
+    </div>
+    <div class="stat-card orange">
+      <span class="stat-val" id="statScanned">0</span>
+      <span class="stat-lbl">SCANNED</span>
+    </div>
+    <div class="stat-card green">
+      <span class="stat-val" id="statClaimed">0</span>
+      <span class="stat-lbl">CLAIMED</span>
+    </div>
+    <div class="stat-card red">
+      <span class="stat-val" id="statUnclaimed">0</span>
+      <span class="stat-lbl">UNCLAIMED / NOT FOUND</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-val" id="statPct">0%</span>
+      <span class="stat-lbl">COVERAGE</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-val" id="statETA">—</span>
+      <span class="stat-lbl">ETA REMAINING</span>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>SCAN PROGRESS</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progressBar"></div>
+    </div>
+    <div class="progress-status" id="progressStatus">Ready to scan. Press START to begin.</div>
+  </div>
+
+  <div class="range-row">
+    <label>FROM BLOCK</label>
+    <input type="number" class="range-input" id="rangeFrom" value="1000" min="1000" max="9999">
+    <label>TO BLOCK</label>
+    <input type="number" class="range-input" id="rangeTo" value="9999" min="1000" max="9999">
+    <label>SPEED</label>
+    <select class="speed-select" id="speedSelect">
+      <option value="300">Normal (300ms)</option>
+      <option value="500">Careful (500ms)</option>
+      <option value="800">Slow (800ms)</option>
+      <option value="150">Fast (150ms)</option>
+    </select>
+    <label style="margin-left:auto;color:var(--muted);font-size:0.65rem;">Concurrency</label>
+    <select class="speed-select" id="concSelect">
+      <option value="3">3 parallel</option>
+      <option value="5">5 parallel</option>
+      <option value="1">1 (safest)</option>
+      <option value="8">8 parallel</option>
+    </select>
+  </div>
+
+  <div class="ctrl-row">
+    <button class="btn btn-start" id="btnStart" onclick="startScan()">▶ START SCAN</button>
+    <button class="btn btn-stop" id="btnStop" onclick="stopScan()" disabled>■ STOP</button>
+    <button class="btn btn-export" id="btnExportCSV" onclick="exportCSV()" disabled>⬇ EXPORT CSV</button>
+    <button class="btn btn-export" id="btnExportJSON" onclick="exportJSON()" style="background:var(--card);border-color:#61AFEF;color:#61AFEF;" disabled>⬇ EXPORT JSON</button>
+    <button class="btn btn-clear" onclick="clearResults()">✕ CLEAR</button>
+    <span id="saveStatus" style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--muted);"></span>
+  </div>
+
+  <div class="minimap-wrap">
+    <div class="minimap-title">📡 Block Map (1000–9999) — each cell = one 4-digit block</div>
+    <div class="minimap-grid" id="minimapGrid"></div>
+    <div class="minimap-legend">
+      <span><div class="leg-dot" style="background:#61AFEF"></div> Claimed</span>
+      <span><div class="leg-dot" style="background:#FF6B6B44;border:1px solid #FF6B6B66"></div> Unclaimed</span>
+      <span><div class="leg-dot" style="background:var(--orange)"></div> Scanning now</span>
+      <span><div class="leg-dot" style="background:var(--bg2);border:1px solid var(--border)"></div> Not yet scanned</span>
+    </div>
+  </div>
+
+  <!-- TAB SWITCHER -->
+  <div style="display:flex;gap:0;margin-bottom:0;border-bottom:2px solid var(--border);">
+    <button class="tab-btn active" id="tab-results" onclick="switchTab('results')">📋 SCAN RESULTS</button>
+    <button class="tab-btn" id="tab-leaderboard" onclick="switchTab('leaderboard')">🏆 LEADERBOARD</button>
+  </div>
+
+  <!-- SCAN RESULTS TAB -->
+  <div id="panel-results">
+    <div class="filter-row" style="margin-top:1rem;">
+      <button class="filter-pill active" onclick="setFilter('all',this)">ALL</button>
+      <button class="filter-pill" onclick="setFilter('claimed',this)">CLAIMED</button>
+      <button class="filter-pill" onclick="setFilter('unclaimed',this)">UNCLAIMED</button>
+      <button class="filter-pill" onclick="setFilter('error',this)">ERRORS</button>
+      <input type="text" class="filter-search" id="filterSearch" placeholder="Search block # or address…" oninput="renderTable()">
+      <span class="table-count" id="tableCount">0 rows</span>
+    </div>
+    <div class="table-wrap">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>#</th><th>BLOCK</th><th>BITMAP</th><th>STATUS</th>
+            <th>OWNER ADDRESS</th><th>INSCRIPTION ID</th><th>INS. HEIGHT</th><th>TIMESTAMP</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody">
+          <tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--muted);font-family:'Space Mono',monospace;font-size:0.75rem;">No results yet. Press START SCAN to begin.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD TAB -->
+  <div id="panel-leaderboard" style="display:none;">
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;padding:1rem 0 0.5rem;">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);" id="lb-status">Run scan to build leaderboard — or it auto-populates as scan progresses.</span>
+      <button onclick="buildLeaderboard()" style="background:var(--orange);border:none;color:#000;font-family:'Orbitron',sans-serif;font-size:0.62rem;font-weight:700;padding:0.5rem 1rem;cursor:pointer;border-radius:2px;letter-spacing:1px;">⟳ REFRESH</button>
+      <button onclick="exportLBCSV()" style="background:none;border:1px solid var(--border);color:#61AFEF;font-family:'Share Tech Mono',monospace;font-size:0.68rem;padding:0.45rem 1rem;cursor:pointer;border-radius:2px;">↓ CSV</button>
+      <input type="text" id="lb-search" placeholder="Search address…" oninput="renderLB()" style="flex:1;min-width:180px;max-width:300px;padding:0.35rem 0.7rem;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:0.72rem;outline:none;">
+      <span id="lb-count" style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--muted);margin-left:auto;"></span>
+    </div>
+    <div class="table-wrap" style="margin-top:0.5rem;">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th style="width:50px">RANK</th>
+            <th>WALLET ADDRESS</th>
+            <th>BITMAPS HELD</th>
+            <th>% OF SUPPLY</th>
+            <th>BITMAP NUMBERS</th>
+          </tr>
+        </thead>
+        <tbody id="lb-body">
+          <tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--muted);font-family:'Space Mono',monospace;font-size:0.75rem;">Scan some blocks first, then click REFRESH.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="lb-pagination" style="display:flex;gap:0.4rem;padding:1rem 0;flex-wrap:wrap;align-items:center;"></div>
+  </div>
+
+</div>
+
+<script>
+// ── PASSWORD GATE ──
+(function() {
+  var PASS = 'Hf%Gn25@Rg3';
+  var SESSION_KEY = 'bitmapScannerAuth';
+  if (sessionStorage.getItem(SESSION_KEY) === '1') return; // already authed this session
+  var overlay = document.createElement('div');
+  overlay.id = 'auth-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:#0d0d14;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;font-family:"Share Tech Mono",monospace;';
+  overlay.innerHTML = [
+    '<div style="font-family:Orbitron,sans-serif;font-size:1.1rem;font-weight:700;color:#61AFEF;letter-spacing:3px;margin-bottom:0.5rem;">🔒 RESTRICTED ACCESS</div>',
+    '<div style="color:#6b7280;font-size:0.75rem;margin-bottom:0.5rem;">4-Digit Bitmap Scanner — Authorised Users Only</div>',
+    '<input id="gate-input" type="password" placeholder="Enter password…" style="background:#12121e;border:1px solid #2a2a40;color:#cdd6f4;font-family:\'Share Tech Mono\',monospace;font-size:0.85rem;padding:0.7rem 1.2rem;outline:none;border-radius:3px;width:260px;text-align:center;" autocomplete="off">',
+    '<button id="gate-btn" style="background:#F7931A;border:none;color:#000;font-family:Orbitron,sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:2px;padding:0.65rem 2rem;cursor:pointer;border-radius:3px;">ENTER</button>',
+    '<div id="gate-err" style="color:#FF6B6B;font-size:0.72rem;min-height:1em;"></div>'
+  ].join('');
+  document.body.appendChild(overlay);
+  function attempt() {
+    var val = document.getElementById('gate-input').value;
+    if (val === PASS) {
+      sessionStorage.setItem(SESSION_KEY, '1');
+      document.getElementById('auth-overlay').remove();
+    } else {
+      document.getElementById('gate-err').textContent = '✗ Incorrect password.';
+      document.getElementById('gate-input').value = '';
+      document.getElementById('gate-input').focus();
+    }
+  }
+  document.getElementById('gate-btn').addEventListener('click', attempt);
+  document.getElementById('gate-input').addEventListener('keydown', function(e){ if(e.key==='Enter') attempt(); });
+  setTimeout(function(){ document.getElementById('gate-input').focus(); }, 100);
+})();
+
+// ── THEME ──
+function applyTheme(m) {
+  document.body.classList.toggle('light', m === 'light');
+  var i = document.getElementById('toggleIcon'), l = document.getElementById('toggleLabel');
+  if (i) i.textContent = m === 'light' ? '🌑' : '☀️';
+  if (l) l.textContent = m === 'light' ? 'DARK' : 'LIGHT';
+}
+function toggleTheme() {
+  var n = document.body.classList.contains('light') ? 'dark' : 'light';
+  localStorage.setItem('bitmapTheme', n); applyTheme(n);
+}
+applyTheme(localStorage.getItem('bitmapTheme') || 'dark');
+
+// ── CONSTANTS ──
+var BASE = 'https://ordinals.com';
+// OCI page 0 inscription ID — maps bitmap numbers to sat numbers
+// Format confirmed: [[sat_delta, sat_delta, ...], [bitmap_num, bitmap_num, ...]]
+// BUT the actual format from the API test is a flat structure with newlines
+// We handle both formats in parseOCI()
+var OCI_ID = '01bba6c58af39d7f199aa2bceeaaba1ba91b23d2663bc4ef079a4b5e442dbf74i0';
+
+// ── STATE ──
+var results = {};
+var ociSats = null;       // blockNum → sat string
+var ociLoaded = false;
+var isScanning = false;
+var shouldStop = false;
+var currentFilter = 'all';
+var scanStartTime = null;
+var scannedCount = 0;
+var claimedCount = 0;
+var tableData = [];
+
+// ── MINIMAP ──
+var mmCells = {};
+function buildMinimap() {
+  var g = document.getElementById('minimapGrid');
+  g.innerHTML = '';
+  for (var b = 1000; b <= 9999; b++) {
+    var c = document.createElement('div');
+    c.className = 'minimap-cell';
+    c.title = b + '.bitmap';
+    g.appendChild(c);
+    mmCells[b] = c;
+  }
+}
+function setMM(b, s) { if (mmCells[b]) mmCells[b].className = 'minimap-cell ' + s; }
+
+// ── OCI LOADER ──
+// Confirmed format from API test: "[\n [\n  393366314270,\n  546,\n  3835..."
+// This is [[deltas_array], [indices_array]] — a 2-element array of arrays
+// The test showed it as "Not a 2-element array" because the raw started with
+// "[\n [\n  393366314270,\n  546,\n  3835,\n  3835,\n  3835,\n  3835,\n  3835,\n  383"
+// which IS a valid JSON array — the issue was the check function receiving it as text
+// and JSON.parse inside seeing truncated data. We'll parse it here properly.
+async function loadOCI() {
+  setStatus('Loading OCI sat index… (one-time load, ~10–30s for large file)', '');
+  var url = BASE + '/content/' + OCI_ID;
+  try {
+    var resp = await fetch(url, { cache: 'force-cache' });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    var text = await resp.text();
+    console.log('[OCI] fetched', text.length, 'chars. First 150:', text.slice(0, 150));
+
+    var data = JSON.parse(text);
+    // If double-encoded (content is a JSON string whose value is the array), unwrap it
+    if (typeof data === 'string') {
+      console.log('[OCI] double-encoded detected, parsing inner string…');
+      data = JSON.parse(data);
+    }
+    console.log('[OCI] parsed. type:', typeof data, 'isArray:', Array.isArray(data), 'length:', Array.isArray(data) ? data.length : 'n/a');
+
+    var map = parseOCI(data, text);
+    var count = Object.keys(map).length;
+    console.log('[OCI] mapped', count, 'four-digit bitmaps. 1000→', map[1000], '5000→', map[5000], '9999→', map[9999]);
+
+    if (count === 0) throw new Error('0 bitmaps found in 1000–9999 range');
+    setStatus('✓ OCI loaded — ' + count.toLocaleString() + ' bitmaps mapped. Starting scan…', 'ok');
+    return map;
+  } catch(e) {
+    console.error('[OCI] error:', e);
+    setStatus('✗ OCI failed: ' + e.message, 'err');
+    return null;
+  }
+}
+
+function parseOCI(data, rawText) {
+  var map = {};
+
+  // Format A: [[deltas...], [indices...]]
+  if (Array.isArray(data) && data.length === 2 && Array.isArray(data[0]) && Array.isArray(data[1])) {
+    console.log('[OCI] Format A: [[deltas], [indices]]', 'deltas:', data[0].length, 'indices:', data[1].length);
+    var deltas = data[0], indices = data[1];
+    var sat = 0;
+    for (var i = 0; i < deltas.length; i++) {
+      sat += deltas[i];
+      var n = indices[i];
+      if (n >= 1000 && n <= 9999) map[n] = sat;
+    }
+    return map;
+  }
+
+  // Format B: [[sat1, idx1, sat2, idx2, ...]] — interleaved pairs in one array
+  if (Array.isArray(data) && data.length === 1 && Array.isArray(data[0])) {
+    console.log('[OCI] Format B: [[interleaved pairs]]', 'elements:', data[0].length);
+    var arr = data[0];
+    // Try treating as alternating delta, index pairs
+    var sat = 0;
+    for (var i = 0; i < arr.length; i += 2) {
+      sat += arr[i];
+      var n = arr[i + 1];
+      if (typeof n === 'number' && n >= 1000 && n <= 9999) map[n] = sat;
+    }
+    if (Object.keys(map).length > 0) return map;
+
+    // Try treating as [delta, delta, delta...] with indices encoded differently
+    // Reset and try: first half = deltas, second half = indices
+    map = {};
+    sat = 0;
+    var half = Math.floor(arr.length / 2);
+    for (var i = 0; i < half; i++) {
+      sat += arr[i];
+      var n = arr[half + i];
+      if (typeof n === 'number' && n >= 1000 && n <= 9999) map[n] = sat;
+    }
+    return map;
+  }
+
+  // Format C: flat array [sat1, idx1, sat2, idx2, ...] or similar
+  if (Array.isArray(data) && data.length > 2 && typeof data[0] === 'number') {
+    console.log('[OCI] Format C: flat array of numbers', 'length:', data.length, 'first 6:', data.slice(0,6));
+    // Try alternating delta, index
+    var sat = 0;
+    for (var i = 0; i < data.length; i += 2) {
+      sat += data[i];
+      var n = data[i + 1];
+      if (typeof n === 'number' && n >= 1000 && n <= 9999) map[n] = sat;
+    }
+    if (Object.keys(map).length > 0) { console.log('[OCI] Format C alternating worked'); return map; }
+
+    // Try: all entries are deltas, indices are their position
+    map = {};
+    sat = 0;
+    for (var i = 0; i < data.length; i++) {
+      sat += data[i];
+      if (i >= 1000 && i <= 9999) map[i] = sat;
+    }
+    if (Object.keys(map).length > 0) { console.log('[OCI] Format C positional worked'); return map; }
+  }
+
+  // Format D: object {bitmapNum: sat, ...}
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    console.log('[OCI] Format D: object map');
+    Object.keys(data).forEach(function(k) {
+      var n = parseInt(k);
+      if (n >= 1000 && n <= 9999) map[n] = data[k];
+    });
+    return map;
+  }
+
+  console.error('[OCI] Unknown format. data[0]:', JSON.stringify(data[0]).slice(0,100));
+  return map;
+}
+
+// ── CORE SCAN ──
+// Proven working methods from API test:
+//   Test 2: /r/sat/{sat}/at/0 → {id: "..."}  ✓
+//   Test 7: /r/sat/{sat}      → {ids:["..."],"more":false}  ✓  ← FASTEST (1 call = ID)
+//   Test 1: /r/inscription/{id} → {address, sat, height}   ✓
+async function scanBlock(blockNum) {
+  var sat = ociSats ? ociSats[blockNum] : null;
+
+  if (!sat) {
+    return { blockNum:blockNum, status:'error', sat:'', owner:'', inscriptionId:'', height:'', timestamp:'', error:'No sat in OCI' };
+  }
+
+  // Step 1: GET /r/sat/{sat} → returns {ids:[...], more:bool}  (proven in Test 7)
+  var satData = await fetchJSON(BASE + '/r/sat/' + sat);
+  if (!satData || !satData.ids || satData.ids.length === 0) {
+    // Fallback: try /r/sat/{sat}/at/0  (proven in Test 2)
+    var atData = await fetchJSON(BASE + '/r/sat/' + sat + '/at/0');
+    if (!atData || !atData.id) {
+      return { blockNum:blockNum, status:'error', sat:sat, owner:'', inscriptionId:'', height:'', timestamp:'', error:'No inscription on sat' };
+    }
+    satData = { ids: [atData.id] };
+  }
+
+  var inscriptionId = satData.ids[0];
+
+  // Step 2: GET /r/inscription/{id} → returns {address, sat, height, timestamp}  (proven in Test 1)
+  var meta = await fetchJSON(BASE + '/r/inscription/' + inscriptionId);
+  if (meta && meta.address) {
+    return {
+      blockNum: blockNum,
+      status: 'claimed',
+      sat: meta.sat || sat,
+      owner: meta.address,
+      inscriptionId: inscriptionId,
+      height: meta.height || '',
+      timestamp: meta.timestamp ? new Date(meta.timestamp * 1000).toISOString().replace('T',' ').slice(0,19) : ''
+    };
+  }
+
+  // Have ID but meta failed — still mark claimed
+  return { blockNum:blockNum, status:'claimed', sat:sat, owner:'(lookup failed)', inscriptionId:inscriptionId, height:'', timestamp:'' };
+}
+
+// ── FETCH HELPERS ──
+async function fetchJSON(url) {
+  for (var i = 0; i < 3; i++) {
+    try {
+      var r = await fetch(url, { cache: 'no-store' });
+      if (r.status === 429) { await sleep(5000 + i * 3000); continue; }
+      if (r.ok) { try { return await r.json(); } catch(e) { return null; } }
+      if (r.status === 404) return null;
+      if (r.status >= 500) { await sleep(2000 * (i + 1)); continue; }
+      return null;
+    } catch(e) { if (i < 2) await sleep(1000); }
+  }
+  return null;
+}
+
+function sleep(ms) { return new Promise(function(r){ setTimeout(r,ms); }); }
+
+// ── SCAN ENGINE ──
+async function startScan() {
+  if (isScanning) return;
+  var from = Math.max(1000, Math.min(9999, parseInt(document.getElementById('rangeFrom').value)||1000));
+  var to = Math.max(from, Math.min(9999, parseInt(document.getElementById('rangeTo').value)||9999));
+
+  isScanning = true; shouldStop = false;
+  scanStartTime = Date.now(); scannedCount = 0; claimedCount = 0;
+
+  document.getElementById('btnStart').disabled = true;
+  document.getElementById('btnStop').disabled = false;
+  document.getElementById('rangeFrom').disabled = true;
+  document.getElementById('rangeTo').disabled = true;
+
+  // Load OCI once
+  if (!ociLoaded) {
+    ociSats = await loadOCI();
+    ociLoaded = true;
+    if (!ociSats) {
+      setStatus('✗ OCI index failed to load. Check browser console for details.', 'err');
+      finishScan(); return;
+    }
+  }
+
+  var delay = parseInt(document.getElementById('speedSelect').value)||300;
+  var conc = parseInt(document.getElementById('concSelect').value)||3;
+  var total = to - from + 1;
+
+  // Build queue skipping already-done blocks
+  var queue = [];
+  for (var b = from; b <= to; b++) { if (!results[b]) queue.push(b); }
+
+  if (!queue.length) {
+    setStatus('All blocks in range already scanned.', 'ok');
+    finishScan(); return;
+  }
+
+  setStatus('Scanning ' + from + '–' + to + ' (' + queue.length + ' blocks)…', '');
+  var qi = 0;
+
+  async function worker() {
+    while (qi < queue.length && !shouldStop) {
+      var bn = queue[qi++];
+      setMM(bn, 'scanning');
+      setStatus('Scanning <strong style="color:#61AFEF">' + bn + '.bitmap</strong>…', '');
+      var result;
+      try { result = await scanBlock(bn); }
+      catch(e) { result = {blockNum:bn,status:'error',sat:'',owner:'',inscriptionId:'',height:'',timestamp:'',error:e.message}; }
+      results[bn] = result;
+      setMM(bn, result.status === 'claimed' ? 'claimed' : 'unclaimed');
+      scannedCount++;
+      if (result.status === 'claimed') claimedCount++;
+      updateStats(total, from);
+      addRow(result);
+      await sleep(delay);
+    }
+  }
+
+  var workers = [];
+  for (var w = 0; w < conc; w++) workers.push(worker());
+  await Promise.all(workers);
+  finishScan();
+}
+
+function stopScan() {
+  shouldStop = true;
+  setStatus('⏸ Paused. Press START to resume.', '');
+}
+
+function finishScan() {
+  isScanning = false;
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnStop').disabled = true;
+  document.getElementById('rangeFrom').disabled = false;
+  document.getElementById('rangeTo').disabled = false;
+  document.getElementById('btnExportCSV').disabled = false;
+  document.getElementById('btnExportJSON').disabled = false;
+  document.getElementById('statETA').textContent = 'Done';
+  renderTable();
+  autoSave();
+}
+
+function updateStats(total, from) {
+  document.getElementById('statScanned').textContent = scannedCount.toLocaleString();
+  document.getElementById('statClaimed').textContent = claimedCount.toLocaleString();
+  document.getElementById('statUnclaimed').textContent = (scannedCount - claimedCount).toLocaleString();
+  document.getElementById('statPct').textContent = Math.round(claimedCount / 9000 * 100) + '%';
+  var pct = total > 0 ? Math.round(scannedCount / total * 100) : 0;
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressBar').style.width = pct + '%';
+  if (scannedCount > 2 && scanStartTime) {
+    var elapsed = (Date.now() - scanStartTime) / 1000;
+    var remaining = (total - scannedCount) / (scannedCount / elapsed);
+    document.getElementById('statETA').textContent = fmtTime(remaining);
+  }
+  if (scannedCount > 0) {
+    document.getElementById('btnExportCSV').disabled = false;
+    document.getElementById('btnExportJSON').disabled = false;
+  }
+}
+
+function fmtTime(s) {
+  if (s < 60) return Math.round(s) + 's';
+  if (s < 3600) return Math.round(s/60) + 'm';
+  return (s/3600).toFixed(1) + 'h';
+}
+
+function setStatus(msg, cls) {
+  var el = document.getElementById('progressStatus');
+  el.innerHTML = msg;
+  el.className = 'progress-status' + (cls ? ' '+cls : '');
+}
+
+// ── TABLE ──
+function addRow(r) {
+  var idx = tableData.findIndex(function(x){ return x.blockNum === r.blockNum; });
+  if (idx >= 0) tableData[idx] = r;
+  else { tableData.push(r); tableData.sort(function(a,b){ return a.blockNum-b.blockNum; }); }
+  if (scannedCount % 10 === 0 || scannedCount < 15) renderTable();
+}
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-pill').forEach(function(p){ p.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  renderTable();
+}
+
+function renderTable() {
+  var q = (document.getElementById('filterSearch').value||'').toLowerCase().trim();
+  var filtered = tableData.filter(function(r){
+    if (currentFilter !== 'all' && r.status !== currentFilter) return false;
+    if (q) return String(r.blockNum).includes(q)||(r.owner||'').toLowerCase().includes(q)||(r.inscriptionId||'').toLowerCase().includes(q);
+    return true;
+  });
+  document.getElementById('tableCount').textContent = filtered.length.toLocaleString() + ' rows';
+  if (!filtered.length) {
+    document.getElementById('resultsBody').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--muted);font-family:\'Space Mono\',monospace;font-size:0.75rem;">'+(tableData.length?'No results match filter.':'No results yet. Press START SCAN to begin.')+'</td></tr>';
+    return;
+  }
+  var html = '';
+  filtered.slice(0,500).forEach(function(r,i){
+    var badge = r.status==='claimed' ? '<span class="badge-claimed">CLAIMED</span>'
+      : r.status==='error' ? '<span class="badge-error">ERROR</span>'
+      : '<span class="badge-unclaimed">UNCLAIMED</span>';
+    var ins = r.inscriptionId
+      ? '<a href="https://ordinals.com/inscription/'+r.inscriptionId+'" target="_blank" rel="noopener">'+r.inscriptionId.slice(0,12)+'…'+r.inscriptionId.slice(-4)+'</a>'
+      : '—';
+    html += '<tr>'
+      +'<td style="color:var(--muted)">'+(i+1)+'</td>'
+      +'<td class="block-cell">'+r.blockNum+'</td>'
+      +'<td style="color:var(--muted)">'+r.blockNum+'.bitmap</td>'
+      +'<td>'+badge+'</td>'
+      +'<td class="addr-cell" title="'+(r.owner||'')+'">'+( r.owner ? r.owner.slice(0,8)+'…'+r.owner.slice(-6) : '—')+'</td>'
+      +'<td class="ins-cell">'+ins+'</td>'
+      +'<td style="color:var(--muted)">'+(r.height||'—')+'</td>'
+      +'<td style="color:var(--muted)">'+(r.timestamp||'—')+'</td>'
+      +'</tr>';
+  });
+  if (filtered.length > 500) html += '<tr><td colspan="8" style="text-align:center;padding:0.75rem;color:var(--muted);font-family:\'Space Mono\',monospace;font-size:0.65rem;">Showing 500 of '+filtered.length+' rows — export CSV for full data</td></tr>';
+  document.getElementById('resultsBody').innerHTML = html;
+}
+
+// ── EXPORT ──
+function exportCSV() {
+  var rows = Object.values(results).sort(function(a,b){return a.blockNum-b.blockNum;});
+  if (!rows.length) { alert('No data to export.'); return; }
+  var lines = [['Block Number','Bitmap Name','Status','Owner Address','Inscription ID','Inscribed at Block','Timestamp (UTC)','Sat Number'].join(',')];
+  rows.forEach(function(r){
+    lines.push([r.blockNum,r.blockNum+'.bitmap',r.status,r.owner||'',r.inscriptionId||'',r.height||'',r.timestamp||'',r.sat||'']
+      .map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(','));
+  });
+  dl(lines.join('\n'), 'text/csv', '4digit-bitmap-owners-'+now()+'.csv');
+  showSave('✓ CSV downloaded ('+rows.length+' rows)');
+}
+
+function exportJSON() {
+  var rows = Object.values(results).sort(function(a,b){return a.blockNum-b.blockNum;});
+  if (!rows.length) { alert('No data to export.'); return; }
+  dl(JSON.stringify(rows,null,2), 'application/json', '4digit-bitmap-owners-'+now()+'.json');
+  showSave('✓ JSON downloaded ('+rows.length+' rows)');
+}
+
+function dl(content, type, filename) {
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content],{type:type}));
+  a.download = filename; a.click();
+}
+function now() { return new Date().toISOString().slice(0,10); }
+function showSave(m) { document.getElementById('saveStatus').textContent = m; setTimeout(function(){document.getElementById('saveStatus').textContent='';},4000); }
+
+// ── PERSIST ──
+function autoSave() {
+  try {
+    var rows = Object.values(results);
+    localStorage.setItem('bitmap4d_results', JSON.stringify(rows));
+    localStorage.setItem('bitmap4d_saved', new Date().toISOString());
+    showSave('✓ Auto-saved '+rows.length+' results');
+  } catch(e){}
+}
+
+function clearResults() {
+  if (isScanning) { alert('Stop first.'); return; }
+  if (!confirm('Clear all results?')) return;
+  results={}; tableData=[]; ociLoaded=false; ociSats=null;
+  scannedCount=0; claimedCount=0;
+  buildMinimap(); renderTable();
+  ['statScanned','statClaimed','statUnclaimed'].forEach(function(id){document.getElementById(id).textContent='0';});
+  document.getElementById('statPct').textContent='0%';
+  document.getElementById('statETA').textContent='—';
+  document.getElementById('progressBar').style.width='0%';
+  document.getElementById('progressPct').textContent='0%';
+  document.getElementById('progressStatus').textContent='Ready to scan. Press START to begin.';
+  document.getElementById('btnExportCSV').disabled=true;
+  document.getElementById('btnExportJSON').disabled=true;
+  try{localStorage.removeItem('bitmap4d_results');}catch(e){}
+}
+
+function restoreFromStorage() {
+  try {
+    var saved = localStorage.getItem('bitmap4d_results');
+    var savedTime = localStorage.getItem('bitmap4d_saved');
+    if (!saved) return;
+    var rows = JSON.parse(saved);
+    if (!rows||!rows.length) return;
+    rows.forEach(function(r){
+      results[r.blockNum]=r; tableData.push(r);
+      if (r.status==='claimed'){claimedCount++;setMM(r.blockNum,'claimed');}
+      else setMM(r.blockNum,'unclaimed');
+      scannedCount++;
+    });
+    tableData.sort(function(a,b){return a.blockNum-b.blockNum;});
+    updateStats(9000,1000); renderTable();
+    document.getElementById('btnExportCSV').disabled=false;
+    document.getElementById('btnExportJSON').disabled=false;
+    document.getElementById('progressStatus').textContent =
+      '↩ Restored '+rows.length+' results'+(savedTime?' (saved '+savedTime.slice(0,16).replace('T',' ')+')'  :'')+'. Press START to resume.';
+  } catch(e){}
+}
+
+// ── INIT ──
+buildMinimap();
+restoreFromStorage();
+
+// ── TAB SWITCHER ──
+function switchTab(name) {
+  ['results','leaderboard'].forEach(function(t) {
+    document.getElementById('panel-'+t).style.display = t===name ? '' : 'none';
+    document.getElementById('tab-'+t).classList.toggle('active', t===name);
+  });
+  if (name === 'leaderboard') buildLeaderboard();
+}
+
+// ── LEADERBOARD ──
+var lbData = [];      // [{addr, blocks:[...], count}]
+var lbFiltered = [];
+var lbPage = 1;
+var LB_PAGE_SIZE = 50;
+
+function buildLeaderboard() {
+  var allResults = Object.values(results);
+  var claimed = allResults.filter(function(r){ return r.status==='claimed' && r.owner && r.owner !== '(lookup failed)'; });
+  if (claimed.length === 0) {
+    document.getElementById('lb-status').textContent = 'No claimed results yet. Run scan first.';
+    document.getElementById('lb-body').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--muted)">Scan some blocks first, then click REFRESH.</td></tr>';
+    return;
+  }
+  var groups = {};
+  claimed.forEach(function(r) {
+    if (!groups[r.owner]) groups[r.owner] = [];
+    groups[r.owner].push(r.blockNum);
+  });
+  lbData = Object.keys(groups).map(function(addr) {
+    return { addr: addr, blocks: groups[addr].sort(function(a,b){return a-b;}), count: groups[addr].length };
+  }).sort(function(a,b){ return b.count - a.count; });
+
+  document.getElementById('lb-status').textContent =
+    lbData.length.toLocaleString() + ' unique owners from ' + claimed.length.toLocaleString() + ' scanned bitmaps.';
+  lbPage = 1;
+  renderLB();
+}
+
+var lbMaxCount = 0;
+
+function renderLB() {
+  var q = (document.getElementById('lb-search').value || '').trim().toLowerCase();
+  lbFiltered = lbData.filter(function(row) {
+    if (!q) return true;
+    return row.addr.toLowerCase().includes(q);
+  });
+  lbMaxCount = lbData.length > 0 ? lbData[0].count : 1;
+
+  var total = Math.ceil(lbFiltered.length / LB_PAGE_SIZE);
+  if (lbPage > total) lbPage = 1;
+  var start = (lbPage - 1) * LB_PAGE_SIZE;
+  var rows = lbFiltered.slice(start, start + LB_PAGE_SIZE);
+
+  document.getElementById('lb-count').textContent = lbFiltered.length.toLocaleString() + ' owners';
+
+  if (rows.length === 0) {
+    document.getElementById('lb-body').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--muted)">No results.</td></tr>';
+    document.getElementById('lb-pagination').innerHTML = '';
+    return;
+  }
+
+  var totalScanned = Object.values(results).filter(function(r){return r.status==='claimed';}).length || 1;
+
+  document.getElementById('lb-body').innerHTML = rows.map(function(row, i) {
+    var globalRank = lbData.indexOf(row) + 1;
+    var medal = globalRank===1?'🥇':globalRank===2?'🥈':globalRank===3?'🥉':'';
+    var rankColor = globalRank===1?'var(--orange)':globalRank===2?'#C0C0C0':globalRank===3?'#CD7F32':'var(--muted)';
+    var pct = (row.count / totalScanned * 100).toFixed(2);
+    var barW = Math.round(row.count / lbMaxCount * 100);
+    var addrShort = row.addr.slice(0,10) + '…' + row.addr.slice(-6);
+    var preview = row.blocks.slice(0,10).map(function(b){ return b+'.bmp'; }).join('  ');
+    if (row.blocks.length > 10) preview += '  +' + (row.blocks.length-10) + ' more';
+
+    return '<tr>'
+      + '<td class="lb-rank" style="color:'+rankColor+'">'+(medal||'#'+globalRank)+'</td>'
+      + '<td class="addr-cell"><a href="https://ordinals.com/address/'+row.addr+'" target="_blank" rel="noopener" style="color:#61AFEF;text-decoration:none;">'+addrShort+'</a></td>'
+      + '<td><span style="font-family:\'Orbitron\',sans-serif;font-size:0.9rem;font-weight:700;color:#98C379;">'+row.count.toLocaleString()+'</span>'
+      + '<div class="lb-bar-wrap"><div class="lb-bar" style="width:'+barW+'%"></div></div></td>'
+      + '<td style="color:var(--muted);font-size:0.72rem;">'+pct+'%</td>'
+      + '<td style="color:var(--muted);font-size:0.65rem;max-width:280px;overflow:hidden;text-overflow:ellipsis;">'+preview+'</td>'
+      + '</tr>';
+  }).join('');
+
+  // Pagination
+  var pag = '';
+  if (total > 1) {
+    pag += '<button class="filter-pill'+(lbPage===1?' active':'')+'" onclick="lbGoPage('+(Math.max(1,lbPage-1))+')" '+(lbPage===1?'disabled':'')+'>‹</button>';
+    for (var p = Math.max(1,lbPage-2); p <= Math.min(total,lbPage+2); p++) {
+      pag += '<button class="filter-pill'+(p===lbPage?' active':'')+'" onclick="lbGoPage('+p+')">'+p+'</button>';
+    }
+    pag += '<button class="filter-pill" onclick="lbGoPage('+(Math.min(total,lbPage+1))+')" '+(lbPage===total?'disabled':'')+'>›</button>';
+    pag += '<span style="font-size:0.65rem;color:var(--muted);margin-left:0.5rem;">Page '+lbPage+' of '+total+'</span>';
+  }
+  document.getElementById('lb-pagination').innerHTML = pag;
+}
+
+function lbGoPage(p) { lbPage = p; renderLB(); }
+
+function exportLBCSV() {
+  if (lbData.length === 0) { alert('No leaderboard data yet.'); return; }
+  var rows = [['rank','address','bitmaps_held','bitmap_numbers']];
+  lbData.forEach(function(row, i) {
+    rows.push([i+1, row.addr, row.count, '"'+row.blocks.join(',')+'"']);
+  });
+  var csv = rows.map(function(r){return r.join(',');}).join('\n');
+  var a = document.createElement('a');
+  a.href = 'data:text/csv,' + encodeURIComponent(csv);
+  a.download = '4digit-bitmap-leaderboard.csv';
+  a.click();
+}
+</script>
+</body>
+</html>
